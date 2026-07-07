@@ -1,0 +1,133 @@
+@import 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Variables ─────────────────────────────────────────────────────── */
+:root {
+  --brand-primary: #6C1D5F;
+  --brand-primary-dark: #4A1E47;
+  --brand-secondary: #84117C;
+  --brand-success: #01AC9F;
+  --brand-cta: #01AC9F;
+  --brand-border: #E5E7EB;
+  --brand-surface: #F7F8FC;
+  --brand-background: #FFFFFF;
+  --text-primary: #1A1A2E;
+  --text-secondary: #6B7280;
+  --accent-teal: #01AC9F;
+  --accent-teal-dark: #0B7F76;
+  --accent-orange: #FF6200;
+  --accent-purple: #84117C;
+  --accent-pink: #DB2777;
+  --accent-plum: #6C1D5F;
+}
+
+.dark {
+  --brand-border: #334155;
+  --brand-surface: #111827;
+  --brand-background: #0B1120;
+  --card-background: #1E293B;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background-color: var(--brand-surface);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark body {
+  background-color: #0b1120;
+  color: #f8fafc;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #6C1D5F44;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6C1D5F88;
+}
+
+/* ─── Focus ─────────────────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+input, input:focus, input:focus-visible,
+textarea, textarea:focus, textarea:focus-visible,
+select, select:focus, select:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ─── Shimmer Skeleton ──────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #1e293b 25%, #273548 50%, #1e293b 75%);
+  background-size: 200% 100%;
+}
+
+/* ─── Upload Drop Zone ──────────────────────────────────────────────────── */
+.drop-zone {
+  border: 2px dashed var(--brand-border);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+.drop-zone:hover, .drop-zone.dragging {
+  border-color: var(--brand-primary);
+  background-color: #6C1D5F0D;
+}
+
+/* ─── Sidebar Transition ────────────────────────────────────────────────── */
+.sidebar-transition {
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+/* ─── Card Hover ────────────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(108, 29, 95, 0.12);
+}
+.dark .card-hover:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ─── Progress Bar ──────────────────────────────────────────────────────── */
+.progress-bar {
+  transition: width 0.4s ease;
+}
+
+/* ─── Table ─────────────────────────────────────────────────────────────── */
+.table-row-hover:hover {
+  background-color: #6C1D5F08;
+}
+.dark .table-row-hover:hover {
+  background-color: #ffffff08;
+}

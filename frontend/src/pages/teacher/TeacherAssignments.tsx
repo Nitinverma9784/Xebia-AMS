@@ -37,8 +37,13 @@ export const TeacherAssignments: React.FC = () => {
       if (subjectFilter) params.subject = subjectFilter;
       if (statusFilter) params.status = statusFilter;
       const res = await teacherService.getAssignments(params);
-      setAssignments(res.assignments);
-      setPagination(res.pagination);
+      const standardList = res.assignments.filter((a: Assignment) => a.assignmentType !== 'QUIZ');
+      setAssignments(standardList);
+      setPagination({
+        ...res.pagination,
+        total: standardList.length,
+        totalPages: Math.ceil(standardList.length / 10)
+      });
     } catch {
       toast.error('Failed to load assignments.');
     } finally {
@@ -141,7 +146,12 @@ export const TeacherAssignments: React.FC = () => {
                         <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
                           <FileText size={13} className="text-[#6C1D5F] dark:text-purple-400" />
                         </div>
-                        <span className="text-sm font-medium text-[var(--text-primary)] max-w-[160px] truncate">{a.title}</span>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-medium text-[var(--text-primary)] max-w-[160px] truncate">{a.title}</span>
+                          {a.assignmentType === 'QUIZ' && (
+                            <span className="self-start text-[9px] uppercase font-black text-[#6C1D5F] dark:text-purple-400 bg-purple-50 dark:bg-purple-950/20 px-1 rounded mt-0.5">Quiz</span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3.5">

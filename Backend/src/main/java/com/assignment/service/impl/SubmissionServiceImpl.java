@@ -46,6 +46,8 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final RedisService redisService;
     private final SubmissionMapper submissionMapper;
     private final UserMapper userMapper;
+    private final com.assignment.repository.QuestionRepository questionRepository;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     private Student getStudent(String email) {
         Student student = studentRepository.findByEmail(email)
@@ -65,9 +67,9 @@ public class SubmissionServiceImpl implements SubmissionService {
         return teacher;
     }
 
-    private void rebuildAssignmentStatusCache(Long assignmentId) {
+    private AssignmentStatusResponse rebuildAssignmentStatusCache(Long assignmentId) {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
-        if (assignment == null) return;
+        if (assignment == null) return null;
 
         List<Student> students = studentRepository.findByBatchId(assignment.getBatch().getId());
         List<Long> allStudentIds = students.stream().map(Student::getId).toList();
@@ -96,6 +98,7 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .build();
 
         redisService.saveAssignmentStatus(assignmentId, cache);
+        return cache;
     }
 
     @Override
@@ -117,6 +120,75 @@ public class SubmissionServiceImpl implements SubmissionService {
             if (!assignment.getLateSubmissionAllowed()) {
                 throw new BadRequestException("Late submissions are not allowed for this assignment");
             }
+        }
+
+        // If it's a QUIZ assignment, evaluate it immediately
+        if (assignment.getAssignmentType() == com.assignment.enums.AssignmentType.QUIZ) {
+            if (request.getQuizAnswersJson() == null || request.getQuizAnswersJson().isBlank()) {
+                throw new BadRequestException("Quiz answers are required");
+            }
+            
+            double totalScore = 0.0;
+            try {
+                // Parse student answers
+                List<java.util.Map<String, Object>> studentAnswers = objectMapper.readValue(
+                        request.getQuizAnswersJson(),
+                        new com.fasterxml.jackson.core.type.TypeReference<List<java.util.Map<String, Object>>>() {}
+                );
+                
+                // Fetch all questions
+                List<com.assignment.entity.Question> questions = questionRepository.findByAssignmentId(assignmentId);
+                java.util.Map<Long, com.assignment.entity.Question> questionMap = new java.util.HashMap<>();
+                for (com.assignment.entity.Question q : questions) {
+                    questionMap.put(q.getId(), q);
+                }
+                
+                for (java.util.Map<String, Object> ans : studentAnswers) {
+                    Number qIdNum = (Number) ans.get("questionId");
+                    if (qIdNum == null) continue;
+                    Long qId = qIdNum.longValue();
+                    String selectedOption = (String) ans.get("selectedOption");
+                    if (selectedOption == null) selectedOption = "";
+                    
+                    com.assignment.entity.Question q = questionMap.get(qId);
+                    if (q != null && q.getCorrectAnswer().trim().equalsIgnoreCase(selectedOption.trim())) {
+                        totalScore += q.getMarks();
+                    }
+                }
+            } catch (Exception e) {
+                throw new BadRequestException("Failed to evaluate quiz submission: " + e.getMessage());
+            }
+
+            Optional<Submission> existingSub = submissionRepository.findByAssignmentIdAndStudentId(assignmentId, student.getId());
+            Submission submission;
+            if (existingSub.isPresent()) {
+                submission = existingSub.get();
+                submission.setSubmissionUrl("QUIZ_SUBMISSION");
+                submission.setQuizAnswers(request.getQuizAnswersJson());
+                submission.setComment(request.getComment());
+                submission.setSubmittedAt(LocalDateTime.now());
+                submission.setReviewedAt(LocalDateTime.now());
+                submission.setMarks(totalScore);
+                submission.setFeedback("Auto-graded Quiz");
+                submission.setStatus(SubmissionStatus.REVIEWED);
+            } else {
+                submission = Submission.builder()
+                        .assignment(assignment)
+                        .student(student)
+                        .submissionUrl("QUIZ_SUBMISSION")
+                        .quizAnswers(request.getQuizAnswersJson())
+                        .comment(request.getComment())
+                        .submittedAt(LocalDateTime.now())
+                        .reviewedAt(LocalDateTime.now())
+                        .marks(totalScore)
+                        .feedback("Auto-graded Quiz")
+                        .status(SubmissionStatus.REVIEWED)
+                        .build();
+            }
+            
+            Submission savedSubmission = submissionRepository.save(submission);
+            rebuildAssignmentStatusCache(assignmentId);
+            return submissionMapper.toResponse(savedSubmission);
         }
 
         // File upload
@@ -165,19 +237,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         Assignment assignment = assignmentRepository.findByIdAndTeacherId(assignmentId, teacher.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
 
-        // Read from Redis to quickly get student ids
-        AssignmentStatusResponse cache = redisService.getAssignmentStatus(assignmentId);
-        if (cache == null) {
-            rebuildAssignmentStatusCache(assignmentId);
-            cache = redisService.getAssignmentStatus(assignmentId);
-        }
-
-        List<Long> studentIds = cache.getSubmittedStudentIds();
-        // Retrieve submission records for those student IDs
-        List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId).stream()
-                .filter(sub -> studentIds.contains(sub.getStudent().getId()))
-                .toList();
-
+        List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId);
         return submissionMapper.toResponseList(submissions);
     }
 
@@ -188,15 +248,14 @@ public class SubmissionServiceImpl implements SubmissionService {
         Assignment assignment = assignmentRepository.findByIdAndTeacherId(assignmentId, teacher.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
 
-        // Read from Redis to quickly get pending student ids
-        AssignmentStatusResponse cache = redisService.getAssignmentStatus(assignmentId);
-        if (cache == null) {
-            rebuildAssignmentStatusCache(assignmentId);
-            cache = redisService.getAssignmentStatus(assignmentId);
-        }
+        List<Student> allStudents = studentRepository.findByBatchId(assignment.getBatch().getId());
+        List<Long> submittedStudentIds = submissionRepository.findByAssignmentId(assignmentId).stream()
+                .map(sub -> sub.getStudent().getId())
+                .toList();
 
-        List<Long> pendingStudentIds = cache.getPendingStudentIds();
-        List<Student> pendingStudents = studentRepository.findAllById(pendingStudentIds);
+        List<Student> pendingStudents = allStudents.stream()
+                .filter(student -> !submittedStudentIds.contains(student.getId()))
+                .toList();
 
         return userMapper.toStudentResponseList(pendingStudents);
     }

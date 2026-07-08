@@ -140,4 +140,41 @@ public class AuthServiceImpl implements AuthService {
                         .build())
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    @Override
+    @Transactional
+    public AuthResponse updateProfile(String email, String newName) {
+        var teacherOpt = teacherRepository.findByEmail(email);
+        if (teacherOpt.isPresent()) {
+            Teacher teacher = teacherOpt.get();
+            teacher.setFullName(newName);
+            teacherRepository.save(teacher);
+            
+            var userDetails = userDetailsService.loadUserByUsername(email);
+            String token = jwtService.generateToken(userDetails);
+            return AuthResponse.builder()
+                    .token(token)
+                    .email(email)
+                    .fullName(teacher.getFullName())
+                    .role(Role.TEACHER)
+                    .build();
+        } else {
+            var studentOpt = studentRepository.findByEmail(email);
+            if (studentOpt.isPresent()) {
+                Student student = studentOpt.get();
+                student.setFullName(newName);
+                studentRepository.save(student);
+                
+                var userDetails = userDetailsService.loadUserByUsername(email);
+                String token = jwtService.generateToken(userDetails);
+                return AuthResponse.builder()
+                        .token(token)
+                        .email(email)
+                        .fullName(student.getFullName())
+                        .role(Role.STUDENT)
+                        .build();
+            }
+        }
+        throw new com.assignment.exception.ResourceNotFoundException("User profile not found");
+    }
 }

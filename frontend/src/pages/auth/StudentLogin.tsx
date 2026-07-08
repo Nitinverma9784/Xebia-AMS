@@ -55,10 +55,8 @@ export const StudentLogin: React.FC = () => {
 
   // Fetch batches when registering
   useEffect(() => {
-    if (isRegister) {
-      dispatch(getPublicBatches());
-    }
-  }, [isRegister, dispatch]);
+    dispatch(getPublicBatches());
+  }, [dispatch]);
 
   // Sync selectedBatchName when watchBatchId or batchList changes
   useEffect(() => {
@@ -80,6 +78,38 @@ export const StudentLogin: React.FC = () => {
       navigate('/student/assignments');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Login failed. Please try again.');
+    }
+  };
+
+  const onDirectLogin = async () => {
+    try {
+      const res = await authService.studentLogin({
+        email: 'student@school.edu',
+        password: 'password'
+      });
+      login(res.user, res.token);
+      toast.success(`Welcome back, ${res.user.name}!`);
+      navigate('/student/assignments');
+    } catch (err: any) {
+      // Auto-register default account if it doesn't exist
+      try {
+        let batchId = 1;
+        if (batchList && batchList.length > 0) {
+          batchId = batchList[0].id;
+        }
+        const regRes = await authService.studentRegister({
+          name: 'Student User',
+          email: 'student@school.edu',
+          enrollmentNumber: 'ENR-DEMO-001',
+          batchId: batchId,
+          password: 'password'
+        });
+        login(regRes.user, regRes.token);
+        toast.success('Direct login student account created and authenticated!');
+        navigate('/student/assignments');
+      } catch (regErr: any) {
+        toast.error('Direct login failed.');
+      }
     }
   };
 
@@ -312,6 +342,15 @@ export const StudentLogin: React.FC = () => {
                 loading={loginForm.formState.isSubmitting}
               >
                 Sign In
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full border-[#01AC9F] text-[#01AC9F] hover:bg-[#01AC9F]/5 mt-2"
+                onClick={onDirectLogin}
+              >
+                Quick Direct Login (Demo)
               </Button>
             </form>
           )}

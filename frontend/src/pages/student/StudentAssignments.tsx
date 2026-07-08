@@ -44,8 +44,13 @@ export const StudentAssignments: React.FC = () => {
       if (subjectFilter) params.subject = subjectFilter;
       if (statusFilter) params.status = statusFilter;
       const res = await studentService.getAssignments(params);
-      setAssignments(res.assignments);
-      setPagination(res.pagination);
+      const filtered = (res.assignments || []).filter((a: Assignment) => a.assignmentType !== 'QUIZ');
+      setAssignments(filtered);
+      setPagination({
+        ...res.pagination,
+        total: filtered.length,
+        totalPages: Math.ceil(filtered.length / 10)
+      });
     } catch {
       // silent fail
     } finally {
@@ -150,9 +155,14 @@ export const StudentAssignments: React.FC = () => {
                           <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
                             <FileText size={13} className="text-[#6C1D5F] dark:text-purple-400" />
                           </div>
-                          <div>
+                          <div className="flex flex-col min-w-0">
                             <span className="text-sm font-medium text-[var(--text-primary)] max-w-[180px] truncate block">{a.title}</span>
-                            {a.topic && <span className="text-[10px] text-[#01AC9F] font-semibold">{a.topic}</span>}
+                            <div className="flex gap-1.5 items-center mt-0.5">
+                              {a.assignmentType === 'QUIZ' && (
+                                <span className="text-[9px] uppercase font-black text-[#6C1D5F] dark:text-purple-400 bg-purple-50 dark:bg-purple-950/20 px-1 rounded">Quiz</span>
+                              )}
+                              {a.topic && <span className="text-[10px] text-[#01AC9F] font-semibold">{a.topic}</span>}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -226,9 +236,14 @@ export const StudentAssignments: React.FC = () => {
                     className="bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] rounded-2xl p-5 card-hover group cursor-pointer flex flex-col"
                   >
                     <div className="flex items-start justify-between gap-2 mb-3">
-                      <h3 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 flex-1 group-hover:text-[#6C1D5F] dark:group-hover:text-purple-300 transition-colors">
-                        {a.title}
-                      </h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 group-hover:text-[#6C1D5F] dark:group-hover:text-purple-300 transition-colors">
+                          {a.title}
+                        </h3>
+                        {a.assignmentType === 'QUIZ' && (
+                          <span className="inline-block text-[9px] uppercase font-black text-[#6C1D5F] dark:text-purple-400 bg-purple-50 dark:bg-purple-950/20 px-1 rounded mt-1">Quiz</span>
+                        )}
+                      </div>
                       <Badge variant={getStatusBadgeVariant(a)} />
                     </div>
 

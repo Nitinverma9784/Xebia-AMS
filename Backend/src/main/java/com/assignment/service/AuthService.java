@@ -10,4 +10,5 @@ public interface AuthService {
     AuthResponse registerStudent(StudentRegisterRequest request);
     AuthResponse login(LoginRequest request);
     java.util.List<com.assignment.dto.response.BatchResponse> getPublicBatches();
+    AuthResponse updateProfile(String email, String newName);
 }

@@ -1,18 +1,19 @@
 import React from 'react';
-import { FileText, Search, Inbox } from 'lucide-react';
+import { FileText, Search, Inbox, HelpCircle, type LucideIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 interface EmptyStateProps {
-  icon?: 'file' | 'search' | 'inbox';
+  icon?: 'file' | 'search' | 'inbox' | 'help-circle' | string;
   title: string;
   description?: string;
   action?: { label: string; onClick: () => void };
 }
 
-const icons = {
+const icons: Record<string, LucideIcon> = {
   file: FileText,
   search: Search,
   inbox: Inbox,
+  'help-circle': HelpCircle,
 };
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -21,7 +22,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   description,
   action,
 }) => {
-  const Icon = icons[icon];
+  const Icon = icons[icon] || FileText;
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">

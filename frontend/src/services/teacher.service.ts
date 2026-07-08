@@ -37,12 +37,14 @@ const mapSubmission = (s: any, assignmentMaxMarks: number = 100): Submission => 
     submittedAt: s.submittedAt,
     marks: s.marks,
     feedback: s.feedback,
+    quizAnswers: s.quizAnswers,
     status: s.status === 'REVIEWED' ? 'reviewed' : 'submitted',
     student: {
       id: String(s.studentId),
       name: s.studentName || 'Student',
       email: s.studentEmail || '',
       enrollmentNumber: s.studentEnrollment || 'ENR-' + s.studentId,
+      batchName: s.studentBatchName || 'General Class',
     },
     assignment: {
       id: String(s.assignmentId),
@@ -52,73 +54,67 @@ const mapSubmission = (s: any, assignmentMaxMarks: number = 100): Submission => 
   };
 };
 
-export const teacherService = {
-  // Dashboard
-  getDashboardStats: async () => {
-    const res = await api.get('/teacher/dashboard');
-    const dbData = res.data.data;
+const getDashboardStats = async () => {
+  const res = await api.get('/teacher/dashboard');
+  const dbData = res.data.data;
+  
+  let submittedCount = 0;
+  let pendingCount = 0;
+
+  try {
+    const assignmentsRes = await api.get('/teacher/assignments', { params: { page: '0', size: '100' } });
+    const assignments = assignmentsRes.data.data || [];
     
-    let submittedCount = 0;
-    let pendingCount = 0;
-    try {
-      const assignmentsRes = await api.get('/teacher/assignments', { params: { page: '0', size: '100' } });
-      const assignments = assignmentsRes.data.data || [];
-      
-      const submissionPromises = assignments.map(async (assignment: any) => {
-        try {
-          const subRes = await api.get(`/teacher/assignments/${assignment.id}/submitted`);
-          const submissions = subRes.data.data || [];
-          const submittedSubmissions = submissions.length;
-          
-          const pendingReview = submissions.filter((s: any) => s.status === 'SUBMITTED').length;
-          return { submittedSubmissions, pendingReview };
-        } catch {
-          return { submittedSubmissions: 0, pendingReview: 0 };
-        }
-      });
-      
-      const results = await Promise.all(submissionPromises);
-      results.forEach(r => {
-        submittedCount += r.submittedSubmissions;
-        pendingCount += r.pendingReview;
-      });
-    } catch (e) {
-      console.error("Error calculating submissions count", e);
-    }
-    
-    return {
-      stats: {
-        totalAssignments: dbData.totalAssignments,
-        activeAssignments: dbData.activeAssignments,
-        submittedAssignments: submittedCount,
-        pendingAssignments: pendingCount,
-        totalStudents: dbData.totalStudents,
+    const submissionPromises = assignments.map(async (assignment: any) => {
+      try {
+        const subRes = await api.get(`/teacher/assignments/${assignment.id}/submitted`);
+        const submissions = subRes.data.data || [];
+        const submittedSubmissions = submissions.length;
+        
+        const pendingReview = submissions.filter((s: any) => s.status === 'SUBMITTED').length;
+        return { submittedSubmissions, pendingReview };
+      } catch {
+        return { submittedSubmissions: 0, pendingReview: 0 };
       }
-    };
+    });
+    
+    const results = await Promise.all(submissionPromises);
+    results.forEach(r => {
+      submittedCount += r.submittedSubmissions;
+      pendingCount += r.pendingReview;
+    });
+  } catch (e) {
+    console.error("Error calculating submissions count", e);
+  }
+  
+  return {
+    stats: {
+      totalAssignments: dbData.totalAssignments,
+      activeAssignments: dbData.activeAssignments,
+      submittedAssignments: submittedCount,
+      pendingAssignments: pendingCount,
+      totalStudents: dbData.totalStudents,
+    }
+  };
+};
+
+// Assignments
+export const teacherService = {
+  getDashboardStats: async () => {
+    return await getDashboardStats();
   },
 
-  // Assignments
   getAssignments: async (params?: Record<string, string>) => {
-    const res = await api.get('/teacher/assignments', { params: { page: '0', size: '1000' } });
+    const backendPage = params?.page ? String(Math.max(0, Number(params.page) - 1)) : '0';
+    const query = {
+      ...params,
+      page: backendPage,
+      size: params?.limit ?? params?.size ?? '10',
+    };
+    const res = await api.get('/teacher/assignments', { params: query });
     const rawAssignments = res.data.data || [];
 
-    const mappedPromises = rawAssignments.map(async (a: any) => {
-      let submittedCount = 0;
-      let pendingCount = 0;
-      let totalStudents = 0;
-
-      try {
-        const [subRes, pendingRes] = await Promise.all([
-          api.get(`/teacher/assignments/${a.id}/submitted`),
-          api.get(`/teacher/assignments/${a.id}/pending`),
-        ]);
-        submittedCount = (subRes.data.data || []).length;
-        pendingCount = (pendingRes.data.data || []).length;
-        totalStudents = submittedCount + pendingCount;
-      } catch (e) {
-        console.error("Error fetching stats for assignment", a.id, e);
-      }
-
+    let mapped = rawAssignments.map((a: any) => {
       let attachmentName = a.resourceUrl ? a.resourceUrl.substring(a.resourceUrl.lastIndexOf('/') + 1) : undefined;
       if (attachmentName) {
         try {
@@ -141,19 +137,19 @@ export const teacherService = {
         maxMarks: a.totalMarks || 100,
         attachment: a.resourceUrl || undefined,
         attachmentName: attachmentName,
-        status: a.status === 'ACTIVE' ? 'published' : 'draft',
+        status: a.status === 'DRAFT' ? 'draft' : 'published',
+        assignmentType: a.assignmentType || 'PDF',
         teacherId: String(a.teacherId || ''),
         createdAt: a.createdAt || '',
         updatedAt: a.updatedAt || '',
         batchId: String(a.batchId || ''),
         batchName: a.batchName || '',
-        totalStudents,
-        submittedCount,
-        pendingCount,
+        totalStudents: a.totalStudents || 0,
+        submittedCount: a.submittedCount || 0,
+        pendingCount: a.pendingCount || 0,
+        submissionPercentage: a.submissionPercentage || 0,
       };
     });
-
-    let mapped = await Promise.all(mappedPromises);
 
     if (params?.search) {
       const searchLower = params.search.toLowerCase();
@@ -220,11 +216,13 @@ export const teacherService = {
       attachment: a.resourceUrl || undefined,
       attachmentName: attachmentName,
       status: a.status === 'ACTIVE' ? 'published' : 'draft',
+      assignmentType: a.assignmentType || 'PDF',
       teacherId: String(a.teacherId || ''),
       createdAt: a.createdAt || '',
       updatedAt: a.updatedAt || '',
       batchId: String(a.batchId || ''),
       batchName: a.batchName || '',
+      questions: a.questions || [],
     };
   },
 
@@ -238,12 +236,16 @@ export const teacherService = {
     formData.append('batchId', String(data.batchId));
     formData.append('totalMarks', String(data.maxMarks));
     
-    const passingMarks = Math.round(data.maxMarks * 0.4);
+    const passingMarks = data.passingMarks !== undefined ? data.passingMarks : Math.round(data.maxMarks * 0.4);
     formData.append('passingMarks', String(passingMarks));
     
     formData.append('dueDate', data.dueDate);
     formData.append('dueTime', '23:59:00');
-    formData.append('assignmentType', 'PDF');
+    formData.append('assignmentType', data.assignmentType || 'PDF');
+    
+    if (data.questions) {
+      formData.append('questionsJson', JSON.stringify(data.questions));
+    }
     
     if (data.attachment) {
       formData.append('resourceFile', data.attachment);
@@ -253,7 +255,9 @@ export const teacherService = {
     formData.append('maxFileSize', '26214400');
     
     const res = await api.post('/teacher/assignments', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
     return res.data;
   },
@@ -269,6 +273,10 @@ export const teacherService = {
     
     if (data.maxMarks !== undefined) {
       formData.append('totalMarks', String(data.maxMarks));
+    }
+    if (data.passingMarks !== undefined) {
+      formData.append('passingMarks', String(data.passingMarks));
+    } else if (data.maxMarks !== undefined) {
       const passingMarks = Math.round(data.maxMarks * 0.4);
       formData.append('passingMarks', String(passingMarks));
     }
@@ -277,14 +285,22 @@ export const teacherService = {
       formData.append('dueDate', data.dueDate);
     }
     formData.append('dueTime', '23:59:00');
-    formData.append('assignmentType', 'PDF');
+    if (data.assignmentType !== undefined) {
+      formData.append('assignmentType', data.assignmentType);
+    }
+    
+    if (data.questions) {
+      formData.append('questionsJson', JSON.stringify(data.questions));
+    }
     
     if (data.attachment) {
       formData.append('resourceFile', data.attachment);
     }
     
     const res = await api.put(`/teacher/assignments/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
     return res.data;
   },
@@ -294,19 +310,69 @@ export const teacherService = {
     return res.data;
   },
 
+  importExcel: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post('/teacher/assignments/import-excel', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  },
+
+  downloadTemplate: async () => {
+    const res = await api.get('/teacher/assignments/template', {
+      responseType: 'blob',
+    });
+    return res.data;
+  },
+
+  getSubjects: async (params?: { semester?: string; department?: string }) => {
+    const res = await api.get('/teacher/subjects', { params });
+    return res.data;
+  },
+
   // Submissions
   getSubmissions: async (assignmentId: string) => {
-    const [assignmentRes, submissionsRes] = await Promise.all([
+    const [assignmentRes, submissionsRes, pendingRes] = await Promise.all([
       api.get(`/teacher/assignments/${assignmentId}`),
       api.get(`/teacher/assignments/${assignmentId}/submitted`),
+      api.get(`/teacher/assignments/${assignmentId}/pending`),
     ]);
     
     const maxMarks = assignmentRes.data.data?.totalMarks || 100;
     const rawSubmissions = submissionsRes.data.data || [];
+    const rawPending = pendingRes.data.data || [];
     
-    const mapped = rawSubmissions.map((s: any) => mapSubmission(s, maxMarks));
+    const mappedSubmissions = rawSubmissions.map((s: any) => mapSubmission(s, maxMarks));
+    
+    const mappedPending = rawPending.map((p: any): Submission => ({
+      id: `pending-${p.id}`,
+      assignmentId: String(assignmentId),
+      studentId: String(p.id),
+      uploadedFile: '',
+      fileName: '',
+      submittedAt: '',
+      marks: null,
+      feedback: null,
+      status: 'pending' as any,
+      student: {
+        id: String(p.id),
+        name: p.fullName || 'Student',
+        email: p.email || '',
+        enrollmentNumber: p.enrollmentNumber || 'ENR-' + p.id,
+        batchName: p.batchName || 'General Class',
+      },
+      assignment: {
+        id: String(assignmentId),
+        title: assignmentRes.data.data?.title || 'Assignment',
+        maxMarks: maxMarks,
+      }
+    }));
+    
     return {
-      submissions: mapped,
+      submissions: [...mappedSubmissions, ...mappedPending],
     };
   },
 
@@ -326,10 +392,11 @@ export const teacherService = {
   // Profile
   updateProfile: async (data: FormData) => {
     const name = data.get('name') as string;
+    const res = await api.put('/auth/profile/update', null, { params: { name } });
     const userStr = localStorage.getItem('lms_user');
     if (userStr) {
       const user = JSON.parse(userStr);
-      if (name) user.name = name;
+      user.name = res.data.data.fullName;
       localStorage.setItem('lms_user', JSON.stringify(user));
       return { user };
     }

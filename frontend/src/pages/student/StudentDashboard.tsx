@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpen, Clock, CheckCircle, Award, TrendingUp, ArrowRight, Star, FileText } from 'lucide-react';
+import { BookOpen, Clock, CheckCircle, Award, TrendingUp, ArrowRight, Star, FileText, Flame } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
 import { StatCard, Card } from '../../components/ui/Card';
 import { StatCardSkeleton } from '../../components/shared/LoadingSkeleton';
@@ -17,14 +17,104 @@ export const StudentDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
+  // Streak State
+  const [loginStreak, setLoginStreak] = useState(1);
+  const [submissionStreak, setSubmissionStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+
   useEffect(() => {
+    // 1. Calculate Login Streak (from localStorage date checks)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const lastLogin = localStorage.getItem('lms_last_login_date');
+    const savedStreak = localStorage.getItem('lms_login_streak');
+    
+    let currentLoginStreak = 1;
+    if (lastLogin && savedStreak) {
+      const diffTime = new Date(todayStr).getTime() - new Date(lastLogin).getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) {
+        currentLoginStreak = parseInt(savedStreak) + 1;
+      } else if (diffDays === 0) {
+        currentLoginStreak = parseInt(savedStreak);
+      }
+    }
+    localStorage.setItem('lms_last_login_date', todayStr);
+    localStorage.setItem('lms_login_streak', String(currentLoginStreak));
+    setLoginStreak(currentLoginStreak);
+
+    // 2. Fetch stats, assignments, and submissions concurrently
     Promise.all([
       studentService.getDashboardStats(),
-      studentService.getAssignments({ limit: '5' }) // Load recent 5 assignments for the batch
+      studentService.getAssignments({ limit: '5' }),
+      studentService.getSubmissions()
     ])
-      .then(([statsRes, assignmentsRes]) => {
+      .then(([statsRes, assignmentsRes, submissionsRes]) => {
         setStats(statsRes.stats);
         setAssignments(assignmentsRes.assignments || []);
+
+        // Calculate Submission Streak in real-time
+        if (submissionsRes && submissionsRes.length > 0) {
+          const dates = submissionsRes
+            .map((s: any) => {
+              if (!s.submittedAt) return '';
+              return s.submittedAt.split('T')[0];
+            })
+            .filter(Boolean);
+            
+          if (dates.length > 0) {
+            const uniqueDates = Array.from(new Set(dates)).sort((a: any, b: any) => new Date(b).getTime() - new Date(a).getTime());
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            
+            const hasToday = uniqueDates.includes(todayStr);
+            const hasYesterday = uniqueDates.includes(yesterdayStr);
+            
+            let curStreak = 0;
+            if (hasToday || hasYesterday) {
+              let checkDate = hasToday ? new Date() : yesterday;
+              while (true) {
+                const checkStr = checkDate.toISOString().split('T')[0];
+                if (uniqueDates.includes(checkStr)) {
+                  curStreak++;
+                  checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                  break;
+                }
+              }
+            }
+            setSubmissionStreak(curStreak);
+            
+            // Best Streak
+            let best = 0;
+            let temp = 0;
+            const uniqueDatesAsc = [...uniqueDates].reverse();
+            let prevTime: number | null = null;
+            
+            uniqueDatesAsc.forEach((d) => {
+              const curTime = new Date(d).getTime();
+              if (prevTime === null) {
+                temp = 1;
+              } else {
+                const diffDays = Math.round((curTime - prevTime) / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) {
+                  temp++;
+                } else if (diffDays > 1) {
+                  temp = 1;
+                }
+              }
+              prevTime = curTime;
+              if (temp > best) {
+                best = temp;
+              }
+            });
+            setBestStreak(Math.max(best, currentLoginStreak));
+          }
+        } else {
+          setBestStreak(currentLoginStreak);
+        }
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -91,6 +181,33 @@ export const StudentDashboard: React.FC = () => {
         
         {/* Quick Actions */}
         <div className="lg:col-span-1 space-y-6">
+          {/* Daily Streak Card */}
+          <Card className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20 shadow-sm relative overflow-hidden select-none">
+            <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-500/5 rounded-full blur-xl pointer-events-none" />
+            <h3 className="text-sm font-bold text-[var(--text-primary)] mb-3.5 flex items-center gap-2">
+              <Flame size={18} className="text-amber-500 fill-amber-500 animate-pulse" />
+              Daily Study Streak
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-3.5">
+              <div className="p-3 bg-white dark:bg-slate-800/40 rounded-xl border border-[var(--brand-border)] text-center">
+                <span className="text-[9px] uppercase font-bold text-[var(--text-secondary)] tracking-wider block">Login Streak</span>
+                <span className="text-lg font-black text-amber-600 dark:text-amber-400 mt-0.5 block">{loginStreak} Days</span>
+              </div>
+              <div className="p-3 bg-white dark:bg-slate-800/40 rounded-xl border border-[var(--brand-border)] text-center">
+                <span className="text-[9px] uppercase font-bold text-[var(--text-secondary)] tracking-wider block">Submits Streak</span>
+                <span className="text-lg font-black text-orange-600 dark:text-orange-400 mt-0.5 block">{submissionStreak} Days</span>
+              </div>
+            </div>
+
+            <div className="mt-3.5 pt-3 border-t border-[var(--brand-border)] flex justify-between items-center text-xs text-[var(--text-secondary)] font-medium">
+              <span>All-time Best Streak:</span>
+              <span className="font-bold text-amber-500 flex items-center gap-1">
+                <Flame size={12} className="fill-amber-500" /> {bestStreak} days
+              </span>
+            </div>
+          </Card>
+
           <Card>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#01AC9F]" />

@@ -27,6 +27,7 @@ const mapAssignment = (a: any, submissions: any[] = []): Assignment => {
       marks: sub.marks,
       feedback: sub.feedback,
       status: sub.status === 'REVIEWED' ? 'reviewed' : 'submitted',
+      quizAnswers: sub.quizAnswers,
     };
   }
 
@@ -53,6 +54,7 @@ const mapAssignment = (a: any, submissions: any[] = []): Assignment => {
     attachment: a.resourceUrl || undefined,
     attachmentName: attachmentName,
     status: a.status === 'ACTIVE' ? 'published' : 'draft',
+    assignmentType: a.assignmentType || 'PDF',
     teacherId: String(a.teacherId || ''),
     teacher: {
       id: String(a.teacherId || ''),
@@ -62,6 +64,7 @@ const mapAssignment = (a: any, submissions: any[] = []): Assignment => {
     updatedAt: a.updatedAt || '',
     submissionStatus,
     submission: submissionObj,
+    questions: a.questions || [],
   };
 };
 
@@ -226,6 +229,11 @@ export const studentService = {
     };
   },
 
+  getSubmissions: async () => {
+    const res = await api.get('/student/submissions', { params: { page: '0', size: '1000' } });
+    return res.data.data || [];
+  },
+
   // Assignments
   getAssignments: async (params?: Record<string, string>) => {
     const [assignmentsRes, submissionsRes] = await Promise.all([
@@ -291,11 +299,17 @@ export const studentService = {
   },
 
   // Submissions
-  submitAssignment: async (assignmentId: string, file: File, onProgress?: (pct: number) => void) => {
+  submitAssignment: async (assignmentId: string, payload: File | { quizAnswersJson: string }, onProgress?: (pct: number) => void) => {
     const formData = new FormData();
-    formData.append('file', file);
+    if (payload instanceof File) {
+      formData.append('file', payload);
+    } else {
+      formData.append('quizAnswersJson', payload.quizAnswersJson);
+    }
     const res = await api.post(`/student/assignments/${assignmentId}/submit`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
       onUploadProgress: (e) => {
         if (onProgress && e.total) {
           onProgress(Math.round((e.loaded * 100) / e.total));
@@ -313,10 +327,11 @@ export const studentService = {
   // Profile
   updateProfile: async (data: FormData) => {
     const name = data.get('name') as string;
+    const res = await api.put('/auth/profile/update', null, { params: { name } });
     const userStr = localStorage.getItem('lms_user');
     if (userStr) {
       const user = JSON.parse(userStr);
-      if (name) user.name = name;
+      user.name = res.data.data.fullName;
       localStorage.setItem('lms_user', JSON.stringify(user));
       return { user };
     }

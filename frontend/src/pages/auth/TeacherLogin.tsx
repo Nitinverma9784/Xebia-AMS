@@ -46,6 +46,33 @@ export const TeacherLogin: React.FC = () => {
     }
   };
 
+  const onDirectLogin = async () => {
+    try {
+      const res = await authService.teacherLogin({
+        email: 'teacher@school.edu',
+        password: 'password'
+      });
+      login(res.user, res.token);
+      toast.success(`Welcome back, ${res.user.name}!`);
+      navigate('/teacher/dashboard');
+    } catch (err: any) {
+      // Auto-register default account if it doesn't exist
+      try {
+        const regRes = await authService.teacherRegister({
+          name: 'Teacher User',
+          email: 'teacher@school.edu',
+          password: 'password',
+          subject: 'General'
+        });
+        login(regRes.user, regRes.token);
+        toast.success('Direct login account created and authenticated!');
+        navigate('/teacher/dashboard');
+      } catch (regErr: any) {
+        toast.error('Direct login failed.');
+      }
+    }
+  };
+
   const onRegister = async (data: RegisterForm) => {
     try {
       const res = await authService.teacherRegister(data);
@@ -202,6 +229,15 @@ export const TeacherLogin: React.FC = () => {
                 loading={loginForm.formState.isSubmitting}
               >
                 Sign In
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full border-[#6C1D5F] text-[#6C1D5F] hover:bg-[#6C1D5F]/5 mt-2"
+                onClick={onDirectLogin}
+              >
+                Quick Direct Login (Demo)
               </Button>
             </form>
           )}

@@ -14,6 +14,9 @@ public interface SubmissionMapper {
     @Mapping(target = "assignmentTitle", source = "assignment.title")
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "studentName", source = "student.fullName")
+    @Mapping(target = "studentEmail", source = "student.email")
+    @Mapping(target = "studentEnrollment", expression = "java(\"ENR-\" + submission.getStudent().getId())")
+    @Mapping(target = "studentBatchName", source = "student.batch.batchName")
     SubmissionResponse toResponse(Submission submission);
 
     List<SubmissionResponse> toResponseList(List<Submission> submissions);

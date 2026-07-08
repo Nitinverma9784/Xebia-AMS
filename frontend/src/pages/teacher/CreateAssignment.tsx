@@ -1,23 +1,19 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
-import { Upload, X, AlertCircle, ArrowLeft, ChevronDown, Search } from 'lucide-react';
+import { Upload, X, ArrowLeft, ChevronDown, Search } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
 import { Button } from '../../components/ui/Button';
-import { Input, Textarea, Select } from '../../components/ui/Input';
+import { Input, Textarea } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
+import { SubjectSelector } from '../../components/shared/SubjectSelector';
 import { teacherService } from '../../services/teacher.service';
 import { getFileIcon } from '../../utils/helpers';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { getAllBatches } from '../../store/batchSlice';
-
-const SUBJECTS = [
-  'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science',
-  'English', 'History', 'Geography', 'Economics', 'Other',
-].map((s) => ({ value: s, label: s }));
 
 const schema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -37,10 +33,22 @@ export const CreateAssignment: React.FC = () => {
   const isEdit = !!id;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [searchParams] = window.location.search ? new URLSearchParams(window.location.search) as any : useSearchParams();
+  const forcedType = searchParams?.get('type')?.toUpperCase(); // 'PDF' or 'QUIZ'
 
   const { batches } = useAppSelector((state) => state.batch);
-
   const [loading, setLoading] = useState(false);
+  
+  const assignmentType = 'PDF';
+
+  useEffect(() => {
+    if (forcedType === 'QUIZ') {
+      // Quiz creation has moved to the Quizzes panel
+      navigate('/teacher/quizzes?create=1');
+    }
+  }, [forcedType, navigate]);
+  
+  // Standard uploader states
   const [attachment, setAttachment] = useState<File | null>(null);
   const [existingAttachment, setExistingAttachment] = useState<string | null>(null);
   const [existingAttachmentName, setExistingAttachmentName] = useState<string | null>(null);
@@ -52,7 +60,7 @@ export const CreateAssignment: React.FC = () => {
   const [batchOpen, setBatchOpen] = useState(false);
   const [selectedBatchName, setSelectedBatchName] = useState('');
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, reset, control, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { maxMarks: '100', batchId: '' },
   });
@@ -103,6 +111,7 @@ export const CreateAssignment: React.FC = () => {
     }
   }, [watchBatchId, batches]);
 
+  // Standard File drop zone handler
   const handleFile = (file: File) => {
     const allowed = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', 'application/x-zip-compressed', 'image/jpeg', 'image/png'];
     if (!allowed.includes(file.type)) {
@@ -125,6 +134,8 @@ export const CreateAssignment: React.FC = () => {
   }, []);
 
   const onSubmit = async (data: FormData, status: 'draft' | 'published') => {
+    const finalMaxMarks = Number(data.maxMarks);
+
     try {
       if (isEdit && id) {
         await teacherService.updateAssignment(id, {
@@ -134,10 +145,11 @@ export const CreateAssignment: React.FC = () => {
           description: data.description,
           instructions: data.instructions,
           dueDate: data.dueDate,
-          maxMarks: Number(data.maxMarks),
+          maxMarks: finalMaxMarks,
           status,
           batchId: data.batchId,
           attachment: attachment || undefined,
+          assignmentType,
         });
         toast.success('Assignment updated successfully!');
       } else {
@@ -148,10 +160,11 @@ export const CreateAssignment: React.FC = () => {
           description: data.description,
           instructions: data.instructions,
           dueDate: data.dueDate,
-          maxMarks: Number(data.maxMarks),
+          maxMarks: finalMaxMarks,
           status,
           batchId: data.batchId,
           attachment: attachment || undefined,
+          assignmentType,
         });
         toast.success(status === 'published' ? 'Assignment published!' : 'Assignment saved as draft!');
       }
@@ -181,11 +194,13 @@ export const CreateAssignment: React.FC = () => {
     );
   }
 
+  const pageTitle = isEdit ? 'Edit Assignment' : 'Create Assignment';
+
   return (
-    <Layout role="teacher" title={isEdit ? 'Edit Assignment' : 'Create Assignment'} subtitle="Fill in the details below">
+    <Layout role="teacher" title={pageTitle} subtitle="Fill in the details below">
       <div className="max-w-3xl mx-auto">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/teacher/assignments')}
           className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 cursor-pointer transition-colors"
         >
           <ArrowLeft size={16} /> Back to Assignments
@@ -256,7 +271,18 @@ export const CreateAssignment: React.FC = () => {
                 {errors.batchId?.message && <p className="text-xs text-red-500 mt-1">{errors.batchId.message}</p>}
               </div>
 
-              <Select label="Subject" options={SUBJECTS} placeholder="Select a subject" required error={errors.subject?.message} {...register('subject')} />
+              <Controller
+                name="subject"
+                control={control}
+                render={({ field }) => (
+                  <SubjectSelector
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors.subject?.message}
+                    required
+                  />
+                )}
+              />
               <Textarea
                 label="Description"
                 placeholder="Describe what this assignment is about..."
@@ -306,7 +332,7 @@ export const CreateAssignment: React.FC = () => {
             </h3>
 
             {attachment ? (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-purple-500/5 border border-purple-200 dark:border-purple-500/20">
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-[#6C1D5F]/5 border border-[#6C1D5F]/20">
                 <span className="text-2xl">{getFileIcon(attachment.name)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[var(--text-primary)] truncate">{attachment.name}</p>
@@ -343,7 +369,7 @@ export const CreateAssignment: React.FC = () => {
                 onDrop={onDrop}
                 onClick={() => fileRef.current?.click()}
               >
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-2xl bg-[#6C1D5F]/10 flex items-center justify-center mx-auto mb-3">
                   <Upload size={22} className="text-[#6C1D5F] dark:text-purple-400" />
                 </div>
                 <p className="text-sm font-medium text-[var(--text-primary)]">

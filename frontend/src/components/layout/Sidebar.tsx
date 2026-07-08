@@ -11,6 +11,7 @@ import {
   BookOpen,
   TrendingUp,
   Users,
+  HelpCircle,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getInitials } from '../../utils/helpers';
@@ -31,13 +32,15 @@ const teacherNav: NavItem[] = [
   { to: '/teacher/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
   { to: '/teacher/batches', icon: <Users size={18} />, label: 'Batches' },
   { to: '/teacher/assignments', icon: <FileText size={18} />, label: 'Assignments' },
-  { to: '/teacher/submitted', icon: <ClipboardList size={18} />, label: 'Submitted Assignments' },
+  { to: '/teacher/quizzes', icon: <HelpCircle size={18} />, label: 'Quiz' },
+  { to: '/teacher/submitted', icon: <ClipboardList size={18} />, label: 'Submitted' },
   { to: '/teacher/profile', icon: <User size={18} />, label: 'Profile' },
 ];
 
 const studentNav: NavItem[] = [
   { to: '/student/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
   { to: '/student/assignments', icon: <BookOpen size={18} />, label: 'Assignments' },
+  { to: '/student/quizzes', icon: <HelpCircle size={18} />, label: 'Quiz' },
   { to: '/student/progress', icon: <TrendingUp size={18} />, label: 'Learning Progress' },
   { to: '/student/profile', icon: <User size={18} />, label: 'Profile' },
 ];

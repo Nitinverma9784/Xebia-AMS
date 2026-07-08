@@ -11,4 +11,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class StudentSubmitRequest {
     private MultipartFile file;
     private String comment;
+    private String quizAnswersJson;
 }

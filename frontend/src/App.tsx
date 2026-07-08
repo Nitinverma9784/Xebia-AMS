@@ -10,16 +10,21 @@ import { TeacherLogin } from './pages/auth/TeacherLogin';
 import { StudentLogin } from './pages/auth/StudentLogin';
 import { TeacherDashboard } from './pages/teacher/TeacherDashboard';
 import { TeacherAssignments } from './pages/teacher/TeacherAssignments';
+import { TeacherQuizzes } from './pages/teacher/TeacherQuizzes';
 import { CreateAssignment } from './pages/teacher/CreateAssignment';
 import { SubmittedAssignments } from './pages/teacher/SubmittedAssignments';
 import { TeacherProfile } from './pages/teacher/TeacherProfile';
 import { BatchManagement } from './pages/teacher/BatchManagement';
+import { CourseCatalog } from './pages/teacher/CourseCatalog';
 
 import { StudentDashboard } from './pages/student/StudentDashboard';
 import { StudentAssignments } from './pages/student/StudentAssignments';
 import { AssignmentDetail } from './pages/student/AssignmentDetail';
 import { LearningProgress } from './pages/student/LearningProgress';
 import { StudentProfile } from './pages/student/StudentProfile';
+import { StudentQuizzes } from './pages/student/StudentQuizzes';
+import { QuizAttempt } from './pages/student/QuizAttempt';
+import { QuizReview } from './pages/student/QuizReview';
 
 function App() {
   return (
@@ -50,6 +55,10 @@ function App() {
               element={<ProtectedRoute role="teacher"><TeacherAssignments /></ProtectedRoute>}
             />
             <Route
+              path="/teacher/quizzes"
+              element={<ProtectedRoute role="teacher"><TeacherQuizzes /></ProtectedRoute>}
+            />
+            <Route
               path="/teacher/assignments/create"
               element={<ProtectedRoute role="teacher"><CreateAssignment /></ProtectedRoute>}
             />
@@ -64,6 +73,10 @@ function App() {
             <Route
               path="/teacher/profile"
               element={<ProtectedRoute role="teacher"><TeacherProfile /></ProtectedRoute>}
+            />
+            <Route
+              path="/teacher/catalog"
+              element={<ProtectedRoute role="teacher"><CourseCatalog /></ProtectedRoute>}
             />
 
             {/* Student Auth */}
@@ -84,6 +97,18 @@ function App() {
             <Route
               path="/student/assignments/:id"
               element={<ProtectedRoute role="student"><AssignmentDetail /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/quizzes"
+              element={<ProtectedRoute role="student"><StudentQuizzes /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/quizzes/:id/attempt"
+              element={<ProtectedRoute role="student"><QuizAttempt /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/quizzes/:id/review"
+              element={<ProtectedRoute role="student"><QuizReview /></ProtectedRoute>}
             />
             <Route
               path="/student/progress"

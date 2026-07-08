@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-07-06T21:30:59+0530",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.40.0.v20241112-0530, environment: Java 21.0.5 (Eclipse Adoptium)"
+    date = "2026-07-08T12:35:58+0530",
+    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.40.0.v20241112-0530, environment: Java 21.0.5 (Eclipse Adoptium)"
 )
 @Component
 public class BatchMapperImpl implements BatchMapper {
@@ -52,32 +52,18 @@ public class BatchMapperImpl implements BatchMapper {
     }
 
     private Long batchTeacherId(Batch batch) {
-        if ( batch == null ) {
-            return null;
-        }
         Teacher teacher = batch.getTeacher();
         if ( teacher == null ) {
             return null;
         }
-        Long id = teacher.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
+        return teacher.getId();
     }
 
     private String batchTeacherFullName(Batch batch) {
-        if ( batch == null ) {
-            return null;
-        }
         Teacher teacher = batch.getTeacher();
         if ( teacher == null ) {
             return null;
         }
-        String fullName = teacher.getFullName();
-        if ( fullName == null ) {
-            return null;
-        }
-        return fullName;
+        return teacher.getFullName();
     }
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
-  Plus, Search, Eye, Edit, Trash2, HelpCircle, Upload, 
+  Plus, Search, Eye, Edit, Trash2, HelpCircle, Upload, X,
   ArrowLeft, ArrowUp, ArrowDown, Copy, Settings, Check, 
   AlertTriangle, FileSpreadsheet, Download, RefreshCw 
 } from 'lucide-react';
@@ -75,6 +75,12 @@ export const TeacherQuizzes: React.FC = () => {
   const [isExcelDragging, setIsExcelDragging] = useState(false);
   const excelRef = useRef<HTMLInputElement>(null);
 
+  // Quiz Questions Excel File Upload states
+  const [quizExcelFile, setQuizExcelFile] = useState<File | null>(null);
+  const [existingQuizExcelUrl, setExistingQuizExcelUrl] = useState<string | null>(null);
+  const [existingQuizExcelName, setExistingQuizExcelName] = useState<string | null>(null);
+  const excelUploadRef = useRef<HTMLInputElement>(null);
+
   // Redux Batches
   const { batches } = useAppSelector((s) => s.batch);
 
@@ -144,6 +150,9 @@ export const TeacherQuizzes: React.FC = () => {
     setActiveBuilderIndex(null);
     setActiveCreatorTab('manual');
     setShowCreateModal(true);
+    setQuizExcelFile(null);
+    setExistingQuizExcelUrl(null);
+    setExistingQuizExcelName(null);
   };
 
   const handleOpenEditModal = async (quizItem: Assignment) => {
@@ -217,6 +226,14 @@ export const TeacherQuizzes: React.FC = () => {
       setActiveBuilderQuestion(null);
       setActiveBuilderIndex(null);
       setActiveCreatorTab('manual');
+      if (q.attachment) {
+        setExistingQuizExcelUrl(q.attachment);
+        setExistingQuizExcelName(q.attachmentName || 'quiz_questions.xlsx');
+      } else {
+        setExistingQuizExcelUrl(null);
+        setExistingQuizExcelName(null);
+      }
+      setQuizExcelFile(null);
       setShowCreateModal(true);
     } catch {
       toast.error('Failed to load quiz details.');
@@ -472,6 +489,7 @@ export const TeacherQuizzes: React.FC = () => {
       lateSubmissionAllowed: false,
       maxFileSize: 10485760,
       questions: questionsPayload,
+      attachment: quizExcelFile || undefined,
       status: status === 'published' ? 'published' : 'draft'
     };
 
@@ -617,6 +635,18 @@ export const TeacherQuizzes: React.FC = () => {
                         >
                           <Eye size={15} />
                         </Link>
+                        {a.attachment && (
+                          <a
+                            href={a.attachment}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Download Excel Questions File"
+                            className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors"
+                          >
+                            <FileSpreadsheet size={15} />
+                          </a>
+                        )}
                         <button
                           onClick={() => handleOpenEditModal(a)}
                           title="Edit Quiz"
@@ -712,6 +742,70 @@ export const TeacherQuizzes: React.FC = () => {
             </div>
 
             <Textarea label="Instructions" placeholder="Specific instructions for candidates..." rows={2} value={quizInstructions} onChange={(e) => setQuizInstructions(e.target.value)} />
+
+            {/* Quiz Question Excel Upload */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-[var(--text-primary)] block">
+                Upload Excel Questions File (Optional)
+              </label>
+              <input
+                ref={excelUploadRef}
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    const file = e.target.files[0];
+                    const nameLower = file.name.toLowerCase();
+                    if (!nameLower.endsWith('.xlsx') && !nameLower.endsWith('.xls')) {
+                      toast.error('Invalid file type. Please upload an Excel file (.xlsx or .xls).');
+                      return;
+                    }
+                    setQuizExcelFile(file);
+                    setExistingQuizExcelUrl(null);
+                  }
+                }}
+                className="hidden"
+              />
+              {quizExcelFile ? (
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-xs">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium truncate flex-1">
+                    🟢 {quizExcelFile.name} ({(quizExcelFile.size / 1024).toFixed(0)} KB)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuizExcelFile(null)}
+                    className="p-1 rounded text-red-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 cursor-pointer transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : existingQuizExcelUrl ? (
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-teal-500/5 border border-teal-500/20 text-xs">
+                  <span className="text-teal-600 dark:text-teal-400 font-medium truncate flex-1">
+                    📁 {existingQuizExcelName || 'Existing questions template'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExistingQuizExcelUrl(null);
+                      setExistingQuizExcelName(null);
+                    }}
+                    className="p-1 rounded text-red-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 cursor-pointer transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => excelUploadRef.current?.click()}
+                  className="w-full py-2 px-3 border border-dashed border-[var(--brand-border)] hover:border-[#6C1D5F] rounded-xl text-xs text-[var(--text-secondary)] hover:text-[#6C1D5F] flex items-center justify-center gap-1.5 cursor-pointer transition-colors bg-white dark:bg-slate-800"
+                >
+                  <Upload size={14} />
+                  Select Excel File (.xlsx, .xls)
+                </button>
+              )}
+            </div>
 
             {/* Calculations Card */}
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[var(--brand-border)]">

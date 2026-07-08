@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Clock, BookOpen, AlertCircle, Award, Calendar, ArrowRight, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { Search, Clock, BookOpen, AlertCircle, Award, Calendar, ArrowRight, HelpCircle, CheckCircle2, FileSpreadsheet, Download } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
 import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
@@ -204,6 +204,27 @@ export const StudentQuizzes: React.FC = () => {
                       </span>
                     </div>
                   </div>
+
+                  {q.attachment && (
+                    <div className="mt-3.5 flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-xs select-none">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <FileSpreadsheet size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span className="truncate text-[var(--text-secondary)] font-medium">
+                          {q.attachmentName || 'Quiz Questions Template'}
+                        </span>
+                      </div>
+                      <a
+                        href={q.attachment}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold cursor-pointer transition-colors shrink-0"
+                      >
+                        <Download size={10} />
+                        <span>Download</span>
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-[var(--brand-border)]">

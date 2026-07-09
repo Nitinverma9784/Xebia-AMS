@@ -165,23 +165,45 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public CertificateResponse getCertificateByAssignment(Long assignmentId, String studentEmail) {
         Student student = studentRepository.findByEmail(studentEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
-        Certificate cert = certificateRepository.findByStudentIdAndAssignmentId(student.getId(), assignmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Certificate not found for this assignment"));
-        return certificateMapper.toResponse(cert);
+        Optional<Certificate> certOpt = certificateRepository.findByStudentIdAndAssignmentId(student.getId(), assignmentId);
+        if (certOpt.isPresent()) {
+            return certificateMapper.toResponse(certOpt.get());
+        }
+        
+        // Fallback: Check if submission exists and generate on-the-fly
+        Submission submission = submissionRepository.findByAssignmentIdAndStudentId(assignmentId, student.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Certificate not found. No submission found for this assignment."));
+        
+        if (submission.getStatus() == SubmissionStatus.SUBMITTED || submission.getStatus() == SubmissionStatus.REVIEWED) {
+            return generateCertificateForSubmission(submission.getId());
+        } else {
+            throw new BadRequestException("Submission has not been completed/submitted yet");
+        }
     }
-
+ 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public CertificateResponse getCertificateByQuiz(Long quizId, String studentEmail) {
         Student student = studentRepository.findByEmail(studentEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
-        Certificate cert = certificateRepository.findByStudentIdAndQuizId(student.getId(), quizId)
-                .orElseThrow(() -> new ResourceNotFoundException("Certificate not found for this quiz"));
-        return certificateMapper.toResponse(cert);
+        Optional<Certificate> certOpt = certificateRepository.findByStudentIdAndQuizId(student.getId(), quizId);
+        if (certOpt.isPresent()) {
+            return certificateMapper.toResponse(certOpt.get());
+        }
+        
+        // Fallback: Check if submission exists and generate on-the-fly
+        Submission submission = submissionRepository.findByAssignmentIdAndStudentId(quizId, student.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Certificate not found. No submission found for this quiz."));
+        
+        if (submission.getStatus() == SubmissionStatus.SUBMITTED || submission.getStatus() == SubmissionStatus.REVIEWED) {
+            return generateCertificateForSubmission(submission.getId());
+        } else {
+            throw new BadRequestException("Submission has not been completed/submitted yet");
+        }
     }
 
     @Override

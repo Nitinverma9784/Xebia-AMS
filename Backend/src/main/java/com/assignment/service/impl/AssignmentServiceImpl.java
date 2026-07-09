@@ -234,7 +234,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             return List.of();
         }
         Pageable pageable = PageRequest.of(page, size);
-        Page<Assignment> assignmentPage = assignmentRepository.findByBatchId(student.getBatch().getId(), pageable);
+        Page<Assignment> assignmentPage = assignmentRepository.findByBatchIdAndStatus(student.getBatch().getId(), AssignmentStatus.ACTIVE, pageable);
         return populateResponseCounts(assignmentMapper.toResponseList(assignmentPage.getContent()));
     }
 
@@ -251,7 +251,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if (student.getBatch() == null) {
                 throw new BadRequestException("Student has not been assigned to a batch yet");
             }
-            assignment = assignmentRepository.findByIdAndBatchId(id, student.getBatch().getId())
+            assignment = assignmentRepository.findByIdAndBatchIdAndStatus(id, student.getBatch().getId(), AssignmentStatus.ACTIVE)
                     .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
         }
         
@@ -278,15 +278,25 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment assignment = assignmentRepository.findByIdAndTeacherId(id, teacher.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
 
-        Batch batch = batchRepository.findByIdAndTeacherId(request.getBatchId(), teacher.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Batch not found or unauthorized"));
+        Batch batch = null;
+        if (request.getBatchId() != null) {
+            batch = batchRepository.findByIdAndTeacherId(request.getBatchId(), teacher.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Batch not found or unauthorized"));
+        }
 
         if (request.getPassingMarks() > request.getTotalMarks()) {
             throw new BadRequestException("Passing marks cannot exceed total marks");
         }
 
         // Check if batch changed (if so, we will need to update Redis status cache later)
-        boolean batchChanged = !assignment.getBatch().getId().equals(batch.getId());
+        boolean batchChanged = false;
+        if (assignment.getBatch() == null && batch != null) {
+            batchChanged = true;
+        } else if (assignment.getBatch() != null && batch == null) {
+            batchChanged = true;
+        } else if (assignment.getBatch() != null && batch != null) {
+            batchChanged = !assignment.getBatch().getId().equals(batch.getId());
+        }
 
         if (request.getResourceFile() != null && !request.getResourceFile().isEmpty()) {
             if (request.getResourceFile().getSize() > request.getMaxFileSize()) {
@@ -303,6 +313,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignment.setSubject(request.getSubject());
         assignment.setTopic(request.getTopic());
         assignment.setBatch(batch);
+        assignment.setStatus(batch == null ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE);
         assignment.setExternalLink(request.getExternalLink());
         assignment.setSubmissionType(request.getSubmissionType());
         assignment.setTotalMarks(request.getTotalMarks());

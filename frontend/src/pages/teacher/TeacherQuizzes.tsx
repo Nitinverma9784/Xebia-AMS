@@ -88,13 +88,6 @@ export const TeacherQuizzes: React.FC = () => {
     dispatch(getAllBatches());
   }, [dispatch]);
 
-  // Set default batch selection when batches load
-  useEffect(() => {
-    if (batches.length > 0 && !quizBatchId) {
-      setQuizBatchId(String(batches[0].id));
-    }
-  }, [batches, quizBatchId]);
-
   const fetchQuizzes = useCallback(async () => {
     setLoading(true);
     try {
@@ -469,7 +462,7 @@ export const TeacherQuizzes: React.FC = () => {
       assignmentType: 'QUIZ',
       subject: quizSubject,
       topic: quizTopic,
-      batchId: quizBatchId,
+      batchId: quizBatchId ? Number(quizBatchId) : null,
       maxMarks: totalMarks,
       passingMarks,
       dueDate: quizDueDate,

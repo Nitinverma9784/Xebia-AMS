@@ -21,9 +21,13 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     List<Assignment> findByTeacherIdAndDueDateGreaterThanEqualOrderByDueDateAscDueTimeAsc(Long teacherId, LocalDate date);
 
     Page<Assignment> findByBatchId(Long batchId, Pageable pageable);
+    Page<Assignment> findByBatchIdAndStatus(Long batchId, AssignmentStatus status, Pageable pageable);
     Optional<Assignment> findByIdAndBatchId(Long id, Long batchId);
+    Optional<Assignment> findByIdAndBatchIdAndStatus(Long id, Long batchId, AssignmentStatus status);
     long countByBatchId(Long batchId);
     long countByBatchIdAndStatus(Long batchId, AssignmentStatus status);
     List<Assignment> findTop5ByBatchIdOrderByCreatedAtDesc(Long batchId);
+    List<Assignment> findTop5ByBatchIdAndStatusOrderByCreatedAtDesc(Long batchId, AssignmentStatus status);
     List<Assignment> findByBatchIdAndDueDateGreaterThanEqualOrderByDueDateAscDueTimeAsc(Long batchId, LocalDate date);
+    List<Assignment> findByBatchIdAndStatusAndDueDateGreaterThanEqualOrderByDueDateAscDueTimeAsc(Long batchId, AssignmentStatus status, LocalDate date);
 }

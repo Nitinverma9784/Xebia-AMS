@@ -21,4 +21,13 @@ public class CertificateResponse {
     private Double marks;
     private LocalDateTime generatedAt;
     private String certificateType;
+
+    private String certificateId;
+    private Long teacherId;
+    private String teacherName;
+    private LocalDateTime completionDate;
+    private LocalDateTime generatedDate;
+    private String pdfFileUrl;
+    private String verificationToken;
+    private String qrCodeUrl;
 }

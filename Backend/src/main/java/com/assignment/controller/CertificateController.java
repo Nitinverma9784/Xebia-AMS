@@ -4,11 +4,11 @@ import com.assignment.dto.response.ApiResponse;
 import com.assignment.dto.response.CertificateResponse;
 import com.assignment.service.CertificateService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -69,6 +69,16 @@ public class CertificateController {
 
     // --- Teacher Certificate Endpoints ---
 
+    @GetMapping("/api/teacher/certificates")
+    public ResponseEntity<ApiResponse<List<CertificateResponse>>> searchCertificates(
+            @RequestParam(required = false) String studentName,
+            @RequestParam(required = false) String type,
+            Principal principal
+    ) {
+        List<CertificateResponse> response = certificateService.searchCertificatesForTeacher(principal.getName(), studentName, type);
+        return ResponseEntity.ok(ApiResponse.success("Certificates retrieved successfully", response));
+    }
+
     @GetMapping("/api/teacher/certificates/{id}")
     public ResponseEntity<ApiResponse<CertificateResponse>> getCertificateForTeacher(
             @PathVariable Long id,
@@ -76,5 +86,15 @@ public class CertificateController {
     ) {
         CertificateResponse response = certificateService.getCertificateById(id, principal.getName(), "TEACHER");
         return ResponseEntity.ok(ApiResponse.success("Certificate retrieved successfully", response));
+    }
+
+    // --- Public Verification Endpoint ---
+
+    @GetMapping("/api/certificates/verify/{token}")
+    public ResponseEntity<ApiResponse<CertificateResponse>> verifyCertificate(
+            @PathVariable String token
+    ) {
+        CertificateResponse response = certificateService.getCertificateByToken(token);
+        return ResponseEntity.ok(ApiResponse.success("Certificate verified successfully", response));
     }
 }

@@ -45,6 +45,36 @@ public class Certificate {
     @Column(name = "certificate_type", nullable = false)
     private String certificateType; // "ASSIGNMENT" or "QUIZ"
 
+    @Column(name = "certificate_uuid", nullable = false, unique = true)
+    private String certificateId;
+
+    @Column(name = "student_name")
+    private String studentName;
+
+    @Column(name = "assignment_name")
+    private String assignmentName;
+
+    @Column(name = "teacher_id")
+    private Long teacherId;
+
+    @Column(name = "teacher_name")
+    private String teacherName;
+
+    @Column(name = "completion_date")
+    private LocalDateTime completionDate;
+
+    @Column(name = "generated_date")
+    private LocalDateTime generatedDate;
+
+    @Column(name = "pdf_file_url", length = 1000)
+    private String pdfFileUrl;
+
+    @Column(name = "verification_token", unique = true)
+    private String verificationToken;
+
+    @Column(name = "qr_code_url", length = 1000)
+    private String qrCodeUrl;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

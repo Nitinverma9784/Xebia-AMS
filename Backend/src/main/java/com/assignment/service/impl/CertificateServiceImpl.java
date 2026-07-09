@@ -16,19 +16,24 @@ import com.assignment.repository.StudentRepository;
 import com.assignment.repository.SubmissionRepository;
 import com.assignment.service.CertificateService;
 import com.assignment.service.CloudinaryService;
+import com.assignment.util.QrCodeUtil;
+import com.lowagie.text.Document;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +58,21 @@ public class CertificateServiceImpl implements CertificateService {
         Student student = submission.getStudent();
         Assignment assignment = submission.getAssignment();
 
-        // 1. Validate / Check for duplicate certificate generation
         boolean isQuiz = assignment.getAssignmentType() == com.assignment.enums.AssignmentType.QUIZ;
+        
+        // 1. Verify passing grade criteria
+        Double marks = submission.getMarks();
+        Double maxMarks = assignment.getTotalMarks();
+        Double passingMarks = assignment.getPassingMarks();
+        if (passingMarks == null) {
+            passingMarks = maxMarks * 0.4; // fallback to 40%
+        }
+        
+        if (marks < passingMarks) {
+            throw new BadRequestException("Student did not pass the passing score required for certificate generation");
+        }
+
+        // 2. Validate / Check for duplicate certificate generation
         Optional<Certificate> existingCert = isQuiz ?
                 certificateRepository.findByStudentIdAndQuizId(student.getId(), assignment.getId()) :
                 certificateRepository.findByStudentIdAndAssignmentId(student.getId(), assignment.getId());
@@ -63,49 +81,54 @@ public class CertificateServiceImpl implements CertificateService {
             return certificateMapper.toResponse(existingCert.get());
         }
 
-        // 2. Generate Certificate image
         String studentName = student.getFullName();
         String title = assignment.getTitle();
-        Double marks = submission.getMarks();
-        Double maxMarks = assignment.getTotalMarks();
         LocalDateTime completedAt = submission.getReviewedAt() != null ? submission.getReviewedAt() : submission.getSubmittedAt();
         if (completedAt == null) {
             completedAt = LocalDateTime.now();
         }
-        String completionDate = completedAt.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
+        String completionDateStr = completedAt.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
         String teacherName = assignment.getTeacher() != null ? assignment.getTeacher().getFullName() : "Course Instructor";
 
-        byte[] certBytes = renderCertificate(studentName, title, marks, maxMarks, completionDate, teacherName, isQuiz);
+        // Generate IDs and verification tokens
+        String certId = "CERT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        String verificationToken = UUID.randomUUID().toString();
+        
+        String frontendUrl = System.getenv("FRONTEND_URL") != null ? System.getenv("FRONTEND_URL") : "http://localhost:5173";
+        String verificationUrl = frontendUrl + "/verify-certificate/" + verificationToken;
 
-        // 3. Upload Certificate to Cloudinary
-        String folder = "assignment_system/certificates";
-        String certificateUrl = cloudinaryService.uploadBytes(certBytes, folder);
-        if (certificateUrl == null) {
-            throw new CustomException("Cloudinary upload failed: secure URL is empty", 500);
+        // 3. Generate QR Code image and upload to Cloudinary
+        byte[] qrBytes = QrCodeUtil.generateQrCode(verificationUrl, 200, 200);
+        String qrCodeUrl = cloudinaryService.uploadBytes(qrBytes, "assignment_system/qrcodes");
+
+        // 4. Generate landscape PDF using OpenPDF
+        byte[] pdfBytes = renderPdfCertificate(studentName, title, marks, maxMarks, completionDateStr, teacherName, isQuiz, certId, qrBytes);
+        String pdfFileUrl = cloudinaryService.uploadBytes(pdfBytes, "assignment_system/certificates");
+
+        if (pdfFileUrl == null) {
+            throw new CustomException("Failed to upload certificate PDF to storage provider", 500);
         }
 
-        // Parse public ID from URL or set placeholder (Cloudinary public ID is useful but URL is essential)
-        String publicId = null;
-        try {
-            int lastSlash = certificateUrl.lastIndexOf('/');
-            int dot = certificateUrl.lastIndexOf('.');
-            if (lastSlash != -1 && dot != -1 && lastSlash < dot) {
-                publicId = certificateUrl.substring(lastSlash + 1, dot);
-            }
-        } catch (Exception e) {
-            // Ignore parsing error
-        }
-
-        // 4. Save to Database
+        // 5. Save metadata to database
         Certificate certificate = Certificate.builder()
                 .student(student)
                 .assignment(isQuiz ? null : assignment)
                 .quiz(isQuiz ? assignment : null)
-                .certificateUrl(certificateUrl)
-                .cloudinaryPublicId(publicId)
+                .certificateUrl(pdfFileUrl) // keep sync
+                .cloudinaryPublicId(certId)
                 .marks(marks)
                 .generatedAt(LocalDateTime.now())
                 .certificateType(isQuiz ? "QUIZ" : "ASSIGNMENT")
+                .certificateId(certId)
+                .studentName(studentName)
+                .assignmentName(title)
+                .teacherId(assignment.getTeacher() != null ? assignment.getTeacher().getId() : null)
+                .teacherName(teacherName)
+                .completionDate(completedAt)
+                .generatedDate(LocalDateTime.now())
+                .pdfFileUrl(pdfFileUrl)
+                .verificationToken(verificationToken)
+                .qrCodeUrl(qrCodeUrl)
                 .build();
 
         Certificate saved = certificateRepository.save(certificate);
@@ -158,128 +181,189 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateMapper.toResponse(cert);
     }
 
-    private byte[] renderCertificate(String studentName, String title, Double marks, Double maxMarks, String completionDate, String teacherName, boolean isQuiz) {
-        int width = 1200;
-        int height = 800;
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = image.createGraphics();
+    @Override
+    @Transactional(readOnly = true)
+    public List<CertificateResponse> searchCertificatesForTeacher(String teacherEmail, String studentName, String type) {
+        String queryName = (studentName != null && !studentName.isBlank()) ? "%" + studentName.trim().toLowerCase() + "%" : null;
+        String queryType = (type != null && !type.isBlank() && !"ALL".equalsIgnoreCase(type)) ? type.toUpperCase() : null;
+        List<Certificate> certs = certificateRepository.searchCertificatesForTeacher(teacherEmail, queryName, queryType);
+        return certificateMapper.toResponseList(certs);
+    }
 
-        // Anti-aliasing
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    @Override
+    @Transactional(readOnly = true)
+    public CertificateResponse getCertificateByToken(String token) {
+        Certificate cert = certificateRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid verification token or certificate not found"));
+        return certificateMapper.toResponse(cert);
+    }
 
-        // Background
-        g2d.setColor(new Color(253, 253, 253));
-        g2d.fillRect(0, 0, width, height);
-
-        // Subtle gradient in top-left
-        GradientPaint cornerGradient = new GradientPaint(0, 0, new Color(108, 29, 95, 20), 400, 400, new Color(108, 29, 95, 0));
-        g2d.setPaint(cornerGradient);
-        g2d.fillRect(0, 0, 500, 500);
-
-        // Outer border
-        g2d.setColor(new Color(108, 29, 95)); // Brand color: #6C1D5F
-        g2d.setStroke(new BasicStroke(14));
-        g2d.drawRect(20, 20, width - 40, height - 40);
-
-        // Inner thin border
-        g2d.setColor(new Color(210, 210, 210));
-        g2d.setStroke(new BasicStroke(2));
-        g2d.drawRect(35, 35, width - 70, height - 70);
-
-        // Corner ornaments
-        g2d.setColor(new Color(108, 29, 95));
-        g2d.fillRect(30, 30, 50, 6);
-        g2d.fillRect(30, 30, 6, 50);
-        g2d.fillRect(width - 80, 30, 50, 6);
-        g2d.fillRect(width - 36, 30, 6, 50);
-        g2d.fillRect(30, height - 36, 50, 6);
-        g2d.fillRect(30, height - 80, 6, 50);
-        g2d.fillRect(width - 80, height - 36, 50, 6);
-        g2d.fillRect(width - 36, height - 80, 6, 50);
-
-        // Xebia Logo (Top Right)
-        int logoX = width - 210;
-        int logoY = 60;
-        g2d.setColor(new Color(108, 29, 95));
-        g2d.fillRoundRect(logoX, logoY, 40, 40, 10, 10);
-        g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("SansSerif", Font.BOLD, 26));
-        g2d.drawString("X", logoX + 11, logoY + 29);
-
-        g2d.setColor(new Color(51, 51, 51));
-        g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-        g2d.drawString("xebia", logoX + 50, logoY + 29);
-
-        // Header Title
-        g2d.setColor(new Color(108, 29, 95));
-        g2d.setFont(new Font("Serif", Font.BOLD, 48));
-        drawCenteredString(g2d, "Certificate of Completion", width, 200);
-
-        // Underline
-        g2d.setColor(new Color(220, 200, 215));
-        g2d.fillRect(width / 2 - 180, 220, 360, 3);
-
-        // Greeting
-        g2d.setColor(new Color(102, 102, 102));
-        g2d.setFont(new Font("SansSerif", Font.PLAIN, 20));
-        drawCenteredString(g2d, "This certificate is proudly awarded to", width, 285);
-
-        // Student Name
-        g2d.setColor(new Color(51, 51, 51));
-        g2d.setFont(new Font("SansSerif", Font.BOLD, 38));
-        drawCenteredString(g2d, studentName, width, 360);
-
-        // Underline Student Name
-        g2d.setColor(new Color(108, 29, 95));
-        g2d.fillRect(width / 2 - 220, 380, 440, 2);
-
-        // Description text
-        g2d.setColor(new Color(102, 102, 102));
-        g2d.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        drawCenteredString(g2d, "for successfully completing the " + (isQuiz ? "Quiz" : "Assignment"), width, 445);
-
-        // Assignment / Quiz Title
-        g2d.setColor(new Color(51, 51, 51));
-        g2d.setFont(new Font("SansSerif", Font.BOLD, 26));
-        drawCenteredString(g2d, "\"" + title + "\"", width, 495);
-
-        // Score details
-        g2d.setColor(new Color(102, 102, 102));
-        g2d.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        String marksText = String.format("Marks Obtained: %.2f / %.2f", marks, maxMarks);
-        drawCenteredString(g2d, marksText, width, 555);
-
-        // Date
-        String dateText = "Completion Date: " + completionDate;
-        drawCenteredString(g2d, dateText, width, 595);
-
-        // Signatures (Bottom)
-        g2d.setColor(new Color(102, 102, 102));
-        g2d.setFont(new Font("SansSerif", Font.PLAIN, 16));
-
-        // Left Signature (Instructor)
-        g2d.fillRect(150, 680, 250, 1);
-        String instructorLabel = (teacherName != null && !teacherName.isBlank()) ? teacherName : "Course Instructor";
-        g2d.drawString(instructorLabel, 150, 710);
-        g2d.setFont(new Font("SansSerif", Font.ITALIC, 14));
-        g2d.drawString(isQuiz ? "System Evaluated" : "Evaluated By", 150, 730);
-
-        // Right Signature (Verification)
-        g2d.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        g2d.fillRect(width - 400, 680, 250, 1);
-        g2d.drawString("Authorized Signature", width - 400, 710);
-        g2d.setFont(new Font("SansSerif", Font.ITALIC, 14));
-        g2d.drawString("System Generated Verification", width - 400, 730);
-
-        g2d.dispose();
-
-        // Convert to byte array
+    private byte[] renderPdfCertificate(
+            String studentName,
+            String title,
+            Double marks,
+            Double maxMarks,
+            String completionDate,
+            String teacherName,
+            boolean isQuiz,
+            String certId,
+            byte[] qrCodeBytes
+    ) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4.rotate());
         try {
-            ImageIO.write(image, "png", baos);
-        } catch (IOException e) {
-            throw new CustomException("Failed to render certificate image", 500);
+            PdfWriter writer = PdfWriter.getInstance(document, baos);
+            document.open();
+
+            PdfContentByte cb = writer.getDirectContent();
+            float width = PageSize.A4.rotate().getWidth();  // 842.0
+            float height = PageSize.A4.rotate().getHeight(); // 595.0
+
+            Graphics2D g2d = cb.createGraphics(width, height);
+
+            // Anti-aliasing hints
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            // 1. Draw soft premium off-white background
+            g2d.setColor(new Color(253, 253, 253));
+            g2d.fillRect(0, 0, (int) width, (int) height);
+
+            // Corner decorative gradient
+            GradientPaint gp = new GradientPaint(0, 0, new Color(108, 29, 95, 25), 300, 300, new Color(108, 29, 95, 0));
+            g2d.setPaint(gp);
+            g2d.fillRect(0, 0, 400, 400);
+
+            // 2. Draw border frame
+            g2d.setColor(new Color(108, 29, 95));
+            g2d.setStroke(new BasicStroke(10));
+            g2d.drawRect(15, 15, (int) width - 30, (int) height - 30);
+
+            g2d.setColor(new Color(210, 210, 210));
+            g2d.setStroke(new BasicStroke(1));
+            g2d.drawRect(25, 25, (int) width - 50, (int) height - 50);
+
+            // Ornaments
+            g2d.setColor(new Color(108, 29, 95));
+            g2d.fillRect(22, 22, 35, 4);
+            g2d.fillRect(22, 22, 4, 35);
+            g2d.fillRect((int) width - 57, 22, 35, 4);
+            g2d.fillRect((int) width - 26, 22, 4, 35);
+            g2d.fillRect(22, (int) height - 26, 35, 4);
+            g2d.fillRect(22, (int) height - 57, 4, 35);
+            g2d.fillRect((int) width - 57, (int) height - 26, 35, 4);
+            g2d.fillRect((int) width - 26, (int) height - 57, 4, 35);
+
+            // 3. Draw Branding Logo (Top Left)
+            int logoX = 50;
+            int logoY = 45;
+            g2d.setColor(new Color(108, 29, 95));
+            g2d.fillRoundRect(logoX, logoY, 30, 30, 8, 8);
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 18));
+            g2d.drawString("L", logoX + 10, logoY + 22);
+
+            g2d.setColor(new Color(51, 51, 51));
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g2d.drawString("LMS Portal", logoX + 38, logoY + 21);
+
+            // Draw Brand Name (Top Right)
+            g2d.setColor(new Color(108, 29, 95));
+            g2d.fillRoundRect((int) width - 180, logoY, 24, 24, 6, 6);
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g2d.drawString("X", (int) width - 173, logoY + 18);
+
+            g2d.setColor(new Color(51, 51, 51));
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g2d.drawString("xebia", (int) width - 150, logoY + 18);
+
+            // 4. Certificate Header
+            g2d.setColor(new Color(108, 29, 95));
+            g2d.setFont(new Font("Serif", Font.BOLD, 36));
+            drawCenteredString(g2d, "Certificate of Achievement", (int) width, 140);
+
+            // Underline
+            g2d.setColor(new Color(220, 200, 215));
+            g2d.fillRect((int) width / 2 - 120, 155, 240, 2);
+
+            // 5. Presentee text
+            g2d.setColor(new Color(102, 102, 102));
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 15));
+            drawCenteredString(g2d, "This certificate is proudly presented to", (int) width, 195);
+
+            // 6. Student Name
+            g2d.setColor(new Color(51, 51, 51));
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 28));
+            drawCenteredString(g2d, studentName, (int) width, 250);
+
+            // 7. Details description
+            g2d.setColor(new Color(102, 102, 102));
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            drawCenteredString(g2d, "for successfully completing the " + (isQuiz ? "Quiz" : "Assignment"), (int) width, 310);
+
+            // 8. Quiz/Assignment Title
+            g2d.setColor(new Color(51, 51, 51));
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 20));
+            drawCenteredString(g2d, "\"" + title + "\"", (int) width, 345);
+
+            // Marks / Date
+            g2d.setColor(new Color(102, 102, 102));
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            String scoreText = String.format("Grade Secured: %.2f / %.2f", marks, maxMarks);
+            drawCenteredString(g2d, scoreText, (int) width, 390);
+
+            String dateText = "Completion Date: " + completionDate;
+            drawCenteredString(g2d, dateText, (int) width, 415);
+
+            // 9. QR Code Integration
+            if (qrCodeBytes != null) {
+                try {
+                    java.awt.Image qrImg = ImageIO.read(new java.io.ByteArrayInputStream(qrCodeBytes));
+                    g2d.drawImage(qrImg, 70, (int) height - 150, 80, 80, null);
+                    g2d.setColor(new Color(120, 120, 120));
+                    g2d.setFont(new Font("SansSerif", Font.PLAIN, 9));
+                    g2d.drawString("Scan to Verify", 78, (int) height - 58);
+                } catch (Exception ex) {
+                    // Fail silently
+                }
+            }
+
+            // 10. Platform Gold Certified Seal Stamp
+            int sealX = (int) width / 2;
+            int sealY = (int) height - 100;
+            g2d.setColor(new Color(254, 215, 0, 45)); // Soft gold fill
+            g2d.fillOval(sealX - 35, sealY - 35, 70, 70);
+            g2d.setColor(new Color(212, 175, 55)); // Gold outline
+            g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[]{3, 3}, 0));
+            g2d.drawOval(sealX - 35, sealY - 35, 70, 70);
+            g2d.setStroke(new BasicStroke(1));
+            g2d.drawOval(sealX - 31, sealY - 31, 62, 62);
+            g2d.setColor(new Color(108, 29, 95));
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 8));
+            g2d.drawString("XEBIA", sealX - 16, sealY - 5);
+            g2d.drawString("LMS", sealX - 10, sealY + 8);
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 7));
+            g2d.drawString("CERTIFIED", sealX - 20, sealY + 20);
+
+            // 11. Instructor Signatures
+            g2d.setColor(new Color(102, 102, 102));
+            g2d.fillRect((int) width - 250, (int) height - 100, 180, 1);
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            String signatureLabel = (teacherName != null && !teacherName.isBlank()) ? teacherName : "Course Instructor";
+            g2d.drawString(signatureLabel, (int) width - 250, (int) height - 82);
+            g2d.setFont(new Font("SansSerif", Font.ITALIC, 10));
+            g2d.drawString("Authorized Reviewer", (int) width - 250, (int) height - 68);
+
+            // Certificate Business ID details (Bottom Left corner)
+            g2d.setColor(new Color(150, 150, 150));
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 9));
+            g2d.drawString("Certificate ID: " + certId, 50, (int) height - 38);
+
+            g2d.dispose();
+            document.close();
+        } catch (Exception e) {
+            throw new RuntimeException("PDF generation error: " + e.getMessage(), e);
         }
         return baos.toByteArray();
     }

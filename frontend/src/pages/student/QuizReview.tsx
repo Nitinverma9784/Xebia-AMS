@@ -12,12 +12,17 @@ import { Button } from '../../components/ui/Button';
 import { studentService } from '../../services/student.service';
 import { formatDate, formatDateTime } from '../../utils/helpers';
 import type { Assignment, Submission } from '../../types';
+import { certificateService } from '../../services/certificate.service';
+import type { Certificate } from '../../services/certificate.service';
+import { CongratulatoryPopup } from '../../components/shared/CongratulatoryPopup';
 
 export const QuizReview: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState<Assignment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showCongrats, setShowCongrats] = useState(false);
+  const [certificate, setCertificate] = useState<Certificate | null>(null);
 
   const fetchQuizDetails = useCallback(async () => {
     if (!id) return;
@@ -42,6 +47,28 @@ export const QuizReview: React.FC = () => {
   useEffect(() => {
     fetchQuizDetails();
   }, [fetchQuizDetails]);
+
+  useEffect(() => {
+    if (loading || !quiz || !quiz.submission) return;
+    
+    const sub = quiz.submission;
+    const isPassed = sub.marks !== null && sub.marks !== undefined && sub.marks >= (quiz.passingMarks || 0);
+    const certKey = `lms_cert_shown_${id}`;
+
+    if (isPassed && !localStorage.getItem(certKey)) {
+      certificateService.getCertificateByQuiz(id!)
+        .then((cert) => {
+          if (cert) {
+            setCertificate(cert);
+            setShowCongrats(true);
+            localStorage.setItem(certKey, 'true');
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load certificate on quiz completion:", err);
+        });
+    }
+  }, [quiz, loading, id]);
 
   // Parse student answers
   const submittedAnswersMap = useMemo(() => {
@@ -380,6 +407,16 @@ export const QuizReview: React.FC = () => {
           })}
         </div>
       </div>
+      {quiz && quiz.submission && (
+        <CongratulatoryPopup
+          isOpen={showCongrats}
+          onClose={() => setShowCongrats(false)}
+          certificate={certificate}
+          activityTitle={quiz.title}
+          score={quiz.submission.marks ?? 0}
+          maxScore={quiz.maxMarks}
+        />
+      )}
     </Layout>
   );
 };

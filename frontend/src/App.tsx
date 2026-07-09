@@ -26,6 +26,10 @@ import { StudentQuizzes } from './pages/student/StudentQuizzes';
 import { QuizAttempt } from './pages/student/QuizAttempt';
 import { QuizReview } from './pages/student/QuizReview';
 
+import { StudentCertificates } from './pages/student/StudentCertificates';
+import { TeacherCertificates } from './pages/teacher/TeacherCertificates';
+import { VerifyCertificate } from './pages/shared/VerifyCertificate';
+
 function App() {
   return (
     <ThemeProvider>
@@ -34,6 +38,9 @@ function App() {
           <Routes>
             {/* Landing */}
             <Route path="/" element={<LandingPage />} />
+            
+            {/* Public Certificate Verification Link */}
+            <Route path="/verify-certificate/:token" element={<VerifyCertificate />} />
 
             {/* Teacher Auth */}
             <Route
@@ -69,6 +76,10 @@ function App() {
             <Route
               path="/teacher/submitted"
               element={<ProtectedRoute role="teacher"><SubmittedAssignments /></ProtectedRoute>}
+            />
+            <Route
+              path="/teacher/certificates"
+              element={<ProtectedRoute role="teacher"><TeacherCertificates /></ProtectedRoute>}
             />
             <Route
               path="/teacher/profile"
@@ -109,6 +120,10 @@ function App() {
             <Route
               path="/student/quizzes/:id/review"
               element={<ProtectedRoute role="student"><QuizReview /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/certificates"
+              element={<ProtectedRoute role="student"><StudentCertificates /></ProtectedRoute>}
             />
             <Route
               path="/student/progress"

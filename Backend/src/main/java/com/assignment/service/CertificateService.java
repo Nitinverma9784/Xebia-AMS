@@ -9,4 +9,6 @@ public interface CertificateService {
     CertificateResponse getCertificateById(Long id, String email, String role);
     CertificateResponse getCertificateByAssignment(Long assignmentId, String studentEmail);
     CertificateResponse getCertificateByQuiz(Long quizId, String studentEmail);
+    List<CertificateResponse> searchCertificatesForTeacher(String teacherEmail, String studentName, String type);
+    CertificateResponse getCertificateByToken(String token);
 }

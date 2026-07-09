@@ -8,6 +8,8 @@ import { AssignmentCardSkeleton, TableRowSkeleton } from '../../components/share
 import { Pagination } from '../../components/shared/Pagination';
 import { studentService } from '../../services/student.service';
 import { certificateService } from '../../services/certificate.service';
+import type { Certificate } from '../../services/certificate.service';
+import { CongratulatoryPopup } from '../../components/shared/CongratulatoryPopup';
 import {
   formatDate,
   getDueDateCountdown,
@@ -37,6 +39,8 @@ export const StudentAssignments: React.FC = () => {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [pagination, setPagination] = useState<PaginationMeta>({ page: 1, limit: 10, total: 0, totalPages: 0 });
   const [certificates, setCertificates] = useState<Record<string, string>>({});
+  const [showCongrats, setShowCongrats] = useState(false);
+  const [activeCert, setActiveCert] = useState<Certificate | null>(null);
 
   useEffect(() => {
     certificateService.getMyCertificates().then(certs => {
@@ -46,6 +50,13 @@ export const StudentAssignments: React.FC = () => {
         if (c.quizId) mapping[`quiz-${c.quizId}`] = c.certificateUrl;
       });
       setCertificates(mapping);
+
+      const unshown = certs.find(c => c.certificateType === 'ASSIGNMENT' && !localStorage.getItem(`lms_cert_shown_asg_${c.id}`));
+      if (unshown) {
+        setActiveCert(unshown);
+        setShowCongrats(true);
+        localStorage.setItem(`lms_cert_shown_asg_${unshown.id}`, 'true');
+      }
     }).catch(err => console.error("Error loading certificates", err));
   }, []);
 
@@ -354,6 +365,16 @@ export const StudentAssignments: React.FC = () => {
             </>
           )}
         </>
+      )}
+      {activeCert && (
+        <CongratulatoryPopup
+          isOpen={showCongrats}
+          onClose={() => setShowCongrats(false)}
+          certificate={activeCert}
+          activityTitle={activeCert.assignmentTitle || activeCert.assignmentName || 'Assignment'}
+          score={activeCert.marks}
+          maxScore={activeCert.marks >= 100 ? activeCert.marks : 100}
+        />
       )}
     </Layout>
   );

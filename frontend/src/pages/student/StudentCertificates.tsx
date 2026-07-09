@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Award, Calendar, ExternalLink, Download, Share2, Search, BookOpen, User, CheckCircle } from 'lucide-react';
+import { Award, Calendar, ExternalLink, Download, Share2, Search, BookOpen, User, CheckCircle, Eye } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -8,6 +8,7 @@ import { TableRowSkeleton } from '../../components/shared/LoadingSkeleton';
 import { certificateService } from '../../services/certificate.service';
 import type { Certificate } from '../../services/certificate.service';
 import toast from 'react-hot-toast';
+import api from '../../services/api';
 
 export const StudentCertificates: React.FC = () => {
   const [certs, setCerts] = useState<Certificate[]>([]);
@@ -144,11 +145,19 @@ export const StudentCertificates: React.FC = () => {
                 <div className="mt-5 pt-4 border-t border-[var(--brand-border)] flex gap-2">
                   <Button
                     variant="primary"
-                    className="flex-1 text-xs py-2 flex items-center justify-center gap-1.5 shadow-purple-500/10 shadow-lg"
-                    onClick={() => window.open(c.pdfFileUrl || c.certificateUrl, '_blank')}
+                    className="flex-1 text-xs py-2 flex items-center justify-center gap-1.5 shadow-purple-500/10 shadow-lg cursor-pointer"
+                    onClick={() => window.open(`${api.defaults.baseURL}/student/certificates/${c.id}/view`, '_blank')}
                   >
-                    <span>Download PDF</span>
-                    <Download size={13} />
+                    <span>View Certificate</span>
+                    <Eye size={13} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="p-2 cursor-pointer flex items-center justify-center border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10"
+                    title="Download PDF"
+                    onClick={() => window.open(`${api.defaults.baseURL}/student/certificates/${c.id}/download`, '_blank')}
+                  >
+                    <Download size={14} />
                   </Button>
                   <Button
                     variant="outline"

@@ -9,6 +9,7 @@ import { TableRowSkeleton } from '../../components/shared/LoadingSkeleton';
 import { certificateService } from '../../services/certificate.service';
 import type { Certificate } from '../../services/certificate.service';
 import toast from 'react-hot-toast';
+import api from '../../services/api';
 
 export const TeacherCertificates: React.FC = () => {
   const [certs, setCerts] = useState<Certificate[]>([]);
@@ -176,15 +177,20 @@ export const TeacherCertificates: React.FC = () => {
                           >
                             <Eye size={15} />
                           </button>
-                          <a
-                            href={c.pdfFileUrl || c.certificateUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={() => window.open(`${api.defaults.baseURL}/teacher/certificates/${c.id}/view`, '_blank')}
+                            title="View Certificate"
+                            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                          >
+                            <ExternalLink size={15} />
+                          </button>
+                          <button
+                            onClick={() => window.open(`${api.defaults.baseURL}/teacher/certificates/${c.id}/download`, '_blank')}
                             title="Download PDF"
-                            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-colors inline-block"
+                            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-colors cursor-pointer"
                           >
                             <Download size={15} />
-                          </a>
+                          </button>
                         </div>
                       </td>
                     </tr>

@@ -23,6 +23,44 @@ import static org.junit.jupiter.api.Assertions.*;
 public class NewFeaturesTest {
 
     @Test
+    public void testPdfGeneration() throws Exception {
+        String studentName = "John Doe";
+        String title = "Java Programming Test";
+        Double marks = 18.5;
+        Double maxMarks = 20.0;
+        String completionDate = "July 09, 2026";
+        String teacherName = "Instructor Smith";
+        boolean isQuiz = true;
+        String certId = "CERT-123456";
+        byte[] qrCodeBytes = new byte[0];
+        
+        java.io.FileOutputStream fos = new java.io.FileOutputStream("target/test.pdf");
+        com.lowagie.text.Document document = new com.lowagie.text.Document(com.lowagie.text.PageSize.A4.rotate());
+        com.lowagie.text.pdf.PdfWriter writer = com.lowagie.text.pdf.PdfWriter.getInstance(document, fos);
+        document.open();
+
+        com.lowagie.text.pdf.PdfContentByte cb = writer.getDirectContent();
+        float width = com.lowagie.text.PageSize.A4.rotate().getWidth();
+        float height = com.lowagie.text.PageSize.A4.rotate().getHeight();
+
+        java.awt.Graphics2D g2d = cb.createGraphics(width, height);
+        
+        g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+        g2d.setColor(new java.awt.Color(253, 253, 253));
+        g2d.fillRect(0, 0, (int) width, (int) height);
+
+        g2d.setColor(new java.awt.Color(108, 29, 95));
+        g2d.setFont(new java.awt.Font("Serif", java.awt.Font.BOLD, 36));
+        g2d.drawString("Certificate of Achievement", 100, 100);
+
+        g2d.dispose();
+        document.close();
+        fos.close();
+    }
+
+    @Test
     public void testExcelValidator_FileValidation() {
         // Invalid file format
         MultipartFile invalidFormat = new MockMultipartFile("file", "test.txt", "text/plain", "dummy content".getBytes());

@@ -233,6 +233,12 @@ public class SubmissionServiceImpl implements SubmissionService {
         // Update Redis
         rebuildAssignmentStatusCache(assignmentId);
 
+        try {
+            certificateService.generateCertificateForSubmission(savedSubmission.getId());
+        } catch (Exception e) {
+            System.err.println("Failed to generate assignment certificate on submission: " + e.getMessage());
+        }
+
         return submissionMapper.toResponse(savedSubmission);
     }
 

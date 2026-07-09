@@ -42,12 +42,24 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             return null;
         }
         try {
+            boolean isPdf = bytes.length > 4 && 
+                            bytes[0] == 0x25 && // '%'
+                            bytes[1] == 0x50 && // 'P'
+                            bytes[2] == 0x44 && // 'D'
+                            bytes[3] == 0x46;   // 'F'
+            
+            java.util.Map<String, Object> options = new java.util.HashMap<>();
+            options.put("folder", folder);
+            if (isPdf) {
+                options.put("resource_type", "image");
+                options.put("format", "pdf");
+            } else {
+                options.put("resource_type", "auto");
+            }
+
             Map<?, ?> uploadResult = cloudinary.uploader().upload(
                     bytes,
-                    ObjectUtils.asMap(
-                            "folder", folder,
-                            "resource_type", "auto"
-                    )
+                    options
             );
             return (String) uploadResult.get("secure_url");
         } catch (IOException e) {

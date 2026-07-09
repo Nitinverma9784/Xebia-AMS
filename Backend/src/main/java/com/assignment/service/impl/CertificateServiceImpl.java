@@ -51,8 +51,8 @@ public class CertificateServiceImpl implements CertificateService {
         Submission submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Submission not found"));
 
-        if (submission.getStatus() != SubmissionStatus.REVIEWED) {
-            throw new BadRequestException("Submission must be evaluated and reviewed before generating certificate");
+        if (submission.getStatus() != SubmissionStatus.REVIEWED && submission.getStatus() != SubmissionStatus.SUBMITTED) {
+            throw new BadRequestException("Submission must be submitted or reviewed before generating certificate");
         }
 
         Student student = submission.getStudent();
@@ -61,8 +61,11 @@ public class CertificateServiceImpl implements CertificateService {
         boolean isQuiz = assignment.getAssignmentType() == com.assignment.enums.AssignmentType.QUIZ;
         
         // 1. Verify passing grade criteria
-        Double marks = submission.getMarks();
         Double maxMarks = assignment.getTotalMarks();
+        Double marks = submission.getMarks();
+        if (marks == null) {
+            marks = maxMarks; // Default to maximum marks for completion certificate if not yet graded
+        }
         Double passingMarks = assignment.getPassingMarks();
         if (passingMarks == null) {
             passingMarks = maxMarks * 0.4; // fallback to 40%

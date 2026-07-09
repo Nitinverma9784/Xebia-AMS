@@ -146,7 +146,7 @@ export const StudentCertificates: React.FC = () => {
                   <Button
                     variant="primary"
                     className="flex-1 text-xs py-2 flex items-center justify-center gap-1.5 shadow-red-500/10 shadow-lg cursor-pointer"
-                    onClick={() => window.open(`${api.defaults.baseURL}/student/certificates/${c.id}/view`, '_blank')}
+                    onClick={() => window.open(c.pdfFileUrl || c.certificateUrl, '_blank')}
                   >
                     <span>View Certificate</span>
                     <Eye size={13} />
@@ -155,7 +155,11 @@ export const StudentCertificates: React.FC = () => {
                     variant="outline"
                     className="p-2 cursor-pointer flex items-center justify-center border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10"
                     title="Download PDF"
-                    onClick={() => window.open(`${api.defaults.baseURL}/student/certificates/${c.id}/download`, '_blank')}
+                    onClick={() => {
+                      const url = c.pdfFileUrl || c.certificateUrl;
+                      const downloadUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
+                      window.open(downloadUrl, '_blank');
+                    }}
                   >
                     <Download size={14} />
                   </Button>

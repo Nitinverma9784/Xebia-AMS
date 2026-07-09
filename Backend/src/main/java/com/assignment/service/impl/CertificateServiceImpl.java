@@ -231,23 +231,23 @@ public class CertificateServiceImpl implements CertificateService {
             // 1. Draw soft premium off-white background
             g2d.setColor(new Color(253, 253, 253));
             g2d.fillRect(0, 0, (int) width, (int) height);
-
+ 
             // Corner decorative gradient
-            GradientPaint gp = new GradientPaint(0, 0, new Color(108, 29, 95, 25), 300, 300, new Color(108, 29, 95, 0));
+            GradientPaint gp = new GradientPaint(0, 0, new Color(239, 68, 68, 20), 300, 300, new Color(239, 68, 68, 0));
             g2d.setPaint(gp);
             g2d.fillRect(0, 0, 400, 400);
-
+ 
             // 2. Draw border frame
-            g2d.setColor(new Color(108, 29, 95));
+            g2d.setColor(new Color(239, 68, 68));
             g2d.setStroke(new BasicStroke(10));
             g2d.drawRect(15, 15, (int) width - 30, (int) height - 30);
-
+ 
             g2d.setColor(new Color(210, 210, 210));
             g2d.setStroke(new BasicStroke(1));
             g2d.drawRect(25, 25, (int) width - 50, (int) height - 50);
-
+ 
             // Ornaments
-            g2d.setColor(new Color(108, 29, 95));
+            g2d.setColor(new Color(239, 68, 68));
             g2d.fillRect(22, 22, 35, 4);
             g2d.fillRect(22, 22, 4, 35);
             g2d.fillRect((int) width - 57, 22, 35, 4);
@@ -256,69 +256,69 @@ public class CertificateServiceImpl implements CertificateService {
             g2d.fillRect(22, (int) height - 57, 4, 35);
             g2d.fillRect((int) width - 57, (int) height - 26, 35, 4);
             g2d.fillRect((int) width - 26, (int) height - 57, 4, 35);
-
+ 
             // 3. Draw Branding Logo (Top Left)
             int logoX = 50;
             int logoY = 45;
-            g2d.setColor(new Color(108, 29, 95));
+            g2d.setColor(new Color(239, 68, 68));
             g2d.fillRoundRect(logoX, logoY, 30, 30, 8, 8);
             g2d.setColor(Color.WHITE);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 18));
             g2d.drawString("L", logoX + 10, logoY + 22);
-
+ 
             g2d.setColor(new Color(51, 51, 51));
             g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
             g2d.drawString("LMS Portal", logoX + 38, logoY + 21);
-
+ 
             // Draw Brand Name (Top Right)
-            g2d.setColor(new Color(108, 29, 95));
+            g2d.setColor(new Color(239, 68, 68));
             g2d.fillRoundRect((int) width - 180, logoY, 24, 24, 6, 6);
             g2d.setColor(Color.WHITE);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
-            g2d.drawString("X", (int) width - 173, logoY + 18);
-
+            g2d.drawString("C", (int) width - 173, logoY + 18);
+ 
             g2d.setColor(new Color(51, 51, 51));
             g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
-            g2d.drawString("xebia", (int) width - 150, logoY + 18);
-
+            g2d.drawString("Credentials", (int) width - 150, logoY + 18);
+ 
             // 4. Certificate Header
-            g2d.setColor(new Color(108, 29, 95));
+            g2d.setColor(new Color(239, 68, 68));
             g2d.setFont(new Font("Serif", Font.BOLD, 36));
             drawCenteredString(g2d, "Certificate of Achievement", (int) width, 140);
-
+ 
             // Underline
-            g2d.setColor(new Color(220, 200, 215));
+            g2d.setColor(new Color(254, 202, 202));
             g2d.fillRect((int) width / 2 - 120, 155, 240, 2);
-
+ 
             // 5. Presentee text
             g2d.setColor(new Color(102, 102, 102));
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 15));
             drawCenteredString(g2d, "This certificate is proudly presented to", (int) width, 195);
-
+ 
             // 6. Student Name
             g2d.setColor(new Color(51, 51, 51));
             g2d.setFont(new Font("SansSerif", Font.BOLD, 28));
             drawCenteredString(g2d, studentName, (int) width, 250);
-
+ 
             // 7. Details description
             g2d.setColor(new Color(102, 102, 102));
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 14));
             drawCenteredString(g2d, "for successfully completing the " + (isQuiz ? "Quiz" : "Assignment"), (int) width, 310);
-
+ 
             // 8. Quiz/Assignment Title
             g2d.setColor(new Color(51, 51, 51));
             g2d.setFont(new Font("SansSerif", Font.BOLD, 20));
             drawCenteredString(g2d, "\"" + title + "\"", (int) width, 345);
-
+ 
             // Marks / Date
             g2d.setColor(new Color(102, 102, 102));
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 13));
             String scoreText = String.format("Grade Secured: %.2f / %.2f", marks, maxMarks);
             drawCenteredString(g2d, scoreText, (int) width, 390);
-
+ 
             String dateText = "Completion Date: " + completionDate;
             drawCenteredString(g2d, dateText, (int) width, 415);
-
+ 
             // 9. QR Code Integration
             if (qrCodeBytes != null) {
                 try {
@@ -331,7 +331,7 @@ public class CertificateServiceImpl implements CertificateService {
                     // Fail silently
                 }
             }
-
+ 
             // 10. Platform Gold Certified Seal Stamp
             int sealX = (int) width / 2;
             int sealY = (int) height - 100;
@@ -342,10 +342,10 @@ public class CertificateServiceImpl implements CertificateService {
             g2d.drawOval(sealX - 35, sealY - 35, 70, 70);
             g2d.setStroke(new BasicStroke(1));
             g2d.drawOval(sealX - 31, sealY - 31, 62, 62);
-            g2d.setColor(new Color(108, 29, 95));
+            g2d.setColor(new Color(239, 68, 68));
             g2d.setFont(new Font("SansSerif", Font.BOLD, 8));
-            g2d.drawString("XEBIA", sealX - 16, sealY - 5);
-            g2d.drawString("LMS", sealX - 10, sealY + 8);
+            g2d.drawString("LMS", sealX - 10, sealY - 5);
+            g2d.drawString("PORTAL", sealX - 18, sealY + 8);
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 7));
             g2d.drawString("CERTIFIED", sealX - 20, sealY + 20);
 

@@ -178,14 +178,18 @@ export const TeacherCertificates: React.FC = () => {
                             <Eye size={15} />
                           </button>
                           <button
-                            onClick={() => window.open(`${api.defaults.baseURL}/teacher/certificates/${c.id}/view`, '_blank')}
+                            onClick={() => window.open(c.pdfFileUrl || c.certificateUrl, '_blank')}
                             title="View Certificate"
                             className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
                           >
                             <ExternalLink size={15} />
                           </button>
                           <button
-                            onClick={() => window.open(`${api.defaults.baseURL}/teacher/certificates/${c.id}/download`, '_blank')}
+                            onClick={() => {
+                              const url = c.pdfFileUrl || c.certificateUrl;
+                              const downloadUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
+                              window.open(downloadUrl, '_blank');
+                            }}
                             title="Download PDF"
                             className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-colors cursor-pointer"
                           >

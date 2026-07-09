@@ -85,7 +85,7 @@ export const TeacherDashboard: React.FC = () => {
   return (
     <Layout role="teacher" title="Dashboard" subtitle={`Good day, ${user?.name?.split(' ')[0]}!`}>
       {/* Welcome banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#00B5AD] via-[#511345] to-[#00998F] rounded-2xl p-6 mb-6 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#4A1F4F] via-[#511345] to-[#622865] rounded-2xl p-6 mb-6 text-white">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
         <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-[#2563EB]/10 blur-2xl" />
         <div className="relative z-10">
@@ -118,19 +118,19 @@ export const TeacherDashboard: React.FC = () => {
           {/* Quick Actions */}
           <Card>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#00B5AD]" />
+              <span className="w-2 h-2 rounded-full bg-[#4A1F4F]" />
               Quick Actions
             </h3>
             <div className="space-y-2">
-              <a href="/teacher/batches" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#00B5AD] hover:bg-[#00B5AD08] transition-all group">
-                <div className="w-8 h-8 rounded-lg bg-[#00B5AD] flex items-center justify-center shrink-0">
+              <a href="/teacher/batches" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#4A1F4F] hover:bg-[#4A1F4F08] transition-all group">
+                <div className="w-8 h-8 rounded-lg bg-[#4A1F4F] flex items-center justify-center shrink-0">
                   <FolderOpen size={15} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#00B5AD]">Manage Batches</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#4A1F4F]">Manage Batches</p>
                   <p className="text-xs text-[var(--text-secondary)]">Create classes and view student counts</p>
                 </div>
-                <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#00B5AD] transition-colors" />
+                <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#4A1F4F] transition-colors" />
               </a>
 
               <a href="/teacher/assignments/create" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#2563EB] hover:bg-[#2563EB08] transition-all group">
@@ -193,7 +193,7 @@ export const TeacherDashboard: React.FC = () => {
           <Card>
             <div className="border-b border-[var(--brand-border)] pb-3 mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-teal-500" />
+                <span className="w-2 h-2 rounded-full bg-[#F5EAF8]0" />
                 Assignments Grouped by Batch
               </h3>
               <span className="text-xs text-[var(--text-secondary)] font-medium">Total: {assignments.length}</span>
@@ -220,7 +220,7 @@ export const TeacherDashboard: React.FC = () => {
                 {assignmentsByBatch.map((group) => (
                   <div key={group.batchId} className="space-y-2">
                     <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/40 px-3 py-2 rounded-xl border border-[var(--brand-border)]">
-                      <span className="text-xs font-bold text-[#00B5AD] dark:text-purple-300 uppercase tracking-wide">
+                      <span className="text-xs font-bold text-[#4A1F4F] dark:text-purple-300 uppercase tracking-wide">
                         {group.batchName}
                       </span>
                       <span className="text-[10px] font-semibold bg-slate-200 dark:bg-slate-700 text-[var(--text-secondary)] rounded-full px-2 py-0.5">
@@ -238,7 +238,7 @@ export const TeacherDashboard: React.FC = () => {
                           <div
                             key={a.id}
                             onClick={() => navigate(`/teacher/submitted?assignment=${a.id}`)}
-                            className="bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] hover:border-[#00B5AD] rounded-xl p-3.5 transition-all card-hover cursor-pointer flex flex-col justify-between"
+                            className="bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] hover:border-[#4A1F4F] rounded-xl p-3.5 transition-all card-hover cursor-pointer flex flex-col justify-between"
                           >
                             <div>
                               <div className="flex items-start justify-between gap-2">

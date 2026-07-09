@@ -78,7 +78,7 @@ export const TeacherAssignments: React.FC = () => {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search assignments..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
           />
         </div>
 
@@ -143,13 +143,13 @@ export const TeacherAssignments: React.FC = () => {
                   <tr key={a.id} className="table-row-hover">
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0">
-                          <FileText size={13} className="text-[#00B5AD] dark:text-teal-400" />
+                        <div className="w-7 h-7 rounded-lg bg-[#F5EAF8]0/10 flex items-center justify-center shrink-0">
+                          <FileText size={13} className="text-[#4A1F4F] dark:text-purple-400" />
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span className="text-sm font-medium text-[var(--text-primary)] max-w-[160px] truncate">{a.title}</span>
                           {a.assignmentType === 'QUIZ' && (
-                            <span className="self-start text-[9px] uppercase font-black text-[#00B5AD] dark:text-teal-400 bg-teal-50 dark:bg-purple-950/20 px-1 rounded mt-0.5">Quiz</span>
+                            <span className="self-start text-[9px] uppercase font-black text-[#4A1F4F] dark:text-purple-400 bg-[#F5EAF8] dark:bg-purple-950/20 px-1 rounded mt-0.5">Quiz</span>
                           )}
                         </div>
                       </div>
@@ -188,7 +188,7 @@ export const TeacherAssignments: React.FC = () => {
                         <button
                           title="Delete"
                           onClick={() => setDeleteModal(a)}
-                          className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-teal-50 hover:text-red-500 dark:hover:bg-teal-500/10 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-[#F5EAF8] hover:text-red-500 dark:hover:bg-[#F5EAF8]0/10 transition-colors cursor-pointer"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -227,7 +227,7 @@ export const TeacherAssignments: React.FC = () => {
         }
       >
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#F5EAF8] dark:bg-[#F5EAF8]0/10 flex items-center justify-center shrink-0">
             <Trash2 size={18} className="text-red-500" />
           </div>
           <div>

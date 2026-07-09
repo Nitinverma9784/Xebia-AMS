@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
-                <GraduationCap size={20} className="text-[#00B5AD]" />
+                <GraduationCap size={20} className="text-[#4A1F4F]" />
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-purple-200/60">Xebia LMS</p>
@@ -116,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
                 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold
                 transition-all duration-200 cursor-pointer
                 ${isActive
-                  ? 'bg-[#7B2D7B] text-white shadow-md shadow-[#7B2D7B]/20 border-l-4 border-[#00B5AD]'
+                  ? 'bg-[#7B2D7B] text-white shadow-md shadow-[#7B2D7B]/20 border-l-4 border-[#4A1F4F]'
                   : 'text-purple-100/80 hover:bg-[#622865] hover:text-white'
                 }
               `}
@@ -140,7 +140,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-teal-400 hover:bg-white/5 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-purple-400 hover:bg-white/5 transition-colors cursor-pointer"
           >
             <LogOut size={16} />
             Sign Out

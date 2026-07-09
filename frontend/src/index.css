@@ -6,20 +6,20 @@
 
 /* ─── CSS Variables ─────────────────────────────────────────────────────── */
 :root {
-  --brand-primary: #00B5AD;
-  --brand-primary-dark: #00998F;
-  --brand-secondary: #8A2C90;
+  --brand-primary: #4A1F4F;
+  --brand-primary-dark: #622865;
+  --brand-secondary: #7A2676;
   --brand-success: #10B981;
-  --brand-cta: #00B5AD;
+  --brand-cta: #4A1F4F;
   --brand-border: #E6E8F0;
   --brand-surface: #F6F7FB;
   --brand-background: #FFFFFF;
   --text-primary: #1F2937;
   --text-secondary: #6B7280;
-  --accent-teal: #00B5AD;
-  --accent-teal-dark: #00998F;
+  --accent-teal: #A855F7;
+  --accent-teal-dark: #7A2676;
   --accent-orange: #F59E0B;
-  --accent-purple: #8A2C90;
+  --accent-purple: #4A1F4F;
   --accent-pink: #EF4444;
   --accent-plum: #4A1F4F;
 }
@@ -61,11 +61,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #00B5AD22;
+  background: #4A1F4F22;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00B5AD44;
+  background: #4A1F4F44;
 }
 
 /* ─── Focus ─────────────────────────────────────────────────────────────── */
@@ -99,7 +99,7 @@ select, select:focus, select:focus-visible {
 }
 .drop-zone:hover, .drop-zone.dragging {
   border-color: var(--brand-primary);
-  background-color: #00B5AD08;
+  background-color: #F5EAF8;
 }
 
 /* ─── Sidebar Transition ────────────────────────────────────────────────── */
@@ -113,7 +113,7 @@ select, select:focus, select:focus-visible {
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 181, 173, 0.08), 0 8px 10px -6px rgba(0, 181, 173, 0.08);
+  box-shadow: 0 10px 25px -5px rgba(74, 31, 79, 0.08), 0 8px 10px -6px rgba(74, 31, 79, 0.08);
 }
 .dark .card-hover:hover {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
@@ -126,7 +126,7 @@ select, select:focus, select:focus-visible {
 
 /* ─── Table ─────────────────────────────────────────────────────────────── */
 .table-row-hover:hover {
-  background-color: #00B5AD05;
+  background-color: #F5EAF8;
 }
 .dark .table-row-hover:hover {
   background-color: #ffffff04;

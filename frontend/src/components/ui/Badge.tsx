@@ -23,7 +23,7 @@ const variantConfig: Record<BadgeVariant, { label: string; classes: string }> = 
   },
   reviewed: {
     label: 'Reviewed',
-    classes: 'bg-purple-50 dark:bg-purple-500/10 text-[#8A2C90] dark:text-purple-300 border border-purple-200 dark:border-purple-500/20',
+    classes: 'bg-[#F5EAF8] dark:bg-[#4A1F4F]/20 text-[#4A1F4F] dark:text-purple-300 border border-[#4A1F4F]/25',
   },
   not_submitted: {
     label: 'Not Submitted',
@@ -31,11 +31,11 @@ const variantConfig: Record<BadgeVariant, { label: string; classes: string }> = 
   },
   overdue: {
     label: 'Overdue',
-    classes: 'bg-teal-50 dark:bg-teal-500/10 text-red-700 dark:text-teal-400 border border-teal-200 dark:border-red-500/30',
+    classes: 'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30',
   },
   active: {
     label: 'Active',
-    classes: 'bg-teal-50 dark:bg-teal-500/10 text-[#00B5AD] dark:text-teal-400 border border-teal-200 dark:border-teal-500/30',
+    classes: 'bg-[#F5EAF8] dark:bg-[#4A1F4F]/20 text-[#4A1F4F] dark:text-purple-300 border border-[#4A1F4F]/25',
   },
   pending: {
     label: 'Pending',
@@ -47,10 +47,10 @@ const statusDot: Record<BadgeVariant, string> = {
   draft: 'bg-slate-400',
   published: 'bg-emerald-500',
   submitted: 'bg-blue-500',
-  reviewed: 'bg-[#8A2C90]',
+  reviewed: 'bg-[#A855F7]',
   not_submitted: 'bg-amber-500',
-  overdue: 'bg-teal-500',
-  active: 'bg-[#00B5AD]',
+  overdue: 'bg-red-500',
+  active: 'bg-[#A855F7]',
   pending: 'bg-orange-500',
 };
 

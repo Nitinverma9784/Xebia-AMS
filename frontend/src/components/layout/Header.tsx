@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onMenuToggle })
         {/* Notification bell (decorative) */}
         <button className="relative p-2 rounded-xl text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
           <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#00B5AD]" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#4A1F4F]" />
         </button>
 
         {/* Dark mode toggle */}
@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onMenuToggle })
 
         {/* Avatar */}
         <div className="flex items-center gap-2 pl-2 border-l border-[var(--brand-border)]">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00B5AD] to-[#00998F] flex items-center justify-center text-white text-xs font-bold shadow-sm">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4A1F4F] to-[#622865] flex items-center justify-center text-white text-xs font-bold shadow-sm">
             {user ? getInitials(user.name) : '?'}
           </div>
           <div className="hidden md:block">

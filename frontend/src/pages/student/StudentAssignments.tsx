@@ -99,7 +99,7 @@ export const StudentAssignments: React.FC = () => {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search assignments..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
           />
         </div>
 
@@ -126,7 +126,7 @@ export const StudentAssignments: React.FC = () => {
               onClick={() => setViewMode('table')}
               className={`p-1.5 rounded-lg text-xs cursor-pointer transition-colors ${
                 viewMode === 'table'
-                  ? 'bg-[#00B5AD] text-white'
+                  ? 'bg-[#4A1F4F] text-white'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title="Table View"
@@ -137,7 +137,7 @@ export const StudentAssignments: React.FC = () => {
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-lg text-xs cursor-pointer transition-colors ${
                 viewMode === 'grid'
-                  ? 'bg-[#00B5AD] text-white'
+                  ? 'bg-[#4A1F4F] text-white'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title="Grid View"
@@ -176,14 +176,14 @@ export const StudentAssignments: React.FC = () => {
                     <tr key={a.id} className="table-row-hover">
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0">
-                            <FileText size={13} className="text-[#00B5AD] dark:text-teal-400" />
+                          <div className="w-7 h-7 rounded-lg bg-[#F5EAF8]0/10 flex items-center justify-center shrink-0">
+                            <FileText size={13} className="text-[#4A1F4F] dark:text-purple-400" />
                           </div>
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-medium text-[var(--text-primary)] max-w-[180px] truncate block">{a.title}</span>
                             <div className="flex gap-1.5 items-center mt-0.5">
                               {a.assignmentType === 'QUIZ' && (
-                                <span className="text-[9px] uppercase font-black text-[#00B5AD] dark:text-teal-400 bg-teal-50 dark:bg-purple-950/20 px-1 rounded">Quiz</span>
+                                <span className="text-[9px] uppercase font-black text-[#4A1F4F] dark:text-purple-400 bg-[#F5EAF8] dark:bg-purple-950/20 px-1 rounded">Quiz</span>
                               )}
                               {a.topic && <span className="text-[10px] text-[#2563EB] font-semibold">{a.topic}</span>}
                             </div>
@@ -200,7 +200,7 @@ export const StudentAssignments: React.FC = () => {
                           {getDueDateCountdown(a.dueDate)}
                         </p>
                       </td>
-                      <td className="px-4 py-3.5 text-sm font-semibold text-[#00B5AD] dark:text-purple-300">{a.maxMarks}</td>
+                      <td className="px-4 py-3.5 text-sm font-semibold text-[#4A1F4F] dark:text-purple-300">{a.maxMarks}</td>
                       <td className="px-4 py-3.5">
                         <Badge variant={getStatusBadgeVariant(a)} />
                       </td>
@@ -217,7 +217,7 @@ export const StudentAssignments: React.FC = () => {
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => navigate(`/student/assignments/${a.id}`)}
-                            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-teal-50 hover:text-[#00B5AD] dark:hover:bg-teal-500/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-[#F5EAF8] hover:text-[#4A1F4F] dark:hover:bg-[#F5EAF8]0/10 transition-colors cursor-pointer"
                             title="View Assignment Detail"
                           >
                             <Eye size={15} />
@@ -275,11 +275,11 @@ export const StudentAssignments: React.FC = () => {
                   >
                     <div className="flex items-start justify-between gap-2 mb-3">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 group-hover:text-[#00B5AD] dark:group-hover:text-purple-300 transition-colors">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 group-hover:text-[#4A1F4F] dark:group-hover:text-purple-300 transition-colors">
                           {a.title}
                         </h3>
                         {a.assignmentType === 'QUIZ' && (
-                          <span className="inline-block text-[9px] uppercase font-black text-[#00B5AD] dark:text-teal-400 bg-teal-50 dark:bg-purple-950/20 px-1 rounded mt-1">Quiz</span>
+                          <span className="inline-block text-[9px] uppercase font-black text-[#4A1F4F] dark:text-purple-400 bg-[#F5EAF8] dark:bg-purple-950/20 px-1 rounded mt-1">Quiz</span>
                         )}
                       </div>
                       <Badge variant={getStatusBadgeVariant(a)} />
@@ -302,7 +302,7 @@ export const StudentAssignments: React.FC = () => {
                     </p>
 
                     <div className="flex items-center gap-2 mb-4 pb-4 border-b border-[var(--brand-border)]">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#00B5AD] to-[#00998F] flex items-center justify-center text-white text-[9px] font-bold">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#4A1F4F] to-[#622865] flex items-center justify-center text-white text-[9px] font-bold">
                         {getInitials(a.teacher?.name || 'T')}
                       </div>
                       <span className="text-xs text-[var(--text-secondary)]">{a.teacher?.name}</span>
@@ -318,7 +318,7 @@ export const StudentAssignments: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-[var(--text-secondary)]">Max Marks</p>
-                        <p className="text-sm font-bold text-[#00B5AD] dark:text-purple-300">{a.maxMarks}</p>
+                        <p className="text-sm font-bold text-[#4A1F4F] dark:text-purple-300">{a.maxMarks}</p>
                       </div>
                     </div>
 

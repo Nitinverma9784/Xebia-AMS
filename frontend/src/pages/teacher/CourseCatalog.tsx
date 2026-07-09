@@ -560,9 +560,9 @@ export const CourseCatalog: React.FC = () => {
   // Helper type color badge
   const getContentTypeColor = (t: string) => {
     if (t === 'video') return 'bg-rose-500/10 text-rose-600 dark:text-rose-400';
-    if (t === 'pdf') return 'bg-teal-500/10 text-red-600 dark:text-teal-400';
+    if (t === 'pdf') return 'bg-[#F5EAF8]0/10 text-red-600 dark:text-purple-400';
     if (t === 'reading') return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
-    if (t === 'quiz') return 'bg-teal-500/10 text-purple-600 dark:text-teal-400';
+    if (t === 'quiz') return 'bg-[#F5EAF8]0/10 text-purple-600 dark:text-purple-400';
     return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
   };
 
@@ -570,7 +570,7 @@ export const CourseCatalog: React.FC = () => {
     <MainLayout role="teacher" title="Course Catalog Explorer" subtitle="Structured category, course, and content management for Xebia">
       
       {/* Dynamic Stripe/Apple Style Header Grid */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#4A1E47] via-[#00B5AD] to-[#2563EB] rounded-3xl p-6 sm:p-8 text-white mb-6 shadow-xl border border-white/10 select-none">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#4A1E47] via-[#4A1F4F] to-[#2563EB] rounded-3xl p-6 sm:p-8 text-white mb-6 shadow-xl border border-white/10 select-none">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10 space-y-4">
           <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-wider text-xs">
@@ -605,7 +605,7 @@ export const CourseCatalog: React.FC = () => {
           <button
             onClick={() => { setActiveCategoryId(null); setActiveCourseId(null); setActiveModuleId(null); setActiveSubmoduleId(null); }}
             className={`font-semibold cursor-pointer py-1 px-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${
-              !activeCategoryId ? 'text-[#00B5AD] dark:text-teal-400 font-bold bg-[#00B5AD10]' : 'text-[var(--text-secondary)]'
+              !activeCategoryId ? 'text-[#4A1F4F] dark:text-purple-400 font-bold bg-[#4A1F4F10]' : 'text-[var(--text-secondary)]'
             }`}
           >
             Catalog Root
@@ -617,7 +617,7 @@ export const CourseCatalog: React.FC = () => {
               <button
                 onClick={() => { setActiveCourseId(null); setActiveModuleId(null); setActiveSubmoduleId(null); }}
                 className={`font-semibold cursor-pointer py-1 px-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${
-                  activeCategoryId && !activeCourseId ? 'text-[#00B5AD] dark:text-teal-400 font-bold bg-[#00B5AD10]' : 'text-[var(--text-secondary)]'
+                  activeCategoryId && !activeCourseId ? 'text-[#4A1F4F] dark:text-purple-400 font-bold bg-[#4A1F4F10]' : 'text-[var(--text-secondary)]'
                 }`}
               >
                 {activeCategory.name}
@@ -631,7 +631,7 @@ export const CourseCatalog: React.FC = () => {
               <button
                 onClick={() => { setActiveModuleId(null); setActiveSubmoduleId(null); }}
                 className={`font-semibold cursor-pointer py-1 px-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${
-                  activeCourseId && !activeModuleId ? 'text-[#00B5AD] dark:text-teal-400 font-bold bg-[#00B5AD10]' : 'text-[var(--text-secondary)]'
+                  activeCourseId && !activeModuleId ? 'text-[#4A1F4F] dark:text-purple-400 font-bold bg-[#4A1F4F10]' : 'text-[var(--text-secondary)]'
                 }`}
               >
                 {activeCourse.title}
@@ -645,7 +645,7 @@ export const CourseCatalog: React.FC = () => {
               <button
                 onClick={() => { setActiveSubmoduleId(null); }}
                 className={`font-semibold cursor-pointer py-1 px-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${
-                  activeModuleId && !activeSubmoduleId ? 'text-[#00B5AD] dark:text-teal-400 font-bold bg-[#00B5AD10]' : 'text-[var(--text-secondary)]'
+                  activeModuleId && !activeSubmoduleId ? 'text-[#4A1F4F] dark:text-purple-400 font-bold bg-[#4A1F4F10]' : 'text-[var(--text-secondary)]'
                 }`}
               >
                 {activeModule.title}
@@ -656,7 +656,7 @@ export const CourseCatalog: React.FC = () => {
           {activeSubmodule && (
             <>
               <ChevronRight size={12} className="text-slate-300 shrink-0" />
-              <span className="font-bold text-[#00B5AD] dark:text-teal-400 bg-[#00B5AD10] py-1 px-2 rounded-lg shrink-0">
+              <span className="font-bold text-[#4A1F4F] dark:text-purple-400 bg-[#4A1F4F10] py-1 px-2 rounded-lg shrink-0">
                 {activeSubmodule.title}
               </span>
             </>
@@ -672,7 +672,7 @@ export const CourseCatalog: React.FC = () => {
               placeholder="Search catalog..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#00B5AD] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
             />
           </div>
         )}
@@ -718,14 +718,14 @@ export const CourseCatalog: React.FC = () => {
                       <button
                         onClick={() => handleReorder('category', catIdx, 'up')}
                         disabled={catIdx === 0}
-                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                       >
                         <ChevronUp size={14} />
                       </button>
                       <button
                         onClick={() => handleReorder('category', catIdx, 'down')}
                         disabled={catIdx === catalog.length - 1}
-                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                       >
                         <ChevronDown size={14} />
                       </button>
@@ -812,14 +812,14 @@ export const CourseCatalog: React.FC = () => {
                         <button
                           onClick={() => handleReorder('course', coIdx, 'up')}
                           disabled={coIdx === 0}
-                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                         >
                           <ChevronUp size={14} />
                         </button>
                         <button
                           onClick={() => handleReorder('course', coIdx, 'down')}
                           disabled={coIdx === activeCategory.courses.length - 1}
-                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                         >
                           <ChevronDown size={14} />
                         </button>
@@ -892,7 +892,7 @@ export const CourseCatalog: React.FC = () => {
                         onClick={() => { setActiveModuleId(m.id); setActiveSubmoduleId(null); }}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer shadow-sm relative group ${
                           isSelectedMod
-                            ? 'border-[#00B5AD] bg-[#00B5AD05] dark:bg-slate-800 ring-1 ring-[#00B5AD]'
+                            ? 'border-[#4A1F4F] bg-[#4A1F4F05] dark:bg-slate-800 ring-1 ring-[#4A1F4F]'
                             : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] hover:border-slate-300'
                         }`}
                       >
@@ -906,14 +906,14 @@ export const CourseCatalog: React.FC = () => {
                             <button
                               onClick={(e) => { e.stopPropagation(); handleReorder('module', mIdx, 'up'); }}
                               disabled={mIdx === 0}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                             >
                               <ChevronUp size={12} />
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleReorder('module', mIdx, 'down'); }}
                               disabled={mIdx === activeCourse.modules.length - 1}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                             >
                               <ChevronDown size={12} />
                             </button>
@@ -968,14 +968,14 @@ export const CourseCatalog: React.FC = () => {
                                       <button
                                         onClick={(e) => { e.stopPropagation(); handleReorder('submodule', sIdx, 'up'); }}
                                         disabled={sIdx === 0}
-                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                                       >
                                         <ChevronUp size={10} />
                                       </button>
                                       <button
                                         onClick={(e) => { e.stopPropagation(); handleReorder('submodule', sIdx, 'down'); }}
                                         disabled={sIdx === m.submodules.length - 1}
-                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                                       >
                                         <ChevronDown size={10} />
                                       </button>
@@ -1067,14 +1067,14 @@ export const CourseCatalog: React.FC = () => {
                             <button
                               onClick={() => handleReorder('content', cIdx, 'up')}
                               disabled={cIdx === 0}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                             >
                               <ChevronUp size={12} />
                             </button>
                             <button
                               onClick={() => handleReorder('content', cIdx, 'down')}
                               disabled={cIdx === activeSubmodule.contents.length - 1}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#00B5AD] disabled:opacity-30 cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#4A1F4F] disabled:opacity-30 cursor-pointer"
                             >
                               <ChevronDown size={12} />
                             </button>
@@ -1133,7 +1133,7 @@ export const CourseCatalog: React.FC = () => {
                   key={clr.class}
                   onClick={() => setCatColor(clr.class)}
                   className={`p-2 rounded-xl text-[10px] text-white bg-gradient-to-r font-bold text-center border cursor-pointer ${clr.class} ${
-                    catColor === clr.class ? 'border-[#00B5AD] scale-95 ring-1 ring-[#00B5AD]' : 'border-transparent'
+                    catColor === clr.class ? 'border-[#4A1F4F] scale-95 ring-1 ring-[#4A1F4F]' : 'border-transparent'
                   }`}
                 >
                   {clr.label}

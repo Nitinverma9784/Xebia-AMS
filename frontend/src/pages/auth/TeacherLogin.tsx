@@ -87,7 +87,7 @@ export const TeacherLogin: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-[var(--brand-surface)]">
       {/* Left Panel — Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#00B5AD] via-[#511345] to-[#00998F] relative overflow-hidden flex-col justify-center items-center p-12">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#4A1F4F] via-[#511345] to-[#622865] relative overflow-hidden flex-col justify-center items-center p-12">
         {/* Background orbs */}
         <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#2563EB]/10 blur-3xl" />
@@ -127,7 +127,7 @@ export const TeacherLogin: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#00B5AD] to-[#00998F] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#4A1F4F] to-[#622865] flex items-center justify-center">
               <GraduationCap size={20} className="text-white" />
             </div>
             <div>
@@ -234,7 +234,7 @@ export const TeacherLogin: React.FC = () => {
                 type="button"
                 variant="outline"
                 size="lg"
-                className="w-full border-[#00B5AD] text-[#00B5AD] hover:bg-[#00B5AD]/5 mt-2"
+                className="w-full border-[#4A1F4F] text-[#4A1F4F] hover:bg-[#4A1F4F]/5 mt-2"
                 onClick={onDirectLogin}
               >
                 Quick Direct Login (Demo)
@@ -245,7 +245,7 @@ export const TeacherLogin: React.FC = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => { setIsRegister(!isRegister); loginForm.reset(); registerForm.reset(); }}
-              className="text-sm text-[#00B5AD] dark:text-teal-400 hover:underline font-medium cursor-pointer"
+              className="text-sm text-[#4A1F4F] dark:text-purple-400 hover:underline font-medium cursor-pointer"
             >
               {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
             </button>

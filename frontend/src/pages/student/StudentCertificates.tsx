@@ -58,7 +58,7 @@ export const StudentCertificates: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search certificates by title or ID..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors focus:outline-none"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors focus:outline-none"
           />
         </div>
       </div>
@@ -105,7 +105,7 @@ export const StudentCertificates: React.FC = () => {
 
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <span className="text-[9px] uppercase font-black text-[#00B5AD] dark:text-teal-400 bg-teal-50 dark:bg-purple-950/20 px-2 py-0.5 rounded">
+                    <span className="text-[9px] uppercase font-black text-[#4A1F4F] dark:text-purple-400 bg-[#F5EAF8] dark:bg-purple-950/20 px-2 py-0.5 rounded">
                       {c.certificateType}
                     </span>
                     <h3 className="text-base font-bold text-[var(--text-primary)] pr-8 line-clamp-1">
@@ -145,7 +145,7 @@ export const StudentCertificates: React.FC = () => {
                 <div className="mt-5 pt-4 border-t border-[var(--brand-border)] flex gap-2">
                   <Button
                     variant="primary"
-                    className="flex-1 text-xs py-2 flex items-center justify-center gap-1.5 shadow-teal-500/10 shadow-lg cursor-pointer"
+                    className="flex-1 text-xs py-2 flex items-center justify-center gap-1.5 shadow-[#4A1F4F]/10 shadow-lg cursor-pointer"
                     onClick={() => window.open(c.pdfFileUrl || c.certificateUrl, '_blank')}
                   >
                     <span>View Certificate</span>
@@ -165,7 +165,7 @@ export const StudentCertificates: React.FC = () => {
                   </Button>
                   <Button
                     variant="outline"
-                    className="p-2 cursor-pointer flex items-center justify-center border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#00B5AD] hover:bg-teal-50 dark:hover:bg-teal-500/10"
+                    className="p-2 cursor-pointer flex items-center justify-center border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#4A1F4F] hover:bg-[#F5EAF8] dark:hover:bg-[#F5EAF8]0/10"
                     title="Share Verification Link"
                     onClick={() => handleShare(c)}
                   >

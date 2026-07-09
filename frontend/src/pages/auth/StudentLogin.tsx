@@ -137,7 +137,7 @@ export const StudentLogin: React.FC = () => {
       {/* Left Panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#2563EB] via-[#0B7F76] to-[#2563EB] relative overflow-hidden flex-col justify-center items-center p-12">
         <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#00B5AD]/10 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#4A1F4F]/10 blur-3xl" />
 
         <div className="relative z-10 text-center space-y-6">
           <div className="w-20 h-20 rounded-3xl bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
@@ -368,7 +368,7 @@ export const StudentLogin: React.FC = () => {
             <p className="text-xs text-center text-[var(--text-secondary)] mb-3">Other Portals</p>
             <Link
               to="/teacher/login"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[var(--brand-border)] text-sm text-[var(--text-secondary)] hover:border-[#00B5AD] hover:text-[#00B5AD] transition-all"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[var(--brand-border)] text-sm text-[var(--text-secondary)] hover:border-[#4A1F4F] hover:text-[#4A1F4F] transition-all"
             >
               <GraduationCap size={16} />
               Teacher Portal →

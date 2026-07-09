@@ -144,7 +144,7 @@ export const StudentDashboard: React.FC = () => {
       {/* Welcome banner */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#2563EB] via-[#0B7F76] to-[#2563EB] rounded-2xl p-6 mb-6 text-white">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
-        <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-[#00B5AD]/10 blur-2xl" />
+        <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-[#4A1F4F]/10 blur-2xl" />
         <div className="relative z-10">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="space-y-1">
@@ -159,7 +159,7 @@ export const StudentDashboard: React.FC = () => {
             </div>
             {stats?.batchName && (
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold backdrop-blur">
-                <span className="w-2 h-2 rounded-full bg-[#00B5AD]" />
+                <span className="w-2 h-2 rounded-full bg-[#4A1F4F]" />
                 Assigned Batch: {stats.batchName}
               </div>
             )}
@@ -224,22 +224,22 @@ export const StudentDashboard: React.FC = () => {
                 </div>
                 <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#2563EB] transition-colors" />
               </a>
-              <a href="/student/progress" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#00B5AD] hover:bg-[#00B5AD08] transition-all group">
-                <div className="w-8 h-8 rounded-lg bg-[#00B5AD] flex items-center justify-center shrink-0">
+              <a href="/student/progress" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#4A1F4F] hover:bg-[#4A1F4F08] transition-all group">
+                <div className="w-8 h-8 rounded-lg bg-[#4A1F4F] flex items-center justify-center shrink-0">
                   <TrendingUp size={15} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#00B5AD]">Learning Progress</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#4A1F4F]">Learning Progress</p>
                   <p className="text-xs text-[var(--text-secondary)]">Review performance metrics and grades</p>
                 </div>
-                <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#00B5AD] transition-colors" />
+                <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#4A1F4F] transition-colors" />
               </a>
             </div>
           </Card>
 
           <Card>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#00B5AD]" />
+              <span className="w-2 h-2 rounded-full bg-[#4A1F4F]" />
               Overview Summary
             </h3>
             {loading ? (
@@ -264,7 +264,7 @@ export const StudentDashboard: React.FC = () => {
                   {
                     label: 'Submitted / Published',
                     value: `${stats.submittedAssignments}/${stats.totalAssignments}`,
-                    color: 'text-[#00B5AD] dark:text-purple-300',
+                    color: 'text-[#4A1F4F] dark:text-purple-300',
                   },
                   {
                     label: 'Average Score',
@@ -287,7 +287,7 @@ export const StudentDashboard: React.FC = () => {
           <Card>
             <div className="border-b border-[var(--brand-border)] pb-3 mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#00B5AD]" />
+                <span className="w-2 h-2 rounded-full bg-[#4A1F4F]" />
                 Recent Batch Assignments
               </h3>
               {stats?.batchName && (
@@ -329,8 +329,8 @@ export const StudentDashboard: React.FC = () => {
                         {/* Title & Badge */}
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0">
-                              <FileText size={16} className="text-[#00B5AD] dark:text-teal-400" />
+                            <div className="w-8 h-8 rounded-lg bg-[#F5EAF8]0/10 flex items-center justify-center shrink-0">
+                              <FileText size={16} className="text-[#4A1F4F] dark:text-purple-400" />
                             </div>
                             <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
                               {a.title}

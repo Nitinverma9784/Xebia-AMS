@@ -15,7 +15,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }
     return (
       <div className="min-h-screen bg-[var(--brand-surface)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#6C1D5F] to-[#84117C] flex items-center justify-center animate-pulse">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#EF4444] to-[#DC2626] flex items-center justify-center animate-pulse">
             <div className="w-5 h-5 rounded-full bg-white/30" />
           </div>
           <p className="text-sm text-[var(--text-secondary)]">Loading...</p>

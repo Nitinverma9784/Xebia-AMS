@@ -224,7 +224,7 @@ export const CreateAssignment: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setBatchOpen(!batchOpen)}
-                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#6C1D5F] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between cursor-pointer"
+                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between cursor-pointer"
                   >
                     <span className="truncate">{selectedBatchName || 'Select a batch'}</span>
                     <ChevronDown size={16} className="text-[var(--text-secondary)] shrink-0" />
@@ -240,7 +240,7 @@ export const CreateAssignment: React.FC = () => {
                           placeholder="Search batch..."
                           value={batchSearch}
                           onChange={(e) => setBatchSearch(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-lg py-1.5 pl-8 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+                          className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#EF4444] rounded-lg py-1.5 pl-8 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
                         />
                       </div>
                     )}
@@ -258,7 +258,7 @@ export const CreateAssignment: React.FC = () => {
                               setBatchOpen(false);
                             }}
                             className={`w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
-                              watchBatchId === String(b.id) ? 'bg-[#6C1D5F10] text-[#6C1D5F] font-semibold' : 'text-[var(--text-primary)]'
+                              watchBatchId === String(b.id) ? 'bg-[#EF444410] text-[#EF4444] font-semibold' : 'text-[var(--text-primary)]'
                             }`}
                           >
                             {b.batchName}
@@ -332,7 +332,7 @@ export const CreateAssignment: React.FC = () => {
             </h3>
 
             {attachment ? (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-[#6C1D5F]/5 border border-[#6C1D5F]/20">
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-[#EF4444]/5 border border-[#EF4444]/20">
                 <span className="text-2xl">{getFileIcon(attachment.name)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[var(--text-primary)] truncate">{attachment.name}</p>
@@ -347,7 +347,7 @@ export const CreateAssignment: React.FC = () => {
                 </button>
               </div>
             ) : existingAttachment ? (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-teal-500/5 border border-teal-200 dark:border-teal-500/20">
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-500/5 border border-blue-200 dark:border-teal-500/20">
                 <span className="text-2xl">{getFileIcon(existingAttachmentName || '')}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[var(--text-primary)] truncate">{existingAttachmentName}</p>
@@ -369,11 +369,11 @@ export const CreateAssignment: React.FC = () => {
                 onDrop={onDrop}
                 onClick={() => fileRef.current?.click()}
               >
-                <div className="w-12 h-12 rounded-2xl bg-[#6C1D5F]/10 flex items-center justify-center mx-auto mb-3">
-                  <Upload size={22} className="text-[#6C1D5F] dark:text-purple-400" />
+                <div className="w-12 h-12 rounded-2xl bg-[#EF4444]/10 flex items-center justify-center mx-auto mb-3">
+                  <Upload size={22} className="text-[#EF4444] dark:text-red-400" />
                 </div>
                 <p className="text-sm font-medium text-[var(--text-primary)]">
-                  Drop file here or <span className="text-[#6C1D5F] dark:text-purple-400">browse</span>
+                  Drop file here or <span className="text-[#EF4444] dark:text-red-400">browse</span>
                 </p>
                 <p className="text-xs text-[var(--text-secondary)] mt-1">PDF, DOC, DOCX, ZIP, JPG, PNG · Max 25MB</p>
                 <input

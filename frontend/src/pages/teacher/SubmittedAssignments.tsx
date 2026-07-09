@@ -401,7 +401,7 @@ export const SubmittedAssignments: React.FC = () => {
                   onClick={() => handleTabChange(tab.value as any)}
                   className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
                     typeTab === tab.value
-                      ? 'bg-[#6C1D5F] text-white shadow-sm'
+                      ? 'bg-[#EF4444] text-white shadow-sm'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
@@ -418,7 +418,7 @@ export const SubmittedAssignments: React.FC = () => {
                 placeholder="Search assessments..."
                 value={assignmentSearch}
                 onChange={(e) => setAssignmentSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
+                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
               />
             </div>
 
@@ -436,7 +436,7 @@ export const SubmittedAssignments: React.FC = () => {
                   onClick={() => setAssignmentFilter(tab.value as any)}
                   className={`flex-1 py-1.5 px-2.5 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
                     assignmentFilter === tab.value
-                      ? 'bg-[#6C1D5F] text-white shadow-sm'
+                      ? 'bg-[#EF4444] text-white shadow-sm'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
@@ -473,14 +473,14 @@ export const SubmittedAssignments: React.FC = () => {
                     onClick={() => selectAssignment(a)}
                     className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col gap-3 shadow-sm ${
                       isSelected
-                        ? 'border-[#6C1D5F] bg-[#6C1D5F05] dark:bg-[#6C1D5F]/5 ring-1 ring-[#6C1D5F]'
-                        : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] hover:border-[#6C1D5F50] hover:shadow-md'
+                        ? 'border-[#EF4444] bg-[#EF444405] dark:bg-[#EF4444]/5 ring-1 ring-[#EF4444]'
+                        : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] hover:border-[#EF444450] hover:shadow-md'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                          isSelected ? 'bg-[#6C1D5F]/15 text-[#6C1D5F] dark:text-purple-400' : 'bg-slate-100 dark:bg-slate-800 text-[var(--text-secondary)]'
+                          isSelected ? 'bg-[#EF4444]/15 text-[#EF4444] dark:text-red-400' : 'bg-slate-100 dark:bg-slate-800 text-[var(--text-secondary)]'
                         }`}>
                           {a.assignmentType === 'QUIZ' ? <FileSpreadsheet size={16} /> : <FileText size={16} />}
                         </div>
@@ -518,7 +518,7 @@ export const SubmittedAssignments: React.FC = () => {
                       </div>
                       <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-[var(--brand-border)]">
                         <div
-                          className="bg-gradient-to-r from-[#6C1D5F] to-[#01AC9F] h-full rounded-full transition-all duration-300"
+                          className="bg-gradient-to-r from-[#EF4444] to-[#2563EB] h-full rounded-full transition-all duration-300"
                           style={{ width: `${progressPct}%` }}
                         />
                       </div>
@@ -553,7 +553,7 @@ export const SubmittedAssignments: React.FC = () => {
             <>
               {/* Assignment Summary Card */}
               <Card className="bg-gradient-to-br from-white to-slate-50/50 dark:from-[#1E293B] dark:to-slate-800/20 relative overflow-hidden">
-                <div className="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-[#6C1D5F]/10 to-[#01AC9F]/10 rounded-bl-full pointer-events-none" />
+                <div className="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-[#EF4444]/10 to-[#2563EB]/10 rounded-bl-full pointer-events-none" />
                 <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 mb-4 pb-4 border-b border-[var(--brand-border)]">
                   <div>
                     <h2 className="text-base font-bold text-[var(--text-primary)]">{selectedAssignment.title}</h2>
@@ -563,7 +563,7 @@ export const SubmittedAssignments: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <span className="text-xs font-bold text-[#6C1D5F] dark:text-purple-400 bg-purple-500/5 px-2.5 py-1 rounded-xl border border-purple-500/10 flex items-center gap-1">
+                    <span className="text-xs font-bold text-[#EF4444] dark:text-red-400 bg-red-500/5 px-2.5 py-1 rounded-xl border border-purple-500/10 flex items-center gap-1">
                       <Award size={13} /> Max Marks: {selectedAssignment.maxMarks}
                     </span>
                   </div>
@@ -574,7 +574,7 @@ export const SubmittedAssignments: React.FC = () => {
                     { label: 'Created Date', value: formatDate(selectedAssignment.createdAt) || '—', color: 'text-[var(--text-primary)]' },
                     { label: 'Due Date', value: formatDate(selectedAssignment.dueDate), color: 'text-rose-500 font-semibold' },
                     { label: 'Total Students', value: String(metrics.total), color: 'text-[var(--text-primary)] font-bold' },
-                    { label: 'Submissions', value: `${metrics.submitted} (${metrics.total - metrics.submitted} Pending)`, color: 'text-[#01AC9F] font-bold' },
+                    { label: 'Submissions', value: `${metrics.submitted} (${metrics.total - metrics.submitted} Pending)`, color: 'text-[#2563EB] font-bold' },
                   ].map((m, idx) => (
                     <div key={idx} className="bg-white dark:bg-slate-800/40 p-3 rounded-2xl border border-[var(--brand-border)] shadow-sm">
                       <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-secondary)] mb-1">{m.label}</p>
@@ -587,11 +587,11 @@ export const SubmittedAssignments: React.FC = () => {
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center text-xs font-semibold">
                     <span className="text-[var(--text-secondary)]">Submission Progress</span>
-                    <span className="text-[#01AC9F]">{metrics.pct}% Submitted</span>
+                    <span className="text-[#2563EB]">{metrics.pct}% Submitted</span>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-[var(--brand-border)]">
                     <div
-                      className="bg-gradient-to-r from-[#6C1D5F] to-[#01AC9F] h-full rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-[#EF4444] to-[#2563EB] h-full rounded-full transition-all duration-500"
                       style={{ width: `${metrics.pct}%` }}
                     />
                   </div>
@@ -617,7 +617,7 @@ export const SubmittedAssignments: React.FC = () => {
                       placeholder="Search by student name or enrollment..."
                       value={studentSearch}
                       onChange={(e) => { setStudentSearch(e.target.value); setCurrentPage(1); }}
-                      className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
+                      className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
                     />
                   </div>
 
@@ -628,7 +628,7 @@ export const SubmittedAssignments: React.FC = () => {
                       <select
                         value={rightPanelTypeFilter}
                         onChange={(e) => { setRightPanelTypeFilter(e.target.value as any); setCurrentPage(1); }}
-                        className="w-full sm:w-40 pl-3 pr-8 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-xl text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[#6C1D5F] appearance-none"
+                        className="w-full sm:w-40 pl-3 pr-8 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-xl text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[#EF4444] appearance-none"
                       >
                         <option value="all">All Types</option>
                         <option value="assignment">Assignments Only</option>
@@ -641,7 +641,7 @@ export const SubmittedAssignments: React.FC = () => {
                       <select
                         value={studentFilter}
                         onChange={(e) => { setStudentFilter(e.target.value as any); setCurrentPage(1); }}
-                        className="w-full sm:w-44 pl-3 pr-8 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-xl text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[#6C1D5F] appearance-none"
+                        className="w-full sm:w-44 pl-3 pr-8 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-xl text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[#EF4444] appearance-none"
                       >
                         <option value="all">All Submissions</option>
                         <option value="submitted">Submitted (Pending Review)</option>
@@ -657,7 +657,7 @@ export const SubmittedAssignments: React.FC = () => {
                       <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as any)}
-                        className="w-full sm:w-40 pl-3 pr-8 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-xl text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[#6C1D5F] appearance-none"
+                        className="w-full sm:w-40 pl-3 pr-8 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-xl text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[#EF4444] appearance-none"
                       >
                         <option value="latest">Latest Submission</option>
                         <option value="oldest">Oldest Submission</option>
@@ -714,7 +714,7 @@ export const SubmittedAssignments: React.FC = () => {
                           {/* Top Row: Student profile & Status Badge */}
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-[var(--brand-border)]">
                             <div className="flex items-center gap-4 min-w-0">
-                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6C1D5F] to-[#01AC9F] flex items-center justify-center text-white text-xs font-black shadow-inner shrink-0">
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EF4444] to-[#2563EB] flex items-center justify-center text-white text-xs font-black shadow-inner shrink-0">
                                 {initials}
                               </div>
                               <div className="min-w-0">
@@ -757,7 +757,7 @@ export const SubmittedAssignments: React.FC = () => {
                             <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-[var(--brand-border)]">
                               <span className="text-[9px] uppercase font-bold tracking-wider text-[var(--text-secondary)] block">Type</span>
                               <span className={`text-[11px] font-bold ${
-                                selectedAssignment.assignmentType === 'QUIZ' ? 'text-emerald-600 dark:text-teal-400' : 'text-purple-600 dark:text-purple-400'
+                                selectedAssignment.assignmentType === 'QUIZ' ? 'text-emerald-600 dark:text-blue-400' : 'text-purple-600 dark:text-red-400'
                               }`}>
                                 {selectedAssignment.assignmentType === 'QUIZ' ? 'Quiz' : 'Assignment'}
                               </span>
@@ -782,7 +782,7 @@ export const SubmittedAssignments: React.FC = () => {
                             {/* Marks / Score */}
                             <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-[var(--brand-border)]">
                               <span className="text-[9px] uppercase font-bold tracking-wider text-[var(--text-secondary)] block">Marks</span>
-                              <span className="text-[11px] font-bold text-[#6C1D5F] dark:text-purple-300">
+                              <span className="text-[11px] font-bold text-[#EF4444] dark:text-purple-300">
                                 {sub.marks !== null && sub.marks !== undefined ? `${sub.marks} / ${selectedAssignment.maxMarks}` : 'Not Graded'}
                               </span>
                             </div>
@@ -809,7 +809,7 @@ export const SubmittedAssignments: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => setViewingQuizSub(sub)}
-                                  className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-[#6C1D5F10] border border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#6C1D5F] rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-1 text-[11px] font-bold"
+                                  className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-[#EF444410] border border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#EF4444] rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-1 text-[11px] font-bold"
                                   title="View Quiz Answers Review"
                                 >
                                   <Eye size={13} />
@@ -822,7 +822,7 @@ export const SubmittedAssignments: React.FC = () => {
                                     href={sub.uploadedFile}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-[#01AC9F10] border border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#01AC9F] rounded-xl transition-all cursor-pointer shadow-sm"
+                                    className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-[#2563EB10] border border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#2563EB] rounded-xl transition-all cursor-pointer shadow-sm"
                                     title="View File"
                                   >
                                     <Eye size={14} />
@@ -832,7 +832,7 @@ export const SubmittedAssignments: React.FC = () => {
                                     download
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-[#01AC9F10] border border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#01AC9F] rounded-xl transition-all cursor-pointer shadow-sm"
+                                    className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-[#2563EB10] border border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#2563EB] rounded-xl transition-all cursor-pointer shadow-sm"
                                     title="Download File"
                                   >
                                     <Download size={14} />
@@ -882,7 +882,7 @@ export const SubmittedAssignments: React.FC = () => {
                           onClick={() => setCurrentPage(pageNum)}
                           className={`w-7 h-7 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                             currentPage === pageNum
-                              ? 'bg-[#6C1D5F] text-white border-transparent shadow-sm'
+                              ? 'bg-[#EF4444] text-white border-transparent shadow-sm'
                               : 'bg-white dark:bg-slate-800 border-[var(--brand-border)] text-[var(--text-secondary)] hover:bg-slate-50'
                           }`}
                         >
@@ -930,13 +930,13 @@ export const SubmittedAssignments: React.FC = () => {
             <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-[var(--brand-border)]">
               <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-secondary)] mb-1">Submitted File</p>
               {gradeModal.fileName === 'QUIZ_SUBMISSION' ? (
-                <span className="text-xs font-semibold text-[#6C1D5F] dark:text-purple-400 bg-purple-50 dark:bg-purple-950/20 px-2 py-0.5 rounded">Online Auto-Graded Quiz</span>
+                <span className="text-xs font-semibold text-[#EF4444] dark:text-red-400 bg-red-50 dark:bg-purple-950/20 px-2 py-0.5 rounded">Online Auto-Graded Quiz</span>
               ) : gradeModal.fileName ? (
                 <a
                   href={gradeModal.uploadedFile}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-[#01AC9F] hover:underline font-semibold"
+                  className="flex items-center gap-2 text-sm text-[#2563EB] hover:underline font-semibold"
                 >
                   <span>{getFileIcon(gradeModal.fileName)}</span>
                   {gradeModal.fileName}
@@ -988,7 +988,7 @@ export const SubmittedAssignments: React.FC = () => {
               <div className="h-8 border-r border-[var(--brand-border)]" />
               <div>
                 <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-secondary)] mb-0.5">Accuracy</p>
-                <p className="text-xl font-black text-[#01AC9F]">
+                <p className="text-xl font-black text-[#2563EB]">
                   {Math.round(((viewingQuizSub.marks || 0) / (selectedAssignment.maxMarks || 1)) * 100)}%
                 </p>
               </div>

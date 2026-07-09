@@ -562,7 +562,7 @@ export const CourseCatalog: React.FC = () => {
     if (t === 'video') return 'bg-rose-500/10 text-rose-600 dark:text-rose-400';
     if (t === 'pdf') return 'bg-red-500/10 text-red-600 dark:text-red-400';
     if (t === 'reading') return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
-    if (t === 'quiz') return 'bg-purple-500/10 text-purple-600 dark:text-purple-400';
+    if (t === 'quiz') return 'bg-red-500/10 text-purple-600 dark:text-red-400';
     return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
   };
 
@@ -570,7 +570,7 @@ export const CourseCatalog: React.FC = () => {
     <MainLayout role="teacher" title="Course Catalog Explorer" subtitle="Structured category, course, and content management for Xebia">
       
       {/* Dynamic Stripe/Apple Style Header Grid */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#4A1E47] via-[#6C1D5F] to-[#01AC9F] rounded-3xl p-6 sm:p-8 text-white mb-6 shadow-xl border border-white/10 select-none">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#4A1E47] via-[#EF4444] to-[#2563EB] rounded-3xl p-6 sm:p-8 text-white mb-6 shadow-xl border border-white/10 select-none">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10 space-y-4">
           <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-wider text-xs">
@@ -605,7 +605,7 @@ export const CourseCatalog: React.FC = () => {
           <button
             onClick={() => { setActiveCategoryId(null); setActiveCourseId(null); setActiveModuleId(null); setActiveSubmoduleId(null); }}
             className={`font-semibold cursor-pointer py-1 px-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${
-              !activeCategoryId ? 'text-[#6C1D5F] dark:text-purple-400 font-bold bg-[#6C1D5F10]' : 'text-[var(--text-secondary)]'
+              !activeCategoryId ? 'text-[#EF4444] dark:text-red-400 font-bold bg-[#EF444410]' : 'text-[var(--text-secondary)]'
             }`}
           >
             Catalog Root
@@ -617,7 +617,7 @@ export const CourseCatalog: React.FC = () => {
               <button
                 onClick={() => { setActiveCourseId(null); setActiveModuleId(null); setActiveSubmoduleId(null); }}
                 className={`font-semibold cursor-pointer py-1 px-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${
-                  activeCategoryId && !activeCourseId ? 'text-[#6C1D5F] dark:text-purple-400 font-bold bg-[#6C1D5F10]' : 'text-[var(--text-secondary)]'
+                  activeCategoryId && !activeCourseId ? 'text-[#EF4444] dark:text-red-400 font-bold bg-[#EF444410]' : 'text-[var(--text-secondary)]'
                 }`}
               >
                 {activeCategory.name}
@@ -631,7 +631,7 @@ export const CourseCatalog: React.FC = () => {
               <button
                 onClick={() => { setActiveModuleId(null); setActiveSubmoduleId(null); }}
                 className={`font-semibold cursor-pointer py-1 px-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${
-                  activeCourseId && !activeModuleId ? 'text-[#6C1D5F] dark:text-purple-400 font-bold bg-[#6C1D5F10]' : 'text-[var(--text-secondary)]'
+                  activeCourseId && !activeModuleId ? 'text-[#EF4444] dark:text-red-400 font-bold bg-[#EF444410]' : 'text-[var(--text-secondary)]'
                 }`}
               >
                 {activeCourse.title}
@@ -645,7 +645,7 @@ export const CourseCatalog: React.FC = () => {
               <button
                 onClick={() => { setActiveSubmoduleId(null); }}
                 className={`font-semibold cursor-pointer py-1 px-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${
-                  activeModuleId && !activeSubmoduleId ? 'text-[#6C1D5F] dark:text-purple-400 font-bold bg-[#6C1D5F10]' : 'text-[var(--text-secondary)]'
+                  activeModuleId && !activeSubmoduleId ? 'text-[#EF4444] dark:text-red-400 font-bold bg-[#EF444410]' : 'text-[var(--text-secondary)]'
                 }`}
               >
                 {activeModule.title}
@@ -656,7 +656,7 @@ export const CourseCatalog: React.FC = () => {
           {activeSubmodule && (
             <>
               <ChevronRight size={12} className="text-slate-300 shrink-0" />
-              <span className="font-bold text-[#6C1D5F] dark:text-purple-400 bg-[#6C1D5F10] py-1 px-2 rounded-lg shrink-0">
+              <span className="font-bold text-[#EF4444] dark:text-red-400 bg-[#EF444410] py-1 px-2 rounded-lg shrink-0">
                 {activeSubmodule.title}
               </span>
             </>
@@ -672,7 +672,7 @@ export const CourseCatalog: React.FC = () => {
               placeholder="Search catalog..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
             />
           </div>
         )}
@@ -718,20 +718,20 @@ export const CourseCatalog: React.FC = () => {
                       <button
                         onClick={() => handleReorder('category', catIdx, 'up')}
                         disabled={catIdx === 0}
-                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                       >
                         <ChevronUp size={14} />
                       </button>
                       <button
                         onClick={() => handleReorder('category', catIdx, 'down')}
                         disabled={catIdx === catalog.length - 1}
-                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                       >
                         <ChevronDown size={14} />
                       </button>
                       <button 
                         onClick={() => handleOpenEditModal('category', cat.id, cat)}
-                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#01AC9F] cursor-pointer"
+                        className="p-1.5 text-[var(--text-secondary)] hover:text-[#2563EB] cursor-pointer"
                       >
                         <Edit2 size={13} />
                       </button>
@@ -754,7 +754,7 @@ export const CourseCatalog: React.FC = () => {
                     </span>
                     <button
                       onClick={() => { setActiveCategoryId(cat.id); }}
-                      className="text-xs text-[#01AC9F] hover:text-[#01AC9F]/80 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                      className="text-xs text-[#2563EB] hover:text-[#2563EB]/80 font-bold flex items-center gap-1 cursor-pointer transition-colors"
                     >
                       Explore Courses <ArrowRight size={12} />
                     </button>
@@ -812,20 +812,20 @@ export const CourseCatalog: React.FC = () => {
                         <button
                           onClick={() => handleReorder('course', coIdx, 'up')}
                           disabled={coIdx === 0}
-                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                         >
                           <ChevronUp size={14} />
                         </button>
                         <button
                           onClick={() => handleReorder('course', coIdx, 'down')}
                           disabled={coIdx === activeCategory.courses.length - 1}
-                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                         >
                           <ChevronDown size={14} />
                         </button>
                         <button
                           onClick={() => handleOpenEditModal('course', co.id, co)}
-                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#01AC9F] cursor-pointer"
+                          className="p-1.5 text-[var(--text-secondary)] hover:text-[#2563EB] cursor-pointer"
                         >
                           <Edit2 size={13} />
                         </button>
@@ -851,7 +851,7 @@ export const CourseCatalog: React.FC = () => {
                       </div>
                       <button
                         onClick={() => { setActiveCourseId(co.id); }}
-                        className="text-xs text-[#01AC9F] hover:text-[#01AC9F]/80 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                        className="text-xs text-[#2563EB] hover:text-[#2563EB]/80 font-bold flex items-center gap-1 cursor-pointer transition-colors"
                       >
                         Explore Modules <ArrowRight size={12} />
                       </button>
@@ -892,7 +892,7 @@ export const CourseCatalog: React.FC = () => {
                         onClick={() => { setActiveModuleId(m.id); setActiveSubmoduleId(null); }}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer shadow-sm relative group ${
                           isSelectedMod
-                            ? 'border-[#6C1D5F] bg-[#6C1D5F05] dark:bg-slate-800 ring-1 ring-[#6C1D5F]'
+                            ? 'border-[#EF4444] bg-[#EF444405] dark:bg-slate-800 ring-1 ring-[#EF4444]'
                             : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] hover:border-slate-300'
                         }`}
                       >
@@ -906,20 +906,20 @@ export const CourseCatalog: React.FC = () => {
                             <button
                               onClick={(e) => { e.stopPropagation(); handleReorder('module', mIdx, 'up'); }}
                               disabled={mIdx === 0}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                             >
                               <ChevronUp size={12} />
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleReorder('module', mIdx, 'down'); }}
                               disabled={mIdx === activeCourse.modules.length - 1}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                             >
                               <ChevronDown size={12} />
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleOpenEditModal('module', m.id, m); }}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#01AC9F] cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#2563EB] cursor-pointer"
                             >
                               <Edit2 size={11} />
                             </button>
@@ -939,7 +939,7 @@ export const CourseCatalog: React.FC = () => {
                               <span>SUBMODULES</span>
                               <button
                                 onClick={(e) => { e.stopPropagation(); handleOpenAddModal('submodule'); }}
-                                className="text-[#01AC9F] hover:underline flex items-center gap-0.5 cursor-pointer"
+                                className="text-[#2563EB] hover:underline flex items-center gap-0.5 cursor-pointer"
                               >
                                 <Plus size={10} /> Add Submodule
                               </button>
@@ -956,7 +956,7 @@ export const CourseCatalog: React.FC = () => {
                                     onClick={(e) => { e.stopPropagation(); setActiveSubmoduleId(sub.id); }}
                                     className={`p-2 rounded-xl text-[11px] flex justify-between items-center transition-colors cursor-pointer group/sub ${
                                       isSelectedSub
-                                        ? 'bg-[#01AC9F15] text-[#01AC9F] font-bold'
+                                        ? 'bg-[#2563EB15] text-[#2563EB] font-bold'
                                         : 'text-[var(--text-primary)] hover:bg-slate-50 dark:hover:bg-slate-800'
                                     }`}
                                   >
@@ -968,20 +968,20 @@ export const CourseCatalog: React.FC = () => {
                                       <button
                                         onClick={(e) => { e.stopPropagation(); handleReorder('submodule', sIdx, 'up'); }}
                                         disabled={sIdx === 0}
-                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                                       >
                                         <ChevronUp size={10} />
                                       </button>
                                       <button
                                         onClick={(e) => { e.stopPropagation(); handleReorder('submodule', sIdx, 'down'); }}
                                         disabled={sIdx === m.submodules.length - 1}
-                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                                       >
                                         <ChevronDown size={10} />
                                       </button>
                                       <button
                                         onClick={(e) => { e.stopPropagation(); handleOpenEditModal('submodule', sub.id, sub); }}
-                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#01AC9F] cursor-pointer"
+                                        className="p-0.5 text-[var(--text-secondary)] hover:text-[#2563EB] cursor-pointer"
                                       >
                                         <Edit2 size={10} />
                                       </button>
@@ -1067,20 +1067,20 @@ export const CourseCatalog: React.FC = () => {
                             <button
                               onClick={() => handleReorder('content', cIdx, 'up')}
                               disabled={cIdx === 0}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                             >
                               <ChevronUp size={12} />
                             </button>
                             <button
                               onClick={() => handleReorder('content', cIdx, 'down')}
                               disabled={cIdx === activeSubmodule.contents.length - 1}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#6C1D5F] disabled:opacity-30 cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#EF4444] disabled:opacity-30 cursor-pointer"
                             >
                               <ChevronDown size={12} />
                             </button>
                             <button
                               onClick={() => handleOpenEditModal('content', c.id, c)}
-                              className="p-1 text-[var(--text-secondary)] hover:text-[#01AC9F] cursor-pointer"
+                              className="p-1 text-[var(--text-secondary)] hover:text-[#2563EB] cursor-pointer"
                             >
                               <Edit2 size={11} />
                             </button>
@@ -1133,7 +1133,7 @@ export const CourseCatalog: React.FC = () => {
                   key={clr.class}
                   onClick={() => setCatColor(clr.class)}
                   className={`p-2 rounded-xl text-[10px] text-white bg-gradient-to-r font-bold text-center border cursor-pointer ${clr.class} ${
-                    catColor === clr.class ? 'border-[#6C1D5F] scale-95 ring-1 ring-[#6C1D5F]' : 'border-transparent'
+                    catColor === clr.class ? 'border-[#EF4444] scale-95 ring-1 ring-[#EF4444]' : 'border-transparent'
                   }`}
                 >
                   {clr.label}

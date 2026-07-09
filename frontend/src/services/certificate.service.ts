@@ -23,6 +23,7 @@ export interface Certificate {
   pdfFileUrl?: string;
   verificationToken?: string;
   qrCodeUrl?: string;
+  assignmentName?: string;
 }
 
 export const certificateService = {

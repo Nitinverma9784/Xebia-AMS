@@ -81,8 +81,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        {/* Logo - Exact same brand gradient for both portals */}
-        <div className="bg-gradient-to-br from-[#6C1D5F] to-[#84117C] p-5">
+        {/* Logo - Premium Xebia corporate brand gradient */}
+        <div className="bg-gradient-to-br from-[#EF4444] to-[#B91C1C] p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
@@ -116,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
                 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
                 transition-all duration-200 cursor-pointer
                 ${isActive
-                  ? 'bg-[#6C1D5F] text-white shadow-sm'
+                  ? 'bg-[#EF4444] text-white shadow-md shadow-red-500/10'
                   : 'text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[var(--text-primary)]'
                 }
               `}
@@ -130,7 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
         {/* User Profile at bottom */}
         <div className="p-3 border-t border-[var(--brand-border)]">
           <div className="flex items-center gap-3 px-3 py-2 rounded-xl mb-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6C1D5F] to-[#84117C] flex items-center justify-center text-white text-xs font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#EF4444] to-[#B91C1C] flex items-center justify-center text-white text-xs font-bold shrink-0">
               {user ? getInitials(user.name) : '?'}
             </div>
             <div className="flex-1 min-w-0">

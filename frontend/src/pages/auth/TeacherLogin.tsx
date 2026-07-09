@@ -87,10 +87,10 @@ export const TeacherLogin: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-[var(--brand-surface)]">
       {/* Left Panel — Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#6C1D5F] via-[#511345] to-[#84117C] relative overflow-hidden flex-col justify-center items-center p-12">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#EF4444] via-[#511345] to-[#DC2626] relative overflow-hidden flex-col justify-center items-center p-12">
         {/* Background orbs */}
         <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#01AC9F]/10 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#2563EB]/10 blur-3xl" />
 
         <div className="relative z-10 text-center space-y-6">
           <div className="w-20 h-20 rounded-3xl bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
@@ -106,7 +106,7 @@ export const TeacherLogin: React.FC = () => {
           <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
             {['Create Assignments', 'Review Submissions', 'Grade Students', 'Track Progress'].map((f) => (
               <div key={f} className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-                <ChevronRight size={14} className="text-[#01AC9F]" />
+                <ChevronRight size={14} className="text-[#2563EB]" />
                 <span className="text-white/80 text-xs font-medium">{f}</span>
               </div>
             ))}
@@ -127,7 +127,7 @@ export const TeacherLogin: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#6C1D5F] to-[#84117C] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#EF4444] to-[#DC2626] flex items-center justify-center">
               <GraduationCap size={20} className="text-white" />
             </div>
             <div>
@@ -234,7 +234,7 @@ export const TeacherLogin: React.FC = () => {
                 type="button"
                 variant="outline"
                 size="lg"
-                className="w-full border-[#6C1D5F] text-[#6C1D5F] hover:bg-[#6C1D5F]/5 mt-2"
+                className="w-full border-[#EF4444] text-[#EF4444] hover:bg-[#EF4444]/5 mt-2"
                 onClick={onDirectLogin}
               >
                 Quick Direct Login (Demo)
@@ -245,7 +245,7 @@ export const TeacherLogin: React.FC = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => { setIsRegister(!isRegister); loginForm.reset(); registerForm.reset(); }}
-              className="text-sm text-[#6C1D5F] dark:text-purple-400 hover:underline font-medium cursor-pointer"
+              className="text-sm text-[#EF4444] dark:text-red-400 hover:underline font-medium cursor-pointer"
             >
               {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
             </button>
@@ -255,7 +255,7 @@ export const TeacherLogin: React.FC = () => {
             <p className="text-xs text-center text-[var(--text-secondary)] mb-3">Other Portals</p>
             <Link
               to="/student/login"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[var(--brand-border)] text-sm text-[var(--text-secondary)] hover:border-[#01AC9F] hover:text-[#01AC9F] transition-all"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[var(--brand-border)] text-sm text-[var(--text-secondary)] hover:border-[#2563EB] hover:text-[#2563EB] transition-all"
             >
               <BookOpen size={16} />
               Student Portal →

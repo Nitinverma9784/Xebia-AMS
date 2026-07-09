@@ -95,7 +95,7 @@ export const BatchManagement: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search batches by name or description..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
           />
         </div>
 
@@ -141,8 +141,8 @@ export const BatchManagement: React.FC = () => {
                   <tr key={b.id} className="table-row-hover">
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0">
-                          <Users size={13} className="text-[#01AC9F]" />
+                        <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                          <Users size={13} className="text-[#2563EB]" />
                         </div>
                         <span className="text-sm font-medium text-[var(--text-primary)]">{b.batchName}</span>
                       </div>

@@ -207,14 +207,14 @@ export const AssignmentDetail: React.FC = () => {
         {/* Description */}
         <Card>
           <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
-            <FileText size={15} className="text-[#6C1D5F] dark:text-purple-400" /> Description
+            <FileText size={15} className="text-[#EF4444] dark:text-red-400" /> Description
           </h3>
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">{assignment.description}</p>
 
           {assignment.instructions && (
             <>
               <h3 className="text-sm font-semibold text-[var(--text-primary)] mt-5 mb-3 flex items-center gap-2">
-                <MessageSquare size={15} className="text-[#01AC9F]" /> Instructions
+                <MessageSquare size={15} className="text-[#2563EB]" /> Instructions
               </h3>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">{assignment.instructions}</p>
             </>
@@ -227,7 +227,7 @@ export const AssignmentDetail: React.FC = () => {
                 href={assignment.attachment}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#01AC9F] text-[#01AC9F] text-sm hover:bg-[#01AC9F0D] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-sm hover:bg-[#2563EB0D] transition-colors cursor-pointer"
               >
                 <span>{getFileIcon(assignment.attachmentName || 'file')}</span>
                 {assignment.attachmentName || 'Download Attachment'}
@@ -261,7 +261,7 @@ export const AssignmentDetail: React.FC = () => {
                       <div className="h-8 border-r border-[var(--brand-border)]" />
                       <div className="text-center">
                         <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-secondary)] mb-1">Accuracy</p>
-                        <p className="text-2xl font-black text-[#01AC9F]">
+                        <p className="text-2xl font-black text-[#2563EB]">
                           {Math.round(((assignment.submission.marks || 0) / (assignment.maxMarks || 1)) * 100)}%
                         </p>
                       </div>
@@ -370,8 +370,8 @@ export const AssignmentDetail: React.FC = () => {
             ) : (
               /* Quiz attempt state */
               <div className="space-y-5">
-                <Card className="bg-[#6C1D5F]/5 border-[#6C1D5F]/15">
-                  <h3 className="text-sm font-semibold text-[#6C1D5F] dark:text-purple-400 flex items-center gap-2">
+                <Card className="bg-[#EF4444]/5 border-[#EF4444]/15">
+                  <h3 className="text-sm font-semibold text-[#EF4444] dark:text-red-400 flex items-center gap-2">
                     <BookOpen size={16} /> Online Quiz Mode
                   </h3>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
@@ -407,12 +407,12 @@ export const AssignmentDetail: React.FC = () => {
                                     onClick={() => setAnswers(prev => ({ ...prev, [q.id!]: opt.key }))}
                                     className={`flex items-center gap-3 p-3 rounded-xl border text-left text-xs font-medium cursor-pointer transition-all ${
                                       isSelected
-                                        ? 'bg-[#6C1D5F10] border-[#6C1D5F] text-[#6C1D5F] dark:text-purple-400 font-bold shadow-sm'
+                                        ? 'bg-[#EF444410] border-[#EF4444] text-[#EF4444] dark:text-red-400 font-bold shadow-sm'
                                         : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] text-[var(--text-primary)] hover:border-slate-400'
                                     }`}
                                   >
                                     <span className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${
-                                      isSelected ? 'bg-[#6C1D5F] text-white border-transparent' : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
+                                      isSelected ? 'bg-[#EF4444] text-white border-transparent' : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
                                     }`}>
                                       {opt.key}
                                     </span>
@@ -428,7 +428,7 @@ export const AssignmentDetail: React.FC = () => {
                               value={selected || ''}
                               onChange={(e) => setAnswers(prev => ({ ...prev, [q.id!]: e.target.value }))}
                               placeholder="Type your answer here..."
-                              className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#6C1D5F] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-sm transition-colors"
+                              className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-sm transition-colors"
                             />
                           )}
                         </div>
@@ -454,7 +454,7 @@ export const AssignmentDetail: React.FC = () => {
           /* Standard File Submission Layout */
           <Card>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-              <Upload size={15} className="text-[#6C1D5F] dark:text-purple-400" />
+              <Upload size={15} className="text-[#EF4444] dark:text-red-400" />
               {assignment.submission ? 'Your Submission' : 'Submit Assignment'}
             </h3>
 
@@ -486,14 +486,14 @@ export const AssignmentDetail: React.FC = () => {
                   <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-500/20 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-[var(--text-primary)]">Your Score</span>
-                      <span className="text-lg font-bold text-[#01AC9F]">
+                      <span className="text-lg font-bold text-[#2563EB]">
                         {assignment.submission.marks}/{assignment.maxMarks}
                       </span>
                     </div>
                     {/* Score bar */}
                     <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                       <div
-                        className="bg-gradient-to-r from-[#6C1D5F] to-[#01AC9F] h-2 rounded-full progress-bar"
+                        className="bg-gradient-to-r from-[#EF4444] to-[#2563EB] h-2 rounded-full progress-bar"
                         style={{ width: `${((assignment.submission.marks || 0) / assignment.maxMarks) * 100}%` }}
                       />
                     </div>
@@ -513,7 +513,7 @@ export const AssignmentDetail: React.FC = () => {
             {!assignment.submission && !overdue && (
               <>
                 {uploadFile ? (
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-purple-500/5 border border-purple-200 dark:border-purple-500/20 mb-4">
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/5 border border-red-200 dark:border-purple-500/20 mb-4">
                     <span className="text-2xl">{getFileIcon(uploadFile.name)}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[var(--text-primary)] truncate">{uploadFile.name}</p>
@@ -534,11 +534,11 @@ export const AssignmentDetail: React.FC = () => {
                     onDrop={onDrop}
                     onClick={() => fileRef.current?.click()}
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-teal-500/10 flex items-center justify-center mx-auto mb-3">
-                      <Upload size={22} className="text-[#01AC9F]" />
+                    <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-3">
+                      <Upload size={22} className="text-[#2563EB]" />
                     </div>
                     <p className="text-sm font-medium text-[var(--text-primary)]">
-                      Drop file here or <span className="text-[#01AC9F]">browse</span>
+                      Drop file here or <span className="text-[#2563EB]">browse</span>
                     </p>
                     <p className="text-xs text-[var(--text-secondary)] mt-1">PDF, ZIP, PPT, Images · Max 25MB</p>
                     <input
@@ -556,11 +556,11 @@ export const AssignmentDetail: React.FC = () => {
                   <div className="mb-4">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-[var(--text-secondary)]">Uploading...</span>
-                      <span className="text-[#01AC9F] font-medium">{uploadProgress}%</span>
+                      <span className="text-[#2563EB] font-medium">{uploadProgress}%</span>
                     </div>
                     <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
                       <div
-                        className="bg-[#01AC9F] h-1.5 rounded-full progress-bar"
+                        className="bg-[#2563EB] h-1.5 rounded-full progress-bar"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>

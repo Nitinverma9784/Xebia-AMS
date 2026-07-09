@@ -10,12 +10,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-  primary: 'bg-[#6C1D5F] hover:bg-[#4A1E47] text-white border border-transparent shadow-sm',
-  secondary: 'bg-[#01AC9F] hover:bg-[#0B7F76] text-white border border-transparent shadow-sm',
-  outline: 'bg-transparent border border-[#6C1D5F] text-[#6C1D5F] hover:bg-[#6C1D5F0D] dark:text-purple-300 dark:border-purple-400',
-  ghost: 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800',
-  danger: 'bg-red-500 hover:bg-red-600 text-white border border-transparent shadow-sm',
-  success: 'bg-emerald-500 hover:bg-emerald-600 text-white border border-transparent shadow-sm',
+  primary: 'bg-[#EF4444] hover:bg-[#DC2626] text-white border border-transparent shadow-sm shadow-red-500/10 hover:shadow-md transition-all active:scale-98',
+  secondary: 'bg-[#1E293B] hover:bg-[#0F172A] text-white border border-transparent shadow-sm transition-all active:scale-98',
+  outline: 'bg-transparent border border-[var(--brand-border)] text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-98',
+  ghost: 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-all',
+  danger: 'bg-red-500 hover:bg-red-600 text-white border border-transparent shadow-sm transition-all',
+  success: 'bg-emerald-500 hover:bg-emerald-600 text-white border border-transparent shadow-sm transition-all',
 };
 
 const sizeClasses = {

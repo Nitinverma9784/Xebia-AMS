@@ -38,7 +38,7 @@ export const LearningProgress: React.FC = () => {
       {/* Subject Progress Section */}
       <div className="mb-6">
         <h2 className="text-base font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-          <TrendingUp size={18} className="text-[#6C1D5F] dark:text-purple-400" />
+          <TrendingUp size={18} className="text-[#EF4444] dark:text-red-400" />
           Subject-wise Performance
         </h2>
 
@@ -61,7 +61,7 @@ export const LearningProgress: React.FC = () => {
               <Card key={sub.subject} padding="md">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-semibold text-[var(--text-primary)]">{sub.subject}</span>
-                  <span className="text-sm font-bold text-[#6C1D5F] dark:text-purple-300">
+                  <span className="text-sm font-bold text-[#EF4444] dark:text-purple-300">
                     {sub.percentage}%
                   </span>
                 </div>
@@ -69,7 +69,7 @@ export const LearningProgress: React.FC = () => {
                 {/* Progress Bar */}
                 <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 mb-3 overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-[#6C1D5F] to-[#01AC9F] h-2.5 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-[#EF4444] to-[#2563EB] h-2.5 rounded-full transition-all duration-500"
                     style={{ width: `${sub.percentage}%` }}
                   />
                 </div>
@@ -126,7 +126,7 @@ export const LearningProgress: React.FC = () => {
                         href={sub.uploadedFile}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-xs text-[#01AC9F] hover:underline"
+                        className="flex items-center gap-1.5 text-xs text-[#2563EB] hover:underline"
                       >
                         <span>{getFileIcon(sub.fileName)}</span>
                         <span className="max-w-[120px] truncate">{sub.fileName}</span>
@@ -138,7 +138,7 @@ export const LearningProgress: React.FC = () => {
                     </td>
                     <td className="px-4 py-3.5">
                       {sub.marks !== null && sub.marks !== undefined ? (
-                        <span className="text-sm font-bold text-[#6C1D5F] dark:text-purple-300">
+                        <span className="text-sm font-bold text-[#EF4444] dark:text-purple-300">
                           {sub.marks}/{sub.assignment?.maxMarks}
                         </span>
                       ) : (

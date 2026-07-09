@@ -155,7 +155,7 @@ function App() {
               fontFamily: 'Inter, sans-serif',
             },
             success: {
-              iconTheme: { primary: '#01AC9F', secondary: 'white' },
+              iconTheme: { primary: '#2563EB', secondary: 'white' },
             },
             error: {
               iconTheme: { primary: '#ef4444', secondary: 'white' },

@@ -42,16 +42,16 @@ interface StatCardProps {
 
 const colorMap = {
   purple: {
-    bg: 'bg-purple-500/10',
-    text: 'text-[#6C1D5F] dark:text-purple-300',
-    icon: 'bg-[#6C1D5F]',
-    border: 'border-purple-200 dark:border-purple-800/30',
+    bg: 'bg-red-500/10',
+    text: 'text-[#EF4444] dark:text-purple-300',
+    icon: 'bg-[#EF4444]',
+    border: 'border-red-200 dark:border-purple-800/30',
   },
   teal: {
-    bg: 'bg-teal-500/10',
-    text: 'text-[#01AC9F]',
-    icon: 'bg-[#01AC9F]',
-    border: 'border-teal-200 dark:border-teal-800/30',
+    bg: 'bg-blue-500/10',
+    text: 'text-[#2563EB]',
+    icon: 'bg-[#2563EB]',
+    border: 'border-blue-200 dark:border-teal-800/30',
   },
   blue: {
     bg: 'bg-blue-500/10',

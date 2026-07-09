@@ -135,9 +135,9 @@ export const StudentLogin: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-[var(--brand-surface)]">
       {/* Left Panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#01AC9F] via-[#0B7F76] to-[#01AC9F] relative overflow-hidden flex-col justify-center items-center p-12">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#2563EB] via-[#0B7F76] to-[#2563EB] relative overflow-hidden flex-col justify-center items-center p-12">
         <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#6C1D5F]/10 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#EF4444]/10 blur-3xl" />
 
         <div className="relative z-10 text-center space-y-6">
           <div className="w-20 h-20 rounded-3xl bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
@@ -173,7 +173,7 @@ export const StudentLogin: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#01AC9F] to-[#0B7F76] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#0B7F76] flex items-center justify-center">
               <BookOpen size={20} className="text-white" />
             </div>
             <div>
@@ -225,7 +225,7 @@ export const StudentLogin: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setBatchOpen(!batchOpen)}
-                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#01AC9F] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between cursor-pointer"
+                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#2563EB] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between cursor-pointer"
                   >
                     <span className="truncate">{selectedBatchName || 'Select your batch'}</span>
                     <ChevronDown size={16} className="text-[var(--text-secondary)] shrink-0" />
@@ -240,7 +240,7 @@ export const StudentLogin: React.FC = () => {
                         placeholder="Search batch..."
                         value={batchSearch}
                         onChange={(e) => setBatchSearch(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#01AC9F] rounded-lg py-1.5 pl-8 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#2563EB] rounded-lg py-1.5 pl-8 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
                       />
                     </div>
                     <div className="max-h-48 overflow-y-auto space-y-1">
@@ -257,7 +257,7 @@ export const StudentLogin: React.FC = () => {
                               setBatchOpen(false);
                             }}
                             className={`w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
-                              watchBatchId === String(b.id) ? 'bg-[#01AC9F10] text-[#01AC9F] font-semibold' : 'text-[var(--text-primary)]'
+                              watchBatchId === String(b.id) ? 'bg-[#2563EB10] text-[#2563EB] font-semibold' : 'text-[var(--text-primary)]'
                             }`}
                           >
                             {b.batchName}
@@ -347,7 +347,7 @@ export const StudentLogin: React.FC = () => {
                 type="button"
                 variant="outline"
                 size="lg"
-                className="w-full border-[#01AC9F] text-[#01AC9F] hover:bg-[#01AC9F]/5 mt-2"
+                className="w-full border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB]/5 mt-2"
                 onClick={onDirectLogin}
               >
                 Quick Direct Login (Demo)
@@ -358,7 +358,7 @@ export const StudentLogin: React.FC = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => { setIsRegister(!isRegister); loginForm.reset(); registerForm.reset(); }}
-              className="text-sm text-[#01AC9F] hover:underline font-medium cursor-pointer"
+              className="text-sm text-[#2563EB] hover:underline font-medium cursor-pointer"
             >
               {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
             </button>
@@ -368,7 +368,7 @@ export const StudentLogin: React.FC = () => {
             <p className="text-xs text-center text-[var(--text-secondary)] mb-3">Other Portals</p>
             <Link
               to="/teacher/login"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[var(--brand-border)] text-sm text-[var(--text-secondary)] hover:border-[#6C1D5F] hover:text-[#6C1D5F] transition-all"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[var(--brand-border)] text-sm text-[var(--text-secondary)] hover:border-[#EF4444] hover:text-[#EF4444] transition-all"
             >
               <GraduationCap size={16} />
               Teacher Portal →

@@ -82,7 +82,7 @@ export const StudentQuizzes: React.FC = () => {
       case 'submitted':
         return <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-blue-100 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/30">Submitted</span>;
       case 'active':
-        return <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-purple-100 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900/30">Active</span>;
+        return <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-purple-100 dark:bg-purple-950/20 text-purple-600 dark:text-red-400 border border-red-200 dark:border-purple-900/30">Active</span>;
       case 'closed':
         return <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-rose-100 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/30">Closed</span>;
       default:
@@ -106,7 +106,7 @@ export const StudentQuizzes: React.FC = () => {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search quizzes..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
           />
         </div>
 
@@ -205,14 +205,14 @@ export const StudentQuizzes: React.FC = () => {
 
                     <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-[var(--brand-border)]">
                       <span className="text-[9px] uppercase font-bold tracking-wider text-[var(--text-secondary)] block mb-0.5">Total Marks</span>
-                      <span className="text-[11px] text-[#6C1D5F] dark:text-purple-400 font-bold flex items-center gap-1">
+                      <span className="text-[11px] text-[#EF4444] dark:text-red-400 font-bold flex items-center gap-1">
                         <Award size={11} /> {q.maxMarks} Marks
                       </span>
                     </div>
 
                     <div className="bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-[var(--brand-border)]">
                       <span className="text-[9px] uppercase font-bold tracking-wider text-[var(--text-secondary)] block mb-0.5">Duration</span>
-                      <span className="text-[11px] text-[#01AC9F] font-bold flex items-center gap-1">
+                      <span className="text-[11px] text-[#2563EB] font-bold flex items-center gap-1">
                         <Clock size={11} /> {durationMins} Mins
                       </span>
                     </div>
@@ -233,11 +233,11 @@ export const StudentQuizzes: React.FC = () => {
                     <div className="flex gap-2 w-full">
                       <Button
                         variant="outline"
-                        className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2 border-[#6C1D5F] text-[#6C1D5F] hover:bg-[#6C1D5F0D]"
+                        className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2 border-[#EF4444] text-[#EF4444] hover:bg-[#EF44440D]"
                         onClick={() => navigate(`/student/quizzes/${q.id}/review`)}
                       >
                         <span>View Review</span>
-                        <CheckCircle2 size={13} className="text-[#01AC9F]" />
+                        <CheckCircle2 size={13} className="text-[#2563EB]" />
                       </Button>
                       {certificates[`quiz-${q.id}`] && (
                         <Button

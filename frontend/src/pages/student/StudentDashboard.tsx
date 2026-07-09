@@ -142,9 +142,9 @@ export const StudentDashboard: React.FC = () => {
   return (
     <Layout role="student" title="Dashboard" subtitle={`Welcome back, ${user?.name?.split(' ')[0]}!${stats?.batchName ? ` • ${stats.batchName}` : ''}`}>
       {/* Welcome banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#01AC9F] via-[#0B7F76] to-[#01AC9F] rounded-2xl p-6 mb-6 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#2563EB] via-[#0B7F76] to-[#2563EB] rounded-2xl p-6 mb-6 text-white">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
-        <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-[#6C1D5F]/10 blur-2xl" />
+        <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-[#EF4444]/10 blur-2xl" />
         <div className="relative z-10">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="space-y-1">
@@ -159,7 +159,7 @@ export const StudentDashboard: React.FC = () => {
             </div>
             {stats?.batchName && (
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold backdrop-blur">
-                <span className="w-2 h-2 rounded-full bg-[#6C1D5F]" />
+                <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
                 Assigned Batch: {stats.batchName}
               </div>
             )}
@@ -210,36 +210,36 @@ export const StudentDashboard: React.FC = () => {
 
           <Card>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#01AC9F]" />
+              <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
               Quick Actions
             </h3>
             <div className="space-y-2">
-              <a href="/student/assignments" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#01AC9F] hover:bg-[#01AC9F08] transition-all group">
-                <div className="w-8 h-8 rounded-lg bg-[#01AC9F] flex items-center justify-center shrink-0">
+              <a href="/student/assignments" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#2563EB] hover:bg-[#2563EB08] transition-all group">
+                <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center shrink-0">
                   <BookOpen size={15} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#01AC9F]">View Assignments</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#2563EB]">View Assignments</p>
                   <p className="text-xs text-[var(--text-secondary)]">Check pending due dates and submit work</p>
                 </div>
-                <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#01AC9F] transition-colors" />
+                <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#2563EB] transition-colors" />
               </a>
-              <a href="/student/progress" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#6C1D5F] hover:bg-[#6C1D5F08] transition-all group">
-                <div className="w-8 h-8 rounded-lg bg-[#6C1D5F] flex items-center justify-center shrink-0">
+              <a href="/student/progress" className="flex items-center gap-3 p-3 rounded-xl border border-[var(--brand-border)] hover:border-[#EF4444] hover:bg-[#EF444408] transition-all group">
+                <div className="w-8 h-8 rounded-lg bg-[#EF4444] flex items-center justify-center shrink-0">
                   <TrendingUp size={15} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#6C1D5F]">Learning Progress</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#EF4444]">Learning Progress</p>
                   <p className="text-xs text-[var(--text-secondary)]">Review performance metrics and grades</p>
                 </div>
-                <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#6C1D5F] transition-colors" />
+                <ArrowRight size={14} className="text-[var(--text-secondary)] group-hover:text-[#EF4444] transition-colors" />
               </a>
             </div>
           </Card>
 
           <Card>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#6C1D5F]" />
+              <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
               Overview Summary
             </h3>
             {loading ? (
@@ -259,12 +259,12 @@ export const StudentDashboard: React.FC = () => {
                     value: stats.totalAssignments > 0
                       ? `${Math.round((stats.submittedAssignments / stats.totalAssignments) * 100)}%`
                       : '0%',
-                    color: 'text-[#01AC9F]',
+                    color: 'text-[#2563EB]',
                   },
                   {
                     label: 'Submitted / Published',
                     value: `${stats.submittedAssignments}/${stats.totalAssignments}`,
-                    color: 'text-[#6C1D5F] dark:text-purple-300',
+                    color: 'text-[#EF4444] dark:text-purple-300',
                   },
                   {
                     label: 'Average Score',
@@ -287,11 +287,11 @@ export const StudentDashboard: React.FC = () => {
           <Card>
             <div className="border-b border-[var(--brand-border)] pb-3 mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#6C1D5F]" />
+                <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
                 Recent Batch Assignments
               </h3>
               {stats?.batchName && (
-                <span className="text-xs font-bold text-[#01AC9F] dark:text-teal-400 uppercase tracking-wider bg-[#01AC9F]/10 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-bold text-[#2563EB] dark:text-blue-400 uppercase tracking-wider bg-[#2563EB]/10 px-2 py-0.5 rounded-full">
                   {stats.batchName}
                 </span>
               )}
@@ -323,14 +323,14 @@ export const StudentDashboard: React.FC = () => {
                     <div
                       key={a.id}
                       onClick={() => navigate(`/student/assignments/${a.id}`)}
-                      className="flex flex-col md:flex-row justify-between gap-4 p-5 border border-[var(--brand-border)] rounded-2xl hover:border-[#01AC9F] transition-all card-hover cursor-pointer bg-white dark:bg-[#1E293B]"
+                      className="flex flex-col md:flex-row justify-between gap-4 p-5 border border-[var(--brand-border)] rounded-2xl hover:border-[#2563EB] transition-all card-hover cursor-pointer bg-white dark:bg-[#1E293B]"
                     >
                       <div className="flex-1 space-y-3 min-w-0">
                         {/* Title & Badge */}
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
-                              <FileText size={16} className="text-[#6C1D5F] dark:text-purple-400" />
+                            <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+                              <FileText size={16} className="text-[#EF4444] dark:text-red-400" />
                             </div>
                             <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
                               {a.title}
@@ -344,7 +344,7 @@ export const StudentDashboard: React.FC = () => {
                         {/* Subject, Topic, Teacher Info */}
                         <div className="flex items-center gap-2 flex-wrap text-xs text-[var(--text-secondary)]">
                           <span className="bg-slate-100 dark:bg-slate-800 rounded-full px-2.5 py-0.5 font-medium">{a.subject}</span>
-                          {a.topic && <span className="bg-teal-500/10 text-[#01AC9F] dark:text-teal-400 rounded-full px-2.5 py-0.5 font-medium">Topic: {a.topic}</span>}
+                          {a.topic && <span className="bg-blue-500/10 text-[#2563EB] dark:text-blue-400 rounded-full px-2.5 py-0.5 font-medium">Topic: {a.topic}</span>}
                           <span>•</span>
                           <span>Taught by: <strong className="text-[var(--text-primary)] font-medium">{a.teacher?.name || 'Teacher'}</strong></span>
                         </div>
@@ -385,7 +385,7 @@ export const StudentDashboard: React.FC = () => {
                 <div className="text-right pt-1">
                   <button
                     onClick={() => navigate('/student/assignments')}
-                    className="text-xs text-[#01AC9F] font-semibold hover:underline flex items-center gap-1 ml-auto cursor-pointer"
+                    className="text-xs text-[#2563EB] font-semibold hover:underline flex items-center gap-1 ml-auto cursor-pointer"
                   >
                     View All Assignments
                     <ArrowRight size={12} />

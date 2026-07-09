@@ -58,7 +58,7 @@ export const StudentCertificates: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search certificates by title or ID..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors focus:outline-none"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors focus:outline-none"
           />
         </div>
       </div>
@@ -105,7 +105,7 @@ export const StudentCertificates: React.FC = () => {
 
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <span className="text-[9px] uppercase font-black text-[#6C1D5F] dark:text-purple-400 bg-purple-50 dark:bg-purple-950/20 px-2 py-0.5 rounded">
+                    <span className="text-[9px] uppercase font-black text-[#EF4444] dark:text-red-400 bg-red-50 dark:bg-purple-950/20 px-2 py-0.5 rounded">
                       {c.certificateType}
                     </span>
                     <h3 className="text-base font-bold text-[var(--text-primary)] pr-8 line-clamp-1">
@@ -130,7 +130,7 @@ export const StudentCertificates: React.FC = () => {
                   </div>
 
                   <div className="bg-slate-50 dark:bg-slate-800/30 border border-[var(--brand-border)] rounded-xl p-3.5 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#01AC9F]">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-[#2563EB]">
                       <User size={14} />
                     </div>
                     <div className="min-w-0">
@@ -145,7 +145,7 @@ export const StudentCertificates: React.FC = () => {
                 <div className="mt-5 pt-4 border-t border-[var(--brand-border)] flex gap-2">
                   <Button
                     variant="primary"
-                    className="flex-1 text-xs py-2 flex items-center justify-center gap-1.5 shadow-purple-500/10 shadow-lg cursor-pointer"
+                    className="flex-1 text-xs py-2 flex items-center justify-center gap-1.5 shadow-red-500/10 shadow-lg cursor-pointer"
                     onClick={() => window.open(`${api.defaults.baseURL}/student/certificates/${c.id}/view`, '_blank')}
                   >
                     <span>View Certificate</span>
@@ -161,7 +161,7 @@ export const StudentCertificates: React.FC = () => {
                   </Button>
                   <Button
                     variant="outline"
-                    className="p-2 cursor-pointer flex items-center justify-center border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#6C1D5F] hover:bg-purple-50 dark:hover:bg-purple-500/10"
+                    className="p-2 cursor-pointer flex items-center justify-center border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#EF4444] hover:bg-red-50 dark:hover:bg-red-500/10"
                     title="Share Verification Link"
                     onClick={() => handleShare(c)}
                   >

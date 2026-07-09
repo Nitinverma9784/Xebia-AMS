@@ -26,8 +26,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-purple-500/10 dark:bg-purple-500/10 flex items-center justify-center mb-4">
-        <Icon size={28} className="text-[#6C1D5F] dark:text-purple-400" />
+      <div className="w-16 h-16 rounded-2xl bg-red-500/10 dark:bg-red-500/10 flex items-center justify-center mb-4">
+        <Icon size={28} className="text-[#EF4444] dark:text-red-400" />
       </div>
       <h3 className="text-base font-semibold text-[var(--text-primary)] mb-2">{title}</h3>
       {description && (

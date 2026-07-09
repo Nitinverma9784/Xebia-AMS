@@ -543,7 +543,7 @@ export const TeacherQuizzes: React.FC = () => {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search quizzes..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
           />
         </div>
 
@@ -609,11 +609,11 @@ export const TeacherQuizzes: React.FC = () => {
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
-                          <HelpCircle size={13} className="text-[#01AC9F] dark:text-teal-400" />
+                          <HelpCircle size={13} className="text-[#2563EB] dark:text-blue-400" />
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span className="text-sm font-medium text-[var(--text-primary)] max-w-[180px] truncate">{a.title}</span>
-                          <span className="self-start text-[9px] uppercase font-black text-[#01AC9F] dark:text-teal-400 bg-emerald-50 dark:bg-emerald-950/20 px-1 rounded mt-0.5">Quiz</span>
+                          <span className="self-start text-[9px] uppercase font-black text-[#2563EB] dark:text-blue-400 bg-emerald-50 dark:bg-emerald-950/20 px-1 rounded mt-0.5">Quiz</span>
                         </div>
                       </div>
                     </td>
@@ -637,7 +637,7 @@ export const TeacherQuizzes: React.FC = () => {
                         <Link
                           to={`/teacher/submitted?tab=quizzes&assignment=${a.id}`}
                           title="View Results"
-                          className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-teal-50 hover:text-[#01AC9F] dark:hover:bg-teal-500/10 transition-colors"
+                          className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-blue-50 hover:text-[#2563EB] dark:hover:bg-blue-500/10 transition-colors"
                         >
                           <Eye size={15} />
                         </Link>
@@ -648,7 +648,7 @@ export const TeacherQuizzes: React.FC = () => {
                               setSelectedBatchIds([]);
                             }}
                             title="Assign Batch"
-                            className="p-1.5 rounded-lg text-[var(--brand-primary)] text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-[var(--brand-primary)] text-purple-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
                           >
                             <Plus size={15} />
                           </button>
@@ -701,7 +701,7 @@ export const TeacherQuizzes: React.FC = () => {
           {/* ==================== LEFT COLUMN: Quiz Details ==================== */}
           <div className="lg:col-span-5 flex flex-col space-y-4">
             <div className="border-b border-[var(--brand-border)] pb-2 mb-1">
-              <h3 className="text-xs font-bold text-[#6C1D5F] dark:text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[#EF4444] dark:text-red-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Settings size={14} /> 1. Quiz Settings
               </h3>
             </div>
@@ -765,7 +765,7 @@ export const TeacherQuizzes: React.FC = () => {
               </div>
               <div className="flex justify-between items-center text-xs text-[var(--text-secondary)] mt-1.5">
                 <span>Passing Mark:</span>
-                <span className="font-bold text-[#01AC9F]">
+                <span className="font-bold text-[#2563EB]">
                   {Math.round(questionsList.reduce((sum, q) => sum + Number(q.marks || 0), 0) * (passingPercentage / 100))} pts ({passingPercentage}%)
                 </span>
               </div>
@@ -781,7 +781,7 @@ export const TeacherQuizzes: React.FC = () => {
                 onClick={() => setActiveCreatorTab('manual')}
                 className={`py-2.5 px-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
                   activeCreatorTab === 'manual' 
-                    ? 'border-[#6C1D5F] text-[#6C1D5F] dark:text-purple-400' 
+                    ? 'border-[#EF4444] text-[#EF4444] dark:text-red-400' 
                     : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -792,7 +792,7 @@ export const TeacherQuizzes: React.FC = () => {
                 onClick={() => setActiveCreatorTab('import')}
                 className={`py-2.5 px-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCreatorTab === 'import' 
-                    ? 'border-[#6C1D5F] text-[#6C1D5F] dark:text-purple-400' 
+                    ? 'border-[#EF4444] text-[#EF4444] dark:text-red-400' 
                     : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -852,7 +852,7 @@ export const TeacherQuizzes: React.FC = () => {
                               isInvalid 
                                 ? 'bg-red-500/5 border-red-300 dark:border-red-900/40' 
                                 : isCurrentlyEditing 
-                                  ? 'bg-[#6C1D5F]/5 border-[#6C1D5F]/40' 
+                                  ? 'bg-[#EF4444]/5 border-[#EF4444]/40' 
                                   : 'bg-white dark:bg-slate-800/10 border-[var(--brand-border)]'
                             }`}
                           >
@@ -950,7 +950,7 @@ export const TeacherQuizzes: React.FC = () => {
                                       setActiveBuilderQuestion({ ...q });
                                       setActiveBuilderIndex(idx);
                                     }}
-                                    className="p-1 rounded text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-500/10 cursor-pointer"
+                                    className="p-1 rounded text-teal-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 cursor-pointer"
                                     title="Edit Question"
                                   >
                                     <Edit size={14} />
@@ -1015,14 +1015,14 @@ export const TeacherQuizzes: React.FC = () => {
 
                   <div
                     className={`drop-zone p-10 text-center border-dashed border-2 rounded-2xl cursor-pointer ${
-                      isExcelDragging ? 'bg-[#6C1D5F]/5 border-[#6C1D5F]' : 'border-[var(--brand-border)] hover:border-slate-400'
+                      isExcelDragging ? 'bg-[#EF4444]/5 border-[#EF4444]' : 'border-[var(--brand-border)] hover:border-slate-400'
                     }`}
                     onDragOver={(e) => { e.preventDefault(); setIsExcelDragging(true); }}
                     onDragLeave={() => setIsExcelDragging(false)}
                     onDrop={onExcelDrop}
                     onClick={() => excelRef.current?.click()}
                   >
-                    <Upload size={32} className="mx-auto mb-3 text-[#6C1D5F]" />
+                    <Upload size={32} className="mx-auto mb-3 text-[#EF4444]" />
                     <p className="text-sm font-semibold text-[var(--text-primary)]">Drag & Drop Excel Spreadsheet here</p>
                     <p className="text-xs text-[var(--text-secondary)] mt-1">or click to browse local files (.xlsx, .xls) · Max 10MB</p>
                     <input
@@ -1176,7 +1176,7 @@ export const TeacherQuizzes: React.FC = () => {
                               newList.sort();
                               setActiveBuilderQuestion({ ...activeBuilderQuestion, correctAnswer: newList.join(',') });
                             }}
-                            className="rounded border-[var(--brand-border)] text-[#6C1D5F] focus:ring-[#6C1D5F] shrink-0"
+                            className="rounded border-[var(--brand-border)] text-[#EF4444] focus:ring-[#EF4444] shrink-0"
                           />
                           <span>{val}</span>
                         </label>
@@ -1203,7 +1203,7 @@ export const TeacherQuizzes: React.FC = () => {
                     value={activeBuilderQuestion.correctAnswer}
                     onChange={(e) => setActiveBuilderQuestion({ ...activeBuilderQuestion, correctAnswer: e.target.value })}
                     placeholder="Enter correct text answer..."
-                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#6C1D5F] text-[var(--text-primary)] rounded-xl py-2 px-3 text-xs transition-colors focus:outline-none"
+                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] text-[var(--text-primary)] rounded-xl py-2 px-3 text-xs transition-colors focus:outline-none"
                   />
                 )}
               </div>
@@ -1320,7 +1320,7 @@ export const TeacherQuizzes: React.FC = () => {
                         setSelectedBatchIds([...selectedBatchIds, String(b.id)]);
                       }
                     }}
-                    className="rounded border-[var(--brand-border)] text-[#6C1D5F] focus:ring-[#6C1D5F]"
+                    className="rounded border-[var(--brand-border)] text-[#EF4444] focus:ring-[#EF4444]"
                   />
                   <span>{b.batchName}</span>
                 </label>

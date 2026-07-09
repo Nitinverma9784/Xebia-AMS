@@ -224,7 +224,7 @@ export const QuizReview: React.FC = () => {
         <div className="space-y-4 select-none">
           {quiz.questions?.map((q, idx) => {
             const selected = submittedAnswersMap[String(q.id)] || '';
-            const isCorrect = selected.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase();
+            const isCorrect = selected.trim().toLowerCase() === (q.correctAnswer || '').trim().toLowerCase();
             const isSkipped = !selected || selected.trim() === '';
 
             // Extract metadata if exists (explanation, negative marks)
@@ -294,8 +294,8 @@ export const QuizReview: React.FC = () => {
                           const listSelected = selected.split(',').map(s => s.trim());
                           const isSelected = listSelected.includes(opt.key);
                           const isCorrectOption = q.questionType === 'MSQ'
-                            ? q.correctAnswer.split(',').map((s: string) => s.trim()).includes(opt.key)
-                            : q.correctAnswer === opt.key;
+                            ? (q.correctAnswer || '').split(',').map((s: string) => s.trim()).includes(opt.key)
+                            : (q.correctAnswer || '') === opt.key;
 
                           let borderStyle = 'border-[var(--brand-border)] text-[var(--text-secondary)]';
                           if (isSelected) {
@@ -328,7 +328,7 @@ export const QuizReview: React.FC = () => {
                         {['A', 'B'].map((optKey) => {
                           const val = optKey === 'A' ? (q.optionA || 'True') : (q.optionB || 'False');
                           const isSelected = selected.toUpperCase() === optKey || selected.toUpperCase() === val.toUpperCase();
-                          const isCorrectOption = q.correctAnswer.toUpperCase() === optKey || q.correctAnswer.toUpperCase() === val.toUpperCase();
+                          const isCorrectOption = (q.correctAnswer || '').toUpperCase() === optKey || (q.correctAnswer || '').toUpperCase() === val.toUpperCase();
 
                           let borderStyle = 'border-[var(--brand-border)] text-[var(--text-secondary)]';
                           if (isSelected) {

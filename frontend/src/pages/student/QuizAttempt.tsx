@@ -57,7 +57,6 @@ export const QuizAttempt: React.FC = () => {
         return;
       }
       if (q.submissionStatus === 'submitted' || q.submissionStatus === 'reviewed') {
-        toast.navigate = `/student/quizzes/${id}/review`;
         toast.error('You have already submitted this quiz.');
         navigate(`/student/quizzes/${id}/review`);
         return;

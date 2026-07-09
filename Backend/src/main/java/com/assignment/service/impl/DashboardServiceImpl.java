@@ -54,7 +54,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .map(a -> TeacherDashboardResponse.RecentAssignment.builder()
                         .id(a.getId())
                         .title(a.getTitle())
-                        .batch(a.getBatch().getBatchName())
+                        .batch(a.getBatch() != null ? a.getBatch().getBatchName() : "Draft")
                         .dueDate(a.getDueDate().toString())
                         .build())
                 .collect(Collectors.toList());

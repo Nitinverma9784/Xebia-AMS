@@ -33,7 +33,6 @@ public class AssignmentRequest {
 
     private String topic;
 
-    @NotNull(message = "Batch ID is required")
     private Long batchId;
 
     private MultipartFile resourceFile;

@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Clock, BookOpen, AlertCircle, Eye, LayoutGrid, List, FileText } from 'lucide-react';
+import { Search, Clock, BookOpen, AlertCircle, Eye, LayoutGrid, List, FileText, Award } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
 import { Badge } from '../../components/ui/Badge';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { AssignmentCardSkeleton, TableRowSkeleton } from '../../components/shared/LoadingSkeleton';
 import { Pagination } from '../../components/shared/Pagination';
 import { studentService } from '../../services/student.service';
+import { certificateService } from '../../services/certificate.service';
 import {
   formatDate,
   getDueDateCountdown,
@@ -35,6 +36,18 @@ export const StudentAssignments: React.FC = () => {
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [pagination, setPagination] = useState<PaginationMeta>({ page: 1, limit: 10, total: 0, totalPages: 0 });
+  const [certificates, setCertificates] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    certificateService.getMyCertificates().then(certs => {
+      const mapping: Record<string, string> = {};
+      certs.forEach(c => {
+        if (c.assignmentId) mapping[`assignment-${c.assignmentId}`] = c.certificateUrl;
+        if (c.quizId) mapping[`quiz-${c.quizId}`] = c.certificateUrl;
+      });
+      setCertificates(mapping);
+    }).catch(err => console.error("Error loading certificates", err));
+  }, []);
 
   const fetchAssignments = useCallback(async () => {
     setLoading(true);
@@ -190,13 +203,27 @@ export const StudentAssignments: React.FC = () => {
                         )}
                       </td>
                       <td className="px-4 py-3.5">
-                        <button
-                          onClick={() => navigate(`/student/assignments/${a.id}`)}
-                          className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-purple-50 hover:text-[#6C1D5F] dark:hover:bg-purple-500/10 transition-colors cursor-pointer"
-                          title="View Assignment Detail"
-                        >
-                          <Eye size={15} />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => navigate(`/student/assignments/${a.id}`)}
+                            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-purple-50 hover:text-[#6C1D5F] dark:hover:bg-purple-500/10 transition-colors cursor-pointer"
+                            title="View Assignment Detail"
+                          >
+                            <Eye size={15} />
+                          </button>
+                          {certificates[`assignment-${a.id}`] && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(certificates[`assignment-${a.id}`], '_blank');
+                              }}
+                              className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                              title="Download Certificate"
+                            >
+                              <Award size={15} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -285,12 +312,27 @@ export const StudentAssignments: React.FC = () => {
                     </div>
 
                     {a.submission && a.submission.status === 'reviewed' && a.submission.marks !== null && (
-                      <div className="mt-3 pt-3 border-t border-[var(--brand-border)]">
+                      <div className="mt-3 pt-3 border-t border-[var(--brand-border)] font-sans">
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-[var(--text-secondary)]">Your Score</span>
-                          <span className="text-sm font-bold text-[#01AC9F]">
-                            {a.submission.marks}/{a.maxMarks}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-[#01AC9F]">
+                              {a.submission.marks}/{a.maxMarks}
+                            </span>
+                            {certificates[`assignment-${a.id}`] && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(certificates[`assignment-${a.id}`], '_blank');
+                                }}
+                                className="p-1 rounded bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                                title="Download Certificate"
+                              >
+                                <Award size={12} />
+                                <span>Cert</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}

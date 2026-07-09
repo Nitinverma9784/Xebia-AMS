@@ -146,6 +146,26 @@ public class AssignmentController {
         return ResponseEntity.ok(ApiResponse.success("Assignment deleted successfully", null));
     }
 
+    @PostMapping("/api/teacher/assignments/{assignmentId}/assign")
+    public ResponseEntity<ApiResponse<List<AssignmentResponse>>> assignBatch(
+            @PathVariable Long assignmentId,
+            @RequestBody java.util.Map<String, List<Long>> request,
+            Principal principal
+    ) {
+        List<Long> batchIds = request.get("batchIds");
+        List<AssignmentResponse> response = assignmentService.assignBatch(assignmentId, batchIds, principal.getName());
+        return ResponseEntity.ok(ApiResponse.success("Quiz assigned to batches successfully", response));
+    }
+
+    @PostMapping("/api/teacher/assignments/{assignmentId}/unassign")
+    public ResponseEntity<ApiResponse<AssignmentResponse>> unassignBatch(
+            @PathVariable Long assignmentId,
+            Principal principal
+    ) {
+        AssignmentResponse response = assignmentService.unassignBatch(assignmentId, principal.getName());
+        return ResponseEntity.ok(ApiResponse.success("Quiz unassigned successfully", response));
+    }
+
     // --- Student Assignment Endpoints ---
 
     @GetMapping("/api/student/assignments")

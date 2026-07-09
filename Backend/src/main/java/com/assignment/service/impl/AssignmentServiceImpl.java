@@ -12,6 +12,7 @@ import com.assignment.enums.AssignmentStatus;
 import com.assignment.enums.SubmissionStatus;
 import com.assignment.exception.BadRequestException;
 import com.assignment.exception.ResourceNotFoundException;
+import com.assignment.exception.UnauthorizedException;
 import com.assignment.mapper.AssignmentMapper;
 import com.assignment.repository.AssignmentRepository;
 import com.assignment.repository.BatchRepository;
@@ -66,6 +67,18 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
         if (assignment == null) return;
 
+        if (assignment.getBatch() == null) {
+            AssignmentStatusResponse cache = AssignmentStatusResponse.builder()
+                    .submittedStudentIds(List.of())
+                    .pendingStudentIds(List.of())
+                    .submittedCount(0)
+                    .pendingCount(0)
+                    .completionPercentage(0.0)
+                    .build();
+            redisService.saveAssignmentStatus(assignmentId, cache);
+            return;
+        }
+
         List<Student> students = studentRepository.findByBatchId(assignment.getBatch().getId());
         List<Long> allStudentIds = students.stream().map(Student::getId).toList();
 
@@ -97,6 +110,13 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     private void populateResponseCounts(AssignmentResponse res) {
         if (res == null) return;
+        if (res.getBatchId() == null) {
+            res.setTotalStudents(0);
+            res.setSubmittedCount(0);
+            res.setPendingCount(0);
+            res.setSubmissionPercentage(0.0);
+            return;
+        }
         List<Student> students = studentRepository.findByBatchId(res.getBatchId());
         List<Long> allStudentIds = students.stream().map(Student::getId).toList();
 
@@ -129,8 +149,11 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Transactional
     public AssignmentResponse createAssignment(AssignmentRequest request, String teacherEmail) {
         Teacher teacher = getTeacher(teacherEmail);
-        Batch batch = batchRepository.findByIdAndTeacherId(request.getBatchId(), teacher.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Batch not found or unauthorized"));
+        Batch batch = null;
+        if (request.getBatchId() != null) {
+            batch = batchRepository.findByIdAndTeacherId(request.getBatchId(), teacher.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Batch not found or unauthorized"));
+        }
 
         if (request.getPassingMarks() > request.getTotalMarks()) {
             throw new BadRequestException("Passing marks cannot exceed total marks");
@@ -163,7 +186,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .dueTime(request.getDueTime())
                 .lateSubmissionAllowed(request.getLateSubmissionAllowed() != null ? request.getLateSubmissionAllowed() : false)
                 .maxFileSize(request.getMaxFileSize() != null ? request.getMaxFileSize() : 10485760L)
-                .status(AssignmentStatus.ACTIVE)
+                .status(request.getBatchId() == null ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE)
                 .build();
 
         Assignment savedAssignment = assignmentRepository.save(assignment);
@@ -441,6 +464,122 @@ public class AssignmentServiceImpl implements AssignmentService {
         List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId);
 
         return excelExportService.generateAssignmentResultExcel(assignment, students, submissions);
+    }
+
+    @Override
+    @Transactional
+    public List<AssignmentResponse> assignBatch(Long assignmentId, List<Long> batchIds, String teacherEmail) {
+        Teacher teacher = getTeacher(teacherEmail);
+        Assignment assignment = assignmentRepository.findByIdAndTeacherId(assignmentId, teacher.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
+
+        if (batchIds == null || batchIds.isEmpty()) {
+            throw new BadRequestException("At least one batch ID is required");
+        }
+
+        List<Batch> batches = batchRepository.findAllById(batchIds);
+        if (batches.size() != batchIds.size()) {
+            throw new ResourceNotFoundException("One or more batches not found");
+        }
+
+        for (Batch b : batches) {
+            if (!b.getTeacher().getId().equals(teacher.getId())) {
+                throw new UnauthorizedException("Unauthorized: batch " + b.getBatchName() + " does not belong to you");
+            }
+        }
+
+        List<AssignmentResponse> responses = new java.util.ArrayList<>();
+        int startIndex = 0;
+
+        // If the assignment is currently a draft (has no batch), use it for the first batch
+        if (assignment.getBatch() == null) {
+            Batch firstBatch = batches.get(0);
+            assignment.setBatch(firstBatch);
+            assignment.setStatus(AssignmentStatus.ACTIVE);
+            Assignment saved = assignmentRepository.save(assignment);
+            rebuildAssignmentStatusCache(saved.getId());
+            AssignmentResponse res = assignmentMapper.toResponse(saved);
+            populateResponseCounts(res);
+            responses.add(res);
+            startIndex = 1;
+        }
+
+        // For any subsequent batches, duplicate (clone) the quiz
+        for (int i = startIndex; i < batches.size(); i++) {
+            Batch currentBatch = batches.get(i);
+
+            Assignment cloned = Assignment.builder()
+                    .title(assignment.getTitle())
+                    .description(assignment.getDescription())
+                    .instructions(assignment.getInstructions())
+                    .assignmentType(assignment.getAssignmentType())
+                    .subject(assignment.getSubject())
+                    .topic(assignment.getTopic())
+                    .batch(currentBatch)
+                    .teacher(teacher)
+                    .resourceUrl(assignment.getResourceUrl())
+                    .externalLink(assignment.getExternalLink())
+                    .submissionType(assignment.getSubmissionType())
+                    .totalMarks(assignment.getTotalMarks())
+                    .passingMarks(assignment.getPassingMarks())
+                    .dueDate(assignment.getDueDate())
+                    .dueTime(assignment.getDueTime())
+                    .lateSubmissionAllowed(assignment.getLateSubmissionAllowed())
+                    .maxFileSize(assignment.getMaxFileSize())
+                    .status(AssignmentStatus.ACTIVE)
+                    .build();
+
+            Assignment savedCloned = assignmentRepository.save(cloned);
+
+            if (assignment.getQuestions() != null) {
+                for (com.assignment.entity.Question q : assignment.getQuestions()) {
+                    com.assignment.entity.Question clonedQ = com.assignment.entity.Question.builder()
+                            .assignment(savedCloned)
+                            .questionText(q.getQuestionText())
+                            .optionA(q.getOptionA())
+                            .optionB(q.getOptionB())
+                            .optionC(q.getOptionC())
+                            .optionD(q.getOptionD())
+                            .correctAnswer(q.getCorrectAnswer())
+                            .marks(q.getMarks())
+                            .difficulty(q.getDifficulty())
+                            .questionType(q.getQuestionType())
+                            .build();
+                    questionRepository.save(clonedQ);
+                }
+            }
+
+            rebuildAssignmentStatusCache(savedCloned.getId());
+            Assignment loadedCloned = assignmentRepository.findById(savedCloned.getId()).orElse(savedCloned);
+            AssignmentResponse res = assignmentMapper.toResponse(loadedCloned);
+            populateResponseCounts(res);
+            responses.add(res);
+        }
+
+        return responses;
+    }
+
+    @Override
+    @Transactional
+    public AssignmentResponse unassignBatch(Long assignmentId, String teacherEmail) {
+        Teacher teacher = getTeacher(teacherEmail);
+        Assignment assignment = assignmentRepository.findByIdAndTeacherId(assignmentId, teacher.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
+
+        long submissionsCount = submissionRepository.countByAssignmentId(assignmentId);
+        if (submissionsCount > 0) {
+            throw new BadRequestException("Cannot unassign batch from quiz: students have already submitted answers");
+        }
+
+        assignment.setBatch(null);
+        assignment.setStatus(AssignmentStatus.DRAFT);
+        Assignment saved = assignmentRepository.save(assignment);
+
+        redisService.deleteAssignmentStatus(assignmentId);
+
+        AssignmentResponse res = assignmentMapper.toResponse(saved);
+        populateResponseCounts(res);
+        return res;
     }
 }
 

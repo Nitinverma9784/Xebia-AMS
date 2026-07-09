@@ -35,4 +35,23 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             throw new CustomException("Failed to upload file to Cloudinary: " + e.getMessage(), 500);
         }
     }
+
+    @Override
+    public String uploadBytes(byte[] bytes, String folder) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        try {
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                    bytes,
+                    ObjectUtils.asMap(
+                            "folder", folder,
+                            "resource_type", "auto"
+                    )
+            );
+            return (String) uploadResult.get("secure_url");
+        } catch (IOException e) {
+            throw new CustomException("Failed to upload bytes to Cloudinary: " + e.getMessage(), 500);
+        }
+    }
 }

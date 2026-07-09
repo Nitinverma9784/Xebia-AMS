@@ -46,7 +46,7 @@ public class Assignment {
     private String topic;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "batch_id", nullable = false)
+    @JoinColumn(name = "batch_id", nullable = true)
     private Batch batch;
 
     @ManyToOne(fetch = FetchType.LAZY)

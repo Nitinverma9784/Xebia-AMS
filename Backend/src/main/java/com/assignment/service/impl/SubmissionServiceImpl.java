@@ -48,6 +48,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final UserMapper userMapper;
     private final com.assignment.repository.QuestionRepository questionRepository;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    private final com.assignment.service.CertificateService certificateService;
 
     private Student getStudent(String email) {
         Student student = studentRepository.findByEmail(email)
@@ -188,6 +189,11 @@ public class SubmissionServiceImpl implements SubmissionService {
             
             Submission savedSubmission = submissionRepository.save(submission);
             rebuildAssignmentStatusCache(assignmentId);
+            try {
+                certificateService.generateCertificateForSubmission(savedSubmission.getId());
+            } catch (Exception e) {
+                System.err.println("Failed to generate quiz certificate: " + e.getMessage());
+            }
             return submissionMapper.toResponse(savedSubmission);
         }
 
@@ -277,6 +283,11 @@ public class SubmissionServiceImpl implements SubmissionService {
         submission.setReviewedAt(LocalDateTime.now());
 
         Submission reviewedSubmission = submissionRepository.save(submission);
+        try {
+            certificateService.generateCertificateForSubmission(reviewedSubmission.getId());
+        } catch (Exception e) {
+            System.err.println("Failed to generate assignment certificate: " + e.getMessage());
+        }
         return submissionMapper.toResponse(reviewedSubmission);
     }
 

@@ -22,4 +22,6 @@ public interface AssignmentService {
             String teacherEmail
     );
     byte[] exportAssignmentResults(Long assignmentId, String teacherEmail);
+    List<AssignmentResponse> assignBatch(Long assignmentId, List<Long> batchIds, String teacherEmail);
+    AssignmentResponse unassignBatch(Long assignmentId, String teacherEmail);
 }

@@ -93,6 +93,8 @@ export interface Assignment {
   _count?: { submissions: number };
   assignmentType?: 'PDF' | 'QUIZ' | 'CODING' | 'PROJECT' | 'PRESENTATION' | 'VIDEO' | 'LINK';
   questions?: Question[];
+  passingMarks?: number;
+  totalMarks?: number;
 }
 
 export interface CreateAssignmentData {
@@ -138,7 +140,6 @@ export interface Submission {
     teacher?: { name: string };
   };
   updatedAt?: string;
-  quizAnswers?: string;
 }
 
 export interface GradeSubmissionData {

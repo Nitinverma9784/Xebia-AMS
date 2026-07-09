@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/shared/EmptyState';
 import { TableRowSkeleton } from '../../components/shared/LoadingSkeleton';
 import { Pagination } from '../../components/shared/Pagination';
 import { studentService } from '../../services/student.service';
+import { certificateService } from '../../services/certificate.service';
 import { formatDate, formatDateTime, isOverdue } from '../../utils/helpers';
 import type { Assignment, PaginationMeta } from '../../types';
 
@@ -21,6 +22,18 @@ export const StudentQuizzes: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState<PaginationMeta>({ page: 1, limit: 10, total: 0, totalPages: 0 });
+  const [certificates, setCertificates] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    certificateService.getMyCertificates().then(certs => {
+      const mapping: Record<string, string> = {};
+      certs.forEach(c => {
+        if (c.assignmentId) mapping[`assignment-${c.assignmentId}`] = c.certificateUrl;
+        if (c.quizId) mapping[`quiz-${c.quizId}`] = c.certificateUrl;
+      });
+      setCertificates(mapping);
+    }).catch(err => console.error("Error loading certificates", err));
+  }, []);
 
   const fetchQuizzes = useCallback(async () => {
     setLoading(true);
@@ -217,14 +230,26 @@ export const StudentQuizzes: React.FC = () => {
                       <ArrowRight size={13} />
                     </Button>
                   ) : (status === 'submitted' || status === 'reviewed') ? (
-                    <Button
-                      variant="outline"
-                      className="w-full flex items-center justify-center gap-1.5 text-xs py-2 border-[#6C1D5F] text-[#6C1D5F] hover:bg-[#6C1D5F0D]"
-                      onClick={() => navigate(`/student/quizzes/${q.id}/review`)}
-                    >
-                      <span>View Review</span>
-                      <CheckCircle2 size={13} className="text-[#01AC9F]" />
-                    </Button>
+                    <div className="flex gap-2 w-full">
+                      <Button
+                        variant="outline"
+                        className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2 border-[#6C1D5F] text-[#6C1D5F] hover:bg-[#6C1D5F0D]"
+                        onClick={() => navigate(`/student/quizzes/${q.id}/review`)}
+                      >
+                        <span>View Review</span>
+                        <CheckCircle2 size={13} className="text-[#01AC9F]" />
+                      </Button>
+                      {certificates[`quiz-${q.id}`] && (
+                        <Button
+                          variant="primary"
+                          className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2"
+                          onClick={() => window.open(certificates[`quiz-${q.id}`], '_blank')}
+                        >
+                          <span>Certificate</span>
+                          <Award size={13} />
+                        </Button>
+                      )}
+                    </div>
                   ) : (
                     <Button
                       variant="outline"

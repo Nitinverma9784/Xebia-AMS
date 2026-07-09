@@ -71,6 +71,11 @@ export const TeacherQuizzes: React.FC = () => {
   const [activeBuilderQuestion, setActiveBuilderQuestion] = useState<any | null>(null);
   const [activeBuilderIndex, setActiveBuilderIndex] = useState<number | null>(null);
 
+  // Assign Batch Modal State
+  const [assignModalQuiz, setAssignModalQuiz] = useState<Assignment | null>(null);
+  const [selectedBatchIds, setSelectedBatchIds] = useState<string[]>([]);
+  const [assigning, setAssigning] = useState(false);
+
   // Excel Upload State
   const [isExcelDragging, setIsExcelDragging] = useState(false);
   const excelRef = useRef<HTMLInputElement>(null);
@@ -130,9 +135,9 @@ export const TeacherQuizzes: React.FC = () => {
     setEditingQuizId(null);
     setQuizTitle('');
     setQuizDescription('');
-    setQuizSubject(batches[0]?.subject || 'Mathematics');
+    setQuizSubject('Mathematics');
     setQuizTopic('');
-    if (batches.length > 0) setQuizBatchId(String(batches[0].id));
+    setQuizBatchId('');
     setQuizDueDate(new Date(Date.now() + 86400000).toISOString().split('T')[0]); // tomorrow
     setQuizTimeLimit(30);
     setQuizAttempts(1);
@@ -152,7 +157,7 @@ export const TeacherQuizzes: React.FC = () => {
     setLoading(true);
     try {
       const res = await teacherService.getAssignmentById(quizItem.id);
-      const q = res.assignment || res;
+      const q = res;
       setQuizTitle(q.title || '');
       setQuizDescription(q.description || '');
       setQuizSubject(q.subject || 'Mathematics');
@@ -403,8 +408,8 @@ export const TeacherQuizzes: React.FC = () => {
       toast.error('Quiz title is required.');
       return;
     }
-    if (!quizBatchId) {
-      toast.error('Please select a batch.');
+    if (status === 'published' && !quizBatchId) {
+      toast.error('Please select a batch to publish the quiz.');
       return;
     }
     if (!quizDueDate) {
@@ -489,6 +494,25 @@ export const TeacherQuizzes: React.FC = () => {
       fetchQuizzes();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to save quiz.', { id: loadingToast });
+    }
+  };
+
+  const handleAssignBatch = async () => {
+    if (!assignModalQuiz) return;
+    if (selectedBatchIds.length === 0) {
+      toast.error('Please select at least one batch.');
+      return;
+    }
+    setAssigning(true);
+    try {
+      await teacherService.assignBatch(assignModalQuiz.id, selectedBatchIds);
+      toast.success('Quiz assigned successfully!');
+      setAssignModalQuiz(null);
+      fetchQuizzes();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to assign quiz to batches.');
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -617,6 +641,18 @@ export const TeacherQuizzes: React.FC = () => {
                         >
                           <Eye size={15} />
                         </Link>
+                        {a.status === 'draft' && (
+                          <button
+                            onClick={() => {
+                              setAssignModalQuiz(a);
+                              setSelectedBatchIds([]);
+                            }}
+                            title="Assign Batch"
+                            className="p-1.5 rounded-lg text-[var(--brand-primary)] text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-colors cursor-pointer"
+                          >
+                            <Plus size={15} />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleOpenEditModal(a)}
                           title="Edit Quiz"
@@ -683,11 +719,13 @@ export const TeacherQuizzes: React.FC = () => {
             <Input label="Topic / Category" placeholder="e.g. Gravitation" value={quizTopic} onChange={(e) => setQuizTopic(e.target.value)} />
 
             <Select
-              label="Target Batch"
-              required
+              label="Target Batch (Optional)"
               value={quizBatchId}
               onChange={(e) => setQuizBatchId(e.target.value)}
-              options={(batches || []).map(b => ({ value: String(b.id), label: b.batchName }))}
+              options={[
+                { value: '', label: 'Save as Draft (No Batch)' },
+                ...(batches || []).map(b => ({ value: String(b.id), label: b.batchName }))
+              ]}
             />
 
             <Input label="Due Date" type="date" min={todayDate} required value={quizDueDate} onChange={(e) => setQuizDueDate(e.target.value)} />
@@ -771,7 +809,7 @@ export const TeacherQuizzes: React.FC = () => {
                     <span className="text-xs text-[var(--text-secondary)]">Create, edit, duplicate, and reorder questions.</span>
                     <Button
                       variant="outline"
-                      size="xs"
+                      size="sm"
                       icon={<Plus size={14} />}
                       onClick={() => {
                         setActiveBuilderQuestion({
@@ -967,7 +1005,7 @@ export const TeacherQuizzes: React.FC = () => {
                     </div>
                     <Button
                       variant="outline"
-                      size="xs"
+                      size="sm"
                       icon={<Download size={13} />}
                       onClick={downloadExcelTemplate}
                     >
@@ -1247,6 +1285,47 @@ export const TeacherQuizzes: React.FC = () => {
             <p className="text-xs text-[var(--text-secondary)] mt-1.5">
               This will remove the quiz and delete all submitted student attempts. This action is irreversible.
             </p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Assign Batch Modal */}
+      <Modal
+        isOpen={!!assignModalQuiz}
+        onClose={() => setAssignModalQuiz(null)}
+        title="Assign Quiz to Batches"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setAssignModalQuiz(null)}>Cancel</Button>
+            <Button variant="primary" loading={assigning} onClick={handleAssignBatch}>Assign</Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--text-secondary)]">
+            Select one or more batches to assign the quiz <strong>"{assignModalQuiz?.title}"</strong>.
+          </p>
+          <div className="space-y-2 max-h-60 overflow-y-auto border border-[var(--brand-border)] p-3 rounded-xl">
+            {(batches || []).map((b) => {
+              const isChecked = selectedBatchIds.includes(String(b.id));
+              return (
+                <label key={b.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer text-sm text-[var(--text-primary)]">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => {
+                      if (isChecked) {
+                        setSelectedBatchIds(selectedBatchIds.filter(id => id !== String(b.id)));
+                      } else {
+                        setSelectedBatchIds([...selectedBatchIds, String(b.id)]);
+                      }
+                    }}
+                    className="rounded border-[var(--brand-border)] text-[#6C1D5F] focus:ring-[#6C1D5F]"
+                  />
+                  <span>{b.batchName}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
       </Modal>

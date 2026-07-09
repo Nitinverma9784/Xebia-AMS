@@ -223,17 +223,21 @@ export const teacherService = {
       batchId: String(a.batchId || ''),
       batchName: a.batchName || '',
       questions: a.questions || [],
+      passingMarks: a.passingMarks || 0,
+      totalMarks: a.totalMarks || 0,
     };
   },
 
-  createAssignment: async (data: CreateAssignmentData & { batchId: string }) => {
+  createAssignment: async (data: CreateAssignmentData & { batchId?: string }) => {
     const formData = new FormData();
     formData.append('title', data.title);
     formData.append('description', data.description || '');
     formData.append('instructions', data.instructions || '');
     formData.append('subject', data.subject);
     if (data.topic !== undefined) formData.append('topic', data.topic);
-    formData.append('batchId', String(data.batchId));
+    if (data.batchId) {
+      formData.append('batchId', String(data.batchId));
+    }
     formData.append('totalMarks', String(data.maxMarks));
     
     const passingMarks = data.passingMarks !== undefined ? data.passingMarks : Math.round(data.maxMarks * 0.4);
@@ -401,5 +405,17 @@ export const teacherService = {
       return { user };
     }
     throw new Error('User not found');
+  },
+
+  assignBatch: async (assignmentId: string, batchIds: string[]) => {
+    const res = await api.post(`/teacher/assignments/${assignmentId}/assign`, {
+      batchIds: batchIds.map(Number),
+    });
+    return res.data;
+  },
+
+  unassignBatch: async (assignmentId: string) => {
+    const res = await api.post(`/teacher/assignments/${assignmentId}/unassign`);
+    return res.data;
   },
 };

@@ -63,7 +63,7 @@ export const StudentDashboard: React.FC = () => {
             .filter(Boolean);
             
           if (dates.length > 0) {
-            const uniqueDates = Array.from(new Set(dates)).sort((a: any, b: any) => new Date(b).getTime() - new Date(a).getTime());
+            const uniqueDates = Array.from(new Set(dates)).sort((a: any, b: any) => new Date(b).getTime() - new Date(a).getTime()) as string[];
             
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);

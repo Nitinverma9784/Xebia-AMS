@@ -29,20 +29,20 @@ export const VerifyCertificate: React.FC = () => {
   }, [token]);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0F172A] flex items-center justify-center p-4 selection:bg-[#EF4444]/10">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0F172A] flex items-center justify-center p-4 selection:bg-[#00B5AD]/10">
       
       {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-[#EF4444]/5 rounded-full blur-3xl -z-10 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-96 h-96 bg-[#00B5AD]/5 rounded-full blur-3xl -z-10 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#2563EB]/5 rounded-full blur-3xl -z-10 pointer-events-none" />
 
       <div className="w-full max-w-xl bg-white dark:bg-[#1E293B] border border-slate-200/80 dark:border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden transition-all duration-300 transform">
         
         {/* Top Accent Band */}
-        <div className="h-2.5 bg-gradient-to-r from-[#EF4444] to-[#2563EB]" />
+        <div className="h-2.5 bg-gradient-to-r from-[#00B5AD] to-[#2563EB]" />
 
         {loading ? (
           <div className="p-12 text-center flex flex-col items-center justify-center space-y-4">
-            <div className="w-12 h-12 rounded-full border-4 border-[#EF4444]/30 border-t-[#EF4444] animate-spin" />
+            <div className="w-12 h-12 rounded-full border-4 border-[#00B5AD]/30 border-t-[#00B5AD] animate-spin" />
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Verifying certificate authenticity...</p>
           </div>
         ) : error ? (
@@ -54,7 +54,7 @@ export const VerifyCertificate: React.FC = () => {
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">{error}</p>
             <a 
               href="/"
-              className="mt-2 text-xs font-semibold text-[#EF4444] dark:text-red-400 hover:underline flex items-center gap-1"
+              className="mt-2 text-xs font-semibold text-[#00B5AD] dark:text-teal-400 hover:underline flex items-center gap-1"
             >
               Go to Portal Home
             </a>
@@ -86,7 +86,7 @@ export const VerifyCertificate: React.FC = () => {
 
               {/* Student Name */}
               <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center text-[#EF4444] dark:text-red-400 shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-teal-500/10 flex items-center justify-center text-[#00B5AD] dark:text-teal-400 shrink-0">
                   <User size={16} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -105,7 +105,7 @@ export const VerifyCertificate: React.FC = () => {
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">
                     {cert.assignmentTitle || cert.quizTitle || cert.assignmentName}
                   </p>
-                  <span className="inline-block text-[9px] uppercase font-black text-[#EF4444] dark:text-red-400 bg-red-50 dark:bg-purple-950/20 px-1 rounded mt-1">
+                  <span className="inline-block text-[9px] uppercase font-black text-[#00B5AD] dark:text-teal-400 bg-teal-50 dark:bg-purple-950/20 px-1 rounded mt-1">
                     {cert.certificateType}
                   </span>
                 </div>
@@ -151,7 +151,7 @@ export const VerifyCertificate: React.FC = () => {
                 href={cert.pdfFileUrl || cert.certificateUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 bg-[#EF4444] hover:bg-[#521348] text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-lg shadow-red-500/15 cursor-pointer transition-colors"
+                className="flex-1 bg-[#00B5AD] hover:bg-[#521348] text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-lg shadow-teal-500/15 cursor-pointer transition-colors"
               >
                 <span>View Original PDF</span>
                 <ExternalLink size={13} />

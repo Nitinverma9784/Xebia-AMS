@@ -62,7 +62,7 @@ export const TeacherCertificates: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by student name..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors focus:outline-none"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors focus:outline-none"
           />
         </div>
 
@@ -70,7 +70,7 @@ export const TeacherCertificates: React.FC = () => {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="pl-3 pr-8 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] rounded-xl text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#EF4444]"
+            className="pl-3 pr-8 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] rounded-xl text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#00B5AD]"
           >
             <option value="">All Types</option>
             <option value="ASSIGNMENT">Assignments Only</option>
@@ -79,7 +79,7 @@ export const TeacherCertificates: React.FC = () => {
 
           <Button
             variant="outline"
-            className="p-2.5 rounded-xl border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#EF4444]"
+            className="p-2.5 rounded-xl border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-[#00B5AD]"
             onClick={fetchCertificates}
             disabled={loading}
             title="Refresh List"
@@ -119,7 +119,7 @@ export const TeacherCertificates: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="mt-2 text-[#EF4444] border-[#EF4444]/20 hover:bg-[#EF4444]/5"
+                        className="mt-2 text-[#00B5AD] border-[#00B5AD]/20 hover:bg-[#00B5AD]/5"
                         onClick={fetchCertificates}
                       >
                         Try Again
@@ -158,7 +158,7 @@ export const TeacherCertificates: React.FC = () => {
                         {c.assignmentTitle || c.quizTitle || c.assignmentName}
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="text-[9px] uppercase font-black text-[#EF4444] dark:text-red-400 bg-red-50 dark:bg-purple-950/20 px-1.5 py-0.5 rounded">
+                        <span className="text-[9px] uppercase font-black text-[#00B5AD] dark:text-teal-400 bg-teal-50 dark:bg-purple-950/20 px-1.5 py-0.5 rounded">
                           {c.certificateType}
                         </span>
                       </td>
@@ -173,7 +173,7 @@ export const TeacherCertificates: React.FC = () => {
                           <button
                             onClick={() => setSelectedCert(c)}
                             title="Preview Certificate Details"
-                            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-red-50 hover:text-[#EF4444] dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-teal-50 hover:text-[#00B5AD] dark:hover:bg-teal-500/10 transition-colors cursor-pointer"
                           >
                             <Eye size={15} />
                           </button>
@@ -252,7 +252,7 @@ export const TeacherCertificates: React.FC = () => {
               </div>
               <div className="flex justify-between py-1.5 border-b border-[var(--brand-border)]">
                 <span className="text-[var(--text-secondary)]">Activity Type</span>
-                <span className="font-bold text-[#EF4444] dark:text-red-400">{selectedCert.certificateType}</span>
+                <span className="font-bold text-[#00B5AD] dark:text-teal-400">{selectedCert.certificateType}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-[var(--brand-border)]">
                 <span className="text-[var(--text-secondary)]">Grade Secured</span>

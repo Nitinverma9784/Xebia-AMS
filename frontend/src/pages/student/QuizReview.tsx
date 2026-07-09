@@ -169,7 +169,7 @@ export const QuizReview: React.FC = () => {
             <div className="grid grid-cols-4 gap-4 sm:gap-8 mt-6 p-4 bg-slate-50 dark:bg-slate-800/40 border border-[var(--brand-border)] rounded-2xl shadow-sm">
               <div className="text-center">
                 <p className="text-[9px] uppercase font-bold tracking-wider text-[var(--text-secondary)] mb-1">Your Score</p>
-                <p className="text-lg font-black text-[#EF4444] dark:text-red-400">
+                <p className="text-lg font-black text-[#00B5AD] dark:text-teal-400">
                   {sub.marks ?? 0}
                   <span className="text-xs font-normal text-[var(--text-secondary)]"> / {quiz.maxMarks}</span>
                 </p>
@@ -235,8 +235,8 @@ export const QuizReview: React.FC = () => {
           </div>
 
           {sub.feedback && (
-            <div className="mt-4 p-3 bg-red-500/5 border border-red-200 dark:border-purple-500/20 rounded-xl">
-              <p className="text-[10px] uppercase font-black text-[#EF4444] dark:text-red-400 mb-1 flex items-center gap-1">
+            <div className="mt-4 p-3 bg-teal-500/5 border border-teal-200 dark:border-purple-500/20 rounded-xl">
+              <p className="text-[10px] uppercase font-black text-[#00B5AD] dark:text-teal-400 mb-1 flex items-center gap-1">
                 <MessageSquare size={12} /> Instructor Remarks
               </p>
               <p className="text-xs text-[var(--text-primary)] italic">

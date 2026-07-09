@@ -52,7 +52,7 @@ export const TeacherProfile: React.FC = () => {
         <Card>
           <div className="flex items-center gap-5">
             <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#EF4444] to-[#DC2626] flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#00B5AD] to-[#00998F] flex items-center justify-center text-white text-2xl font-bold">
                 {teacher?.avatar ? (
                   <img src={teacher.avatar} alt="Avatar" className="w-full h-full rounded-2xl object-cover" />
                 ) : (
@@ -64,7 +64,7 @@ export const TeacherProfile: React.FC = () => {
               <h2 className="text-lg font-bold text-[var(--text-primary)]">{teacher?.name}</h2>
               <p className="text-sm text-[var(--text-secondary)]">{teacher?.email}</p>
               <div className="flex items-center gap-2 mt-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-500/10 text-[#EF4444] dark:text-purple-300 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-500/10 text-[#00B5AD] dark:text-purple-300 text-xs font-medium">
                   <GraduationCap size={12} />
                   Teacher
                 </span>

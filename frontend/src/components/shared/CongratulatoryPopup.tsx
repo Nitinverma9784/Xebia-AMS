@@ -96,7 +96,7 @@ export const CongratulatoryPopup: React.FC<CongratulatoryPopupProps> = ({
         <div className="mt-8 flex flex-col gap-2">
           <Button
             variant="primary"
-            className="w-full py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-red-500/10"
+            className="w-full py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-teal-500/10"
             onClick={() => {
               window.open(certificate.pdfFileUrl || certificate.certificateUrl, '_blank');
               onClose();

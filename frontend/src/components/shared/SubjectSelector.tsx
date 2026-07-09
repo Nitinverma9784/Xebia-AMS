@@ -111,7 +111,7 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
         disabled={loading}
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full bg-white dark:bg-[#1E293B] border focus:outline-none rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between transition-colors cursor-pointer ${
-          error ? 'border-red-500' : 'border-[var(--brand-border)] focus:border-[#EF4444]'
+          error ? 'border-red-500' : 'border-[var(--brand-border)] focus:border-[#00B5AD]'
         } ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
       >
         <span className="truncate text-[var(--text-primary)]">
@@ -132,7 +132,7 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
               <select
                 value={selectedSemester}
                 onChange={(e) => setSelectedSemester(e.target.value === 'All Semesters' ? '' : e.target.value)}
-                className="w-full pl-2 pr-6 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-lg text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#EF4444]"
+                className="w-full pl-2 pr-6 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-lg text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#00B5AD]"
               >
                 {semesters.map((sem) => (
                   <option key={sem} value={sem}>{sem}</option>
@@ -145,7 +145,7 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value === 'All Departments' ? '' : e.target.value)}
-                className="w-full pl-2 pr-6 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-lg text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#EF4444]"
+                className="w-full pl-2 pr-6 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-lg text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#00B5AD]"
               >
                 {departments.map((dept) => (
                   <option key={dept} value={dept}>{dept}</option>
@@ -163,7 +163,7 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
               placeholder="Search by code or name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl py-2 pl-9 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none transition-colors"
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#00B5AD] rounded-xl py-2 pl-9 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none transition-colors"
             />
           </div>
 
@@ -184,11 +184,11 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
                     onClick={() => handleSelect(s)}
                     className={`w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2 cursor-pointer ${
                       isSelected
-                        ? 'bg-[#EF444410] text-[#EF4444] dark:text-red-400 font-bold'
+                        ? 'bg-[#00B5AD10] text-[#00B5AD] dark:text-teal-400 font-bold'
                         : 'text-[var(--text-primary)]'
                     }`}
                   >
-                    <BookOpen size={13} className={isSelected ? 'text-[#EF4444] dark:text-red-400' : 'text-[var(--text-secondary)]'} />
+                    <BookOpen size={13} className={isSelected ? 'text-[#00B5AD] dark:text-teal-400' : 'text-[var(--text-secondary)]'} />
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold truncate">{s.subjectCode}</p>
                       <p className="text-[10px] text-[var(--text-secondary)] truncate">{s.subjectName}</p>

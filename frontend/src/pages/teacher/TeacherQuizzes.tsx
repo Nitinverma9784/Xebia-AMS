@@ -543,7 +543,7 @@ export const TeacherQuizzes: React.FC = () => {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search quizzes..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
           />
         </div>
 
@@ -648,7 +648,7 @@ export const TeacherQuizzes: React.FC = () => {
                               setSelectedBatchIds([]);
                             }}
                             title="Assign Batch"
-                            className="p-1.5 rounded-lg text-[var(--brand-primary)] text-purple-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-[var(--brand-primary)] text-purple-600 hover:bg-teal-50 dark:hover:bg-teal-500/10 transition-colors cursor-pointer"
                           >
                             <Plus size={15} />
                           </button>
@@ -663,7 +663,7 @@ export const TeacherQuizzes: React.FC = () => {
                         <button
                           title="Delete"
                           onClick={() => setDeleteModal(a)}
-                          className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-teal-50 hover:text-red-500 dark:hover:bg-teal-500/10 transition-colors cursor-pointer"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -701,7 +701,7 @@ export const TeacherQuizzes: React.FC = () => {
           {/* ==================== LEFT COLUMN: Quiz Details ==================== */}
           <div className="lg:col-span-5 flex flex-col space-y-4">
             <div className="border-b border-[var(--brand-border)] pb-2 mb-1">
-              <h3 className="text-xs font-bold text-[#EF4444] dark:text-red-400 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[#00B5AD] dark:text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Settings size={14} /> 1. Quiz Settings
               </h3>
             </div>
@@ -781,7 +781,7 @@ export const TeacherQuizzes: React.FC = () => {
                 onClick={() => setActiveCreatorTab('manual')}
                 className={`py-2.5 px-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
                   activeCreatorTab === 'manual' 
-                    ? 'border-[#EF4444] text-[#EF4444] dark:text-red-400' 
+                    ? 'border-[#00B5AD] text-[#00B5AD] dark:text-teal-400' 
                     : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -792,7 +792,7 @@ export const TeacherQuizzes: React.FC = () => {
                 onClick={() => setActiveCreatorTab('import')}
                 className={`py-2.5 px-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCreatorTab === 'import' 
-                    ? 'border-[#EF4444] text-[#EF4444] dark:text-red-400' 
+                    ? 'border-[#00B5AD] text-[#00B5AD] dark:text-teal-400' 
                     : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -850,9 +850,9 @@ export const TeacherQuizzes: React.FC = () => {
                             key={idx} 
                             className={`p-4 rounded-xl border relative transition-all ${
                               isInvalid 
-                                ? 'bg-red-500/5 border-red-300 dark:border-red-900/40' 
+                                ? 'bg-teal-500/5 border-red-300 dark:border-red-900/40' 
                                 : isCurrentlyEditing 
-                                  ? 'bg-[#EF4444]/5 border-[#EF4444]/40' 
+                                  ? 'bg-[#00B5AD]/5 border-[#00B5AD]/40' 
                                   : 'bg-white dark:bg-slate-800/10 border-[var(--brand-border)]'
                             }`}
                           >
@@ -915,7 +915,7 @@ export const TeacherQuizzes: React.FC = () => {
 
                                 {/* Warning log */}
                                 {isInvalid && (
-                                  <div className="mt-2.5 pl-6 flex items-start gap-1.5 text-[10px] text-red-500 font-semibold bg-red-500/5 p-2 rounded-lg">
+                                  <div className="mt-2.5 pl-6 flex items-start gap-1.5 text-[10px] text-red-500 font-semibold bg-teal-500/5 p-2 rounded-lg">
                                     <AlertTriangle size={13} className="shrink-0 mt-0.5" />
                                     <div className="space-y-0.5">
                                       {errs.map((e, idxE) => <p key={idxE}>• {e}</p>)}
@@ -964,7 +964,7 @@ export const TeacherQuizzes: React.FC = () => {
                                   </button>
                                   <button
                                     onClick={() => deleteQuestion(idx)}
-                                    className="p-1 rounded text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer"
+                                    className="p-1 rounded text-red-500 hover:bg-teal-50 dark:hover:bg-teal-500/10 cursor-pointer"
                                     title="Delete"
                                   >
                                     <Trash2 size={14} />
@@ -1015,14 +1015,14 @@ export const TeacherQuizzes: React.FC = () => {
 
                   <div
                     className={`drop-zone p-10 text-center border-dashed border-2 rounded-2xl cursor-pointer ${
-                      isExcelDragging ? 'bg-[#EF4444]/5 border-[#EF4444]' : 'border-[var(--brand-border)] hover:border-slate-400'
+                      isExcelDragging ? 'bg-[#00B5AD]/5 border-[#00B5AD]' : 'border-[var(--brand-border)] hover:border-slate-400'
                     }`}
                     onDragOver={(e) => { e.preventDefault(); setIsExcelDragging(true); }}
                     onDragLeave={() => setIsExcelDragging(false)}
                     onDrop={onExcelDrop}
                     onClick={() => excelRef.current?.click()}
                   >
-                    <Upload size={32} className="mx-auto mb-3 text-[#EF4444]" />
+                    <Upload size={32} className="mx-auto mb-3 text-[#00B5AD]" />
                     <p className="text-sm font-semibold text-[var(--text-primary)]">Drag & Drop Excel Spreadsheet here</p>
                     <p className="text-xs text-[var(--text-secondary)] mt-1">or click to browse local files (.xlsx, .xls) · Max 10MB</p>
                     <input
@@ -1176,7 +1176,7 @@ export const TeacherQuizzes: React.FC = () => {
                               newList.sort();
                               setActiveBuilderQuestion({ ...activeBuilderQuestion, correctAnswer: newList.join(',') });
                             }}
-                            className="rounded border-[var(--brand-border)] text-[#EF4444] focus:ring-[#EF4444] shrink-0"
+                            className="rounded border-[var(--brand-border)] text-[#00B5AD] focus:ring-[#00B5AD] shrink-0"
                           />
                           <span>{val}</span>
                         </label>
@@ -1203,7 +1203,7 @@ export const TeacherQuizzes: React.FC = () => {
                     value={activeBuilderQuestion.correctAnswer}
                     onChange={(e) => setActiveBuilderQuestion({ ...activeBuilderQuestion, correctAnswer: e.target.value })}
                     placeholder="Enter correct text answer..."
-                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] text-[var(--text-primary)] rounded-xl py-2 px-3 text-xs transition-colors focus:outline-none"
+                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] text-[var(--text-primary)] rounded-xl py-2 px-3 text-xs transition-colors focus:outline-none"
                   />
                 )}
               </div>
@@ -1275,7 +1275,7 @@ export const TeacherQuizzes: React.FC = () => {
         }
       >
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center shrink-0">
             <Trash2 size={18} className="text-red-500" />
           </div>
           <div>
@@ -1320,7 +1320,7 @@ export const TeacherQuizzes: React.FC = () => {
                         setSelectedBatchIds([...selectedBatchIds, String(b.id)]);
                       }
                     }}
-                    className="rounded border-[var(--brand-border)] text-[#EF4444] focus:ring-[#EF4444]"
+                    className="rounded border-[var(--brand-border)] text-[#00B5AD] focus:ring-[#00B5AD]"
                   />
                   <span>{b.batchName}</span>
                 </label>

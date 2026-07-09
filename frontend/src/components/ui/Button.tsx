@@ -10,11 +10,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-  primary: 'bg-[#EF4444] hover:bg-[#DC2626] text-white border border-transparent shadow-sm shadow-red-500/10 hover:shadow-md transition-all active:scale-98',
-  secondary: 'bg-[#1E293B] hover:bg-[#0F172A] text-white border border-transparent shadow-sm transition-all active:scale-98',
+  primary: 'bg-[#00B5AD] hover:bg-[#00998F] text-white border border-transparent shadow-sm shadow-[#00B5AD]/10 hover:shadow-md transition-all active:scale-98',
+  secondary: 'bg-[#8A2C90] hover:bg-[#722077] text-white border border-transparent shadow-sm transition-all active:scale-98',
   outline: 'bg-transparent border border-[var(--brand-border)] text-[var(--text-primary)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-98',
   ghost: 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-all',
-  danger: 'bg-red-500 hover:bg-red-600 text-white border border-transparent shadow-sm transition-all',
+  danger: 'bg-teal-500 hover:bg-red-600 text-white border border-transparent shadow-sm transition-all',
   success: 'bg-emerald-500 hover:bg-emerald-600 text-white border border-transparent shadow-sm transition-all',
 };
 

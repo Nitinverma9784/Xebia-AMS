@@ -249,13 +249,13 @@ export const QuizAttempt: React.FC = () => {
         <div className="lg:col-span-4 space-y-4">
           
           {/* Timer Card */}
-          <Card className="bg-[#EF4444]/5 border-[#EF4444]/15 dark:bg-[#EF4444]/10">
+          <Card className="bg-[#00B5AD]/5 border-[#00B5AD]/15 dark:bg-[#00B5AD]/10">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
-                <Clock size={14} className="text-[#EF4444] dark:text-red-400 animate-spin" /> Time Remaining
+                <Clock size={14} className="text-[#00B5AD] dark:text-teal-400 animate-spin" /> Time Remaining
               </span>
               <span className={`text-xl font-black font-mono tracking-wider ${
-                timeLeft !== null && timeLeft < 60 ? 'text-rose-500 animate-pulse' : 'text-[#EF4444] dark:text-red-400'
+                timeLeft !== null && timeLeft < 60 ? 'text-rose-500 animate-pulse' : 'text-[#00B5AD] dark:text-teal-400'
               }`}>
                 {timeLeft !== null ? formatSeconds(timeLeft) : '—'}
               </span>
@@ -265,7 +265,7 @@ export const QuizAttempt: React.FC = () => {
             <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all duration-1000 ${
-                  timeLeft !== null && timeLeft < 60 ? 'bg-rose-500' : 'bg-[#EF4444]'
+                  timeLeft !== null && timeLeft < 60 ? 'bg-rose-500' : 'bg-[#00B5AD]'
                 }`}
                 style={{ width: `${timeLeft !== null ? (timeLeft / (quizSettings.timeLimit * 60)) * 100 : 100}%` }}
               />
@@ -295,7 +295,7 @@ export const QuizAttempt: React.FC = () => {
                 
                 let stateStyle = 'bg-slate-50 dark:bg-slate-800 text-[var(--text-secondary)] border-[var(--brand-border)]';
                 if (isCurrent) {
-                  stateStyle = 'bg-[#EF4444] text-white border-transparent ring-2 ring-purple-300 dark:ring-purple-900';
+                  stateStyle = 'bg-[#00B5AD] text-white border-transparent ring-2 ring-purple-300 dark:ring-purple-900';
                 } else if (isFlagged) {
                   stateStyle = 'bg-amber-500/10 border-amber-500 text-amber-600 dark:text-amber-400 font-bold';
                 } else if (isAnswered) {
@@ -320,7 +320,7 @@ export const QuizAttempt: React.FC = () => {
             {/* Legend */}
             <div className="mt-5 pt-3 border-t border-[var(--brand-border)] space-y-2 text-[10px] text-[var(--text-secondary)] font-medium">
               <div className="flex items-center gap-2">
-                <span className="w-3.5 h-3.5 rounded-md bg-[#EF4444] block" />
+                <span className="w-3.5 h-3.5 rounded-md bg-[#00B5AD] block" />
                 <span>Current Question</span>
               </div>
               <div className="flex items-center gap-2">
@@ -364,7 +364,7 @@ export const QuizAttempt: React.FC = () => {
                 {/* Question Body */}
                 <div className="space-y-5 flex-1 py-2">
                   <h2 className="text-base font-bold text-[var(--text-primary)] leading-normal flex items-start gap-2">
-                    <span className="text-[#EF4444] dark:text-red-400 font-black">{currentIndex + 1}.</span>
+                    <span className="text-[#00B5AD] dark:text-teal-400 font-black">{currentIndex + 1}.</span>
                     <span>{questionTextToRender}</span>
                   </h2>
 
@@ -395,12 +395,12 @@ export const QuizAttempt: React.FC = () => {
                             onClick={() => handleSelectOption(Number(currentQuestion.id), opt.key)}
                             className={`w-full flex items-center gap-4 p-3.5 rounded-xl border text-left text-xs font-semibold cursor-pointer transition-all duration-200 ${
                               isSelected
-                                ? 'bg-[#EF4444]/5 border-[#EF4444] text-[#EF4444] dark:text-red-400 font-bold shadow-sm'
+                                ? 'bg-[#00B5AD]/5 border-[#00B5AD] text-[#00B5AD] dark:text-teal-400 font-bold shadow-sm'
                                 : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] text-[var(--text-primary)] hover:border-slate-400'
                             }`}
                           >
                             <span className={`w-5.5 h-5.5 rounded-full border flex items-center justify-center text-[10px] font-black shrink-0 ${
-                              isSelected ? 'bg-[#EF4444] text-white border-transparent' : 'border-[var(--brand-border)] text-[var(--text-secondary)] bg-slate-50'
+                              isSelected ? 'bg-[#00B5AD] text-white border-transparent' : 'border-[var(--brand-border)] text-[var(--text-secondary)] bg-slate-50'
                             }`}>
                               {opt.key}
                             </span>
@@ -439,12 +439,12 @@ export const QuizAttempt: React.FC = () => {
                             }}
                             className={`w-full flex items-center gap-4 p-3.5 rounded-xl border text-left text-xs font-semibold cursor-pointer transition-all duration-200 ${
                               isSelected
-                                ? 'bg-[#EF4444]/5 border-[#EF4444] text-[#EF4444] dark:text-red-400 font-bold shadow-sm'
+                                ? 'bg-[#00B5AD]/5 border-[#00B5AD] text-[#00B5AD] dark:text-teal-400 font-bold shadow-sm'
                                 : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] text-[var(--text-primary)] hover:border-slate-400'
                             }`}
                           >
                             <span className={`w-5.5 h-5.5 rounded-lg border flex items-center justify-center text-[10px] font-black shrink-0 ${
-                              isSelected ? 'bg-[#EF4444] text-white border-transparent' : 'border-[var(--brand-border)] text-[var(--text-secondary)] bg-slate-50'
+                              isSelected ? 'bg-[#00B5AD] text-white border-transparent' : 'border-[var(--brand-border)] text-[var(--text-secondary)] bg-slate-50'
                             }`}>
                               {opt.key}
                             </span>
@@ -471,7 +471,7 @@ export const QuizAttempt: React.FC = () => {
                             onClick={() => handleSelectOption(Number(currentQuestion.id), opt.key)}
                             className={`flex flex-col items-center justify-center p-6 rounded-xl border text-center cursor-pointer transition-all duration-200 ${
                               isSelected
-                                ? 'bg-[#EF4444]/5 border-[#EF4444] text-[#EF4444] dark:text-red-400 font-bold shadow-sm'
+                                ? 'bg-[#00B5AD]/5 border-[#00B5AD] text-[#00B5AD] dark:text-teal-400 font-bold shadow-sm'
                                 : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] text-[var(--text-primary)] hover:border-slate-400'
                             }`}
                           >
@@ -494,7 +494,7 @@ export const QuizAttempt: React.FC = () => {
                         value={answers[Number(currentQuestion.id)] || ''}
                         onChange={(e) => handleSelectOption(Number(currentQuestion.id), e.target.value)}
                         placeholder="Answer must match exact keyword..."
-                        className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] text-[var(--text-primary)] rounded-xl py-3 px-4 text-xs transition-colors focus:outline-none"
+                        className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] text-[var(--text-primary)] rounded-xl py-3 px-4 text-xs transition-colors focus:outline-none"
                       />
                     </div>
                   )}
@@ -574,8 +574,8 @@ export const QuizAttempt: React.FC = () => {
         }
       >
         <div className="flex items-start gap-3 select-none">
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
-            <CheckCircle size={20} className="text-[#EF4444]" />
+          <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center shrink-0">
+            <CheckCircle size={20} className="text-[#00B5AD]" />
           </div>
           <div>
             <p className="text-sm font-semibold text-[var(--text-primary)]">Ready to submit your answers?</p>

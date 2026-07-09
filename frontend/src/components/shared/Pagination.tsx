@@ -52,7 +52,7 @@ export const Pagination: React.FC<PaginationProps> = ({
               className={`
                 w-8 h-8 rounded-lg text-xs font-medium transition-colors cursor-pointer
                 ${pageNum === page
-                  ? 'bg-[#EF4444] text-white'
+                  ? 'bg-[#00B5AD] text-white'
                   : 'border border-[var(--brand-border)] text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-700'}
               `}
             >

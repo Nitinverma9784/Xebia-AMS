@@ -73,29 +73,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
       <aside
         className={`
           fixed top-0 left-0 z-50 h-screen w-64
-          bg-white dark:bg-[#0F172A]
-          border-r border-[var(--brand-border)]
+          bg-[#4A1F4F] text-white
+          border-r border-[#622865]
           flex flex-col
           sidebar-transition
           lg:translate-x-0
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        {/* Logo - Premium Xebia corporate brand gradient */}
-        <div className="bg-gradient-to-br from-[#EF4444] to-[#B91C1C] p-5">
+        {/* Logo - Premium Xebia corporate brand section */}
+        <div className="bg-[#4A1F4F] border-b border-[#622865] p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
-                <GraduationCap size={20} className="text-white" />
+              <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
+                <GraduationCap size={20} className="text-[#00B5AD]" />
               </div>
               <div>
-                <p className="text-xs font-medium text-white/70">Xebia LMS</p>
-                <p className="text-sm font-bold text-white">{portalLabel}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-purple-200/60">Xebia LMS</p>
+                <p className="text-sm font-black text-white tracking-wide">{portalLabel}</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="lg:hidden text-white/70 hover:text-white cursor-pointer"
+              className="lg:hidden text-purple-200/70 hover:text-white cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -103,8 +103,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
-          <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-secondary)]">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-0.5 select-none">
+          <p className="px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-purple-200/50">
             Menu
           </p>
           {navItems.map((item) => (
@@ -113,34 +113,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
               to={item.to}
               onClick={onClose}
               className={({ isActive }) => `
-                flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+                flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold
                 transition-all duration-200 cursor-pointer
                 ${isActive
-                  ? 'bg-[#EF4444] text-white shadow-md shadow-red-500/10'
-                  : 'text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[var(--text-primary)]'
+                  ? 'bg-[#7B2D7B] text-white shadow-md shadow-[#7B2D7B]/20 border-l-4 border-[#00B5AD]'
+                  : 'text-purple-100/80 hover:bg-[#622865] hover:text-white'
                 }
               `}
             >
-              {item.icon}
-              {item.label}
+              <span className="shrink-0">{item.icon}</span>
+              <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
         {/* User Profile at bottom */}
-        <div className="p-3 border-t border-[var(--brand-border)]">
+        <div className="p-3 border-t border-[#622865] bg-[#3B1940]">
           <div className="flex items-center gap-3 px-3 py-2 rounded-xl mb-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#EF4444] to-[#B91C1C] flex items-center justify-center text-white text-xs font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#8A2C90] flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
               {user ? getInitials(user.name) : '?'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[var(--text-primary)] truncate">{user?.name}</p>
-              <p className="text-xs text-[var(--text-secondary)] truncate capitalize">{user?.role}</p>
+              <p className="text-sm font-bold text-white truncate leading-snug">{user?.name}</p>
+              <p className="text-[10px] text-purple-200/70 truncate capitalize leading-tight">{user?.role}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-teal-400 hover:bg-white/5 transition-colors cursor-pointer"
           >
             <LogOut size={16} />
             Sign Out

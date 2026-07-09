@@ -95,7 +95,7 @@ export const BatchManagement: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search batches by name or description..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
           />
         </div>
 
@@ -170,7 +170,7 @@ export const BatchManagement: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-red-500 hover:text-white hover:bg-red-500"
+                          className="text-red-500 hover:text-white hover:bg-teal-500"
                           icon={<Trash2 size={14} />}
                           onClick={() => setDeleteModal(b)}
                           title="Delete Batch"

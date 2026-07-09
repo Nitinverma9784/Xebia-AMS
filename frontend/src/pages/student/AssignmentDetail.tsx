@@ -207,7 +207,7 @@ export const AssignmentDetail: React.FC = () => {
         {/* Description */}
         <Card>
           <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
-            <FileText size={15} className="text-[#EF4444] dark:text-red-400" /> Description
+            <FileText size={15} className="text-[#00B5AD] dark:text-teal-400" /> Description
           </h3>
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">{assignment.description}</p>
 
@@ -278,7 +278,7 @@ export const AssignmentDetail: React.FC = () => {
                     <Card key={q.id} className={`border-l-4 ${isCorrect ? 'border-l-emerald-500 animate-slide-up' : 'border-l-red-500 animate-slide-up'}`}>
                       <div className="flex items-start gap-2.5">
                         <span className={`flex items-center justify-center w-6 h-6 rounded-lg text-xs font-semibold ${
-                          isCorrect ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'
+                          isCorrect ? 'bg-emerald-500/10 text-emerald-600' : 'bg-teal-500/10 text-red-600'
                         }`}>
                           {idx + 1}
                         </span>
@@ -286,7 +286,7 @@ export const AssignmentDetail: React.FC = () => {
                           <div className="flex justify-between items-start gap-2 mb-2">
                             <p className="text-sm font-semibold text-[var(--text-primary)] leading-normal">{q.questionText}</p>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
-                              isCorrect ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                              isCorrect ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-teal-400'
                             }`}>
                               {isCorrect ? `+${q.marks} Marks` : '0 Marks'}
                             </span>
@@ -307,7 +307,7 @@ export const AssignmentDetail: React.FC = () => {
                                 if (isSelected) {
                                   optStyle = isCorrect
                                     ? 'bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:text-emerald-400 font-semibold'
-                                    : 'bg-red-500/10 border-red-500 text-red-700 dark:text-red-400 font-semibold';
+                                    : 'bg-teal-500/10 border-red-500 text-red-700 dark:text-teal-400 font-semibold';
                                 } else if (isCorrectAnswer) {
                                   optStyle = 'bg-emerald-500/5 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-medium';
                                 }
@@ -319,7 +319,7 @@ export const AssignmentDetail: React.FC = () => {
                                   >
                                     <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] border ${
                                       isSelected
-                                        ? isCorrect ? 'bg-emerald-500 border-transparent text-white' : 'bg-red-500 border-transparent text-white'
+                                        ? isCorrect ? 'bg-emerald-500 border-transparent text-white' : 'bg-teal-500 border-transparent text-white'
                                         : isCorrectAnswer ? 'bg-emerald-500/20 border-transparent text-emerald-600' : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
                                     }`}>
                                       {opt.key}
@@ -351,7 +351,7 @@ export const AssignmentDetail: React.FC = () => {
               /* Quiz missed overdue state */
               <Card>
                 <div className="text-center py-6 space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-red-500/10 border-2 border-red-500 flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-teal-500/10 border-2 border-red-500 flex items-center justify-center mx-auto">
                     <AlertCircle size={28} className="text-red-500" />
                   </div>
                   <div>
@@ -361,7 +361,7 @@ export const AssignmentDetail: React.FC = () => {
                   <Button
                     variant="outline"
                     disabled
-                    className="w-full bg-slate-100 dark:bg-slate-800 text-red-500 border-red-200 dark:border-red-500/20"
+                    className="w-full bg-slate-100 dark:bg-slate-800 text-red-500 border-teal-200 dark:border-red-500/20"
                   >
                     Quiz Closed
                   </Button>
@@ -370,8 +370,8 @@ export const AssignmentDetail: React.FC = () => {
             ) : (
               /* Quiz attempt state */
               <div className="space-y-5">
-                <Card className="bg-[#EF4444]/5 border-[#EF4444]/15">
-                  <h3 className="text-sm font-semibold text-[#EF4444] dark:text-red-400 flex items-center gap-2">
+                <Card className="bg-[#00B5AD]/5 border-[#00B5AD]/15">
+                  <h3 className="text-sm font-semibold text-[#00B5AD] dark:text-teal-400 flex items-center gap-2">
                     <BookOpen size={16} /> Online Quiz Mode
                   </h3>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
@@ -407,12 +407,12 @@ export const AssignmentDetail: React.FC = () => {
                                     onClick={() => setAnswers(prev => ({ ...prev, [q.id!]: opt.key }))}
                                     className={`flex items-center gap-3 p-3 rounded-xl border text-left text-xs font-medium cursor-pointer transition-all ${
                                       isSelected
-                                        ? 'bg-[#EF444410] border-[#EF4444] text-[#EF4444] dark:text-red-400 font-bold shadow-sm'
+                                        ? 'bg-[#00B5AD10] border-[#00B5AD] text-[#00B5AD] dark:text-teal-400 font-bold shadow-sm'
                                         : 'bg-white dark:bg-[#1E293B] border-[var(--brand-border)] text-[var(--text-primary)] hover:border-slate-400'
                                     }`}
                                   >
                                     <span className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${
-                                      isSelected ? 'bg-[#EF4444] text-white border-transparent' : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
+                                      isSelected ? 'bg-[#00B5AD] text-white border-transparent' : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
                                     }`}>
                                       {opt.key}
                                     </span>
@@ -428,7 +428,7 @@ export const AssignmentDetail: React.FC = () => {
                               value={selected || ''}
                               onChange={(e) => setAnswers(prev => ({ ...prev, [q.id!]: e.target.value }))}
                               placeholder="Type your answer here..."
-                              className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#EF4444] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-sm transition-colors"
+                              className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#00B5AD] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-sm transition-colors"
                             />
                           )}
                         </div>
@@ -454,7 +454,7 @@ export const AssignmentDetail: React.FC = () => {
           /* Standard File Submission Layout */
           <Card>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-              <Upload size={15} className="text-[#EF4444] dark:text-red-400" />
+              <Upload size={15} className="text-[#00B5AD] dark:text-teal-400" />
               {assignment.submission ? 'Your Submission' : 'Submit Assignment'}
             </h3>
 
@@ -493,7 +493,7 @@ export const AssignmentDetail: React.FC = () => {
                     {/* Score bar */}
                     <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                       <div
-                        className="bg-gradient-to-r from-[#EF4444] to-[#2563EB] h-2 rounded-full progress-bar"
+                        className="bg-gradient-to-r from-[#00B5AD] to-[#2563EB] h-2 rounded-full progress-bar"
                         style={{ width: `${((assignment.submission.marks || 0) / assignment.maxMarks) * 100}%` }}
                       />
                     </div>
@@ -513,7 +513,7 @@ export const AssignmentDetail: React.FC = () => {
             {!assignment.submission && !overdue && (
               <>
                 {uploadFile ? (
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/5 border border-red-200 dark:border-purple-500/20 mb-4">
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-teal-500/5 border border-teal-200 dark:border-purple-500/20 mb-4">
                     <span className="text-2xl">{getFileIcon(uploadFile.name)}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[var(--text-primary)] truncate">{uploadFile.name}</p>
@@ -521,7 +521,7 @@ export const AssignmentDetail: React.FC = () => {
                     </div>
                     <button
                       onClick={() => setUploadFile(null)}
-                      className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-red-500 hover:bg-teal-50 dark:hover:bg-teal-500/10 transition-colors cursor-pointer"
                     >
                       <X size={16} />
                     </button>
@@ -599,11 +599,11 @@ export const AssignmentDetail: React.FC = () => {
             {/* Overdue (Submission Closed button) */}
             {overdue && !assignment.submission && (
               <div className="space-y-4">
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-red-500/20">
                   <AlertCircle size={18} className="text-red-500 shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-red-700 dark:text-red-400">Submission Deadline Passed</p>
-                    <p className="text-xs text-red-600/70 dark:text-red-400/70 mt-0.5">
+                    <p className="text-sm font-medium text-red-700 dark:text-teal-400">Submission Deadline Passed</p>
+                    <p className="text-xs text-red-600/70 dark:text-teal-400/70 mt-0.5">
                       This assignment is no longer accepting submissions.
                     </p>
                   </div>
@@ -612,7 +612,7 @@ export const AssignmentDetail: React.FC = () => {
                   variant="outline"
                   size="lg"
                   disabled
-                  className="w-full bg-slate-100 dark:bg-slate-800 text-red-500 border-red-200 dark:border-red-500/20"
+                  className="w-full bg-slate-100 dark:bg-slate-800 text-red-500 border-teal-200 dark:border-red-500/20"
                 >
                   Submission Closed
                 </Button>

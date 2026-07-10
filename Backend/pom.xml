@@ -122,6 +122,13 @@
             <artifactId>openpdf</artifactId>
             <version>1.3.30</version>
         </dependency>
+        <!-- .env -->
+        <!-- Load .env file -->
+<dependency>
+    <groupId>io.github.cdimascio</groupId>
+    <artifactId>java-dotenv</artifactId>
+    <version>5.2.2</version>
+</dependency>
 
         <!-- QR Code: ZXing -->
         <dependency>

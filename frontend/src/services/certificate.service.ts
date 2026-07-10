@@ -24,6 +24,7 @@ export interface Certificate {
   verificationToken?: string;
   qrCodeUrl?: string;
   assignmentName?: string;
+  maxMarks?: number;
 }
 
 export const certificateService = {
@@ -47,8 +48,21 @@ export const certificateService = {
     return res.data.data;
   },
 
-  getDownloadUrl: (id: string): string => {
-    return `${api.defaults.baseURL}/student/certificates/${id}/download`;
+  getDownloadUrl: (idOrUuid: string): string => {
+    return `${api.defaults.baseURL}/student/certificates/download/${idOrUuid}`;
+  },
+
+  downloadCertificate: async (idOrUuid: string, fileName = 'certificate.pdf'): Promise<void> => {
+    const res = await api.get(`/student/certificates/download/${idOrUuid}`, {
+      responseType: 'blob'
+    });
+    const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(pdfBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    window.URL.revokeObjectURL(url);
   },
 
   searchCertificatesForTeacher: async (studentName?: string, type?: string): Promise<Certificate[]> => {
@@ -62,5 +76,23 @@ export const certificateService = {
   verifyCertificate: async (token: string): Promise<Certificate> => {
     const res = await api.get(`/certificates/verify/${token}`);
     return res.data.data;
+  },
+
+  getCertificatePreview: async (assignmentOrQuizId: string): Promise<Certificate> => {
+    const res = await api.get(`/student/certificates/preview/${assignmentOrQuizId}`);
+    return res.data.data;
+  },
+
+  downloadOrGenerateCertificate: async (assignmentOrQuizId: string, fileName = 'certificate.pdf'): Promise<void> => {
+    const res = await api.post(`/student/certificates/download/${assignmentOrQuizId}`, null, {
+      responseType: 'blob'
+    });
+    const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(pdfBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 };

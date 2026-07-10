@@ -13,14 +13,14 @@ export const Card: React.FC<CardProps> = ({
   hover = false,
   padding = 'md',
 }) => {
-  const paddingMap = { none: '', sm: 'p-4', md: 'p-5', lg: 'p-6' };
+  const paddingMap = { none: '', sm: 'p-4', md: 'p-6', lg: 'p-8' };
 
   return (
     <div
       className={`
         bg-white dark:bg-[#1E293B]
-        border border-[var(--brand-border)]
-        rounded-2xl shadow-sm
+        border border-slate-100 dark:border-slate-800/80
+        rounded-[18px] shadow-sm
         ${hover ? 'card-hover cursor-pointer' : ''}
         ${paddingMap[padding]}
         ${className}
@@ -42,57 +42,55 @@ interface StatCardProps {
 
 const colorMap = {
   purple: {
-    bg: 'bg-[#F5EAF8]0/10',
-    text: 'text-[#4A1F4F] dark:text-purple-300',
-    icon: 'bg-[#4A1F4F]',
-    border: 'border-purple-200 dark:border-purple-800/30',
+    bg: 'bg-purple-50 dark:bg-purple-950/20',
+    iconColor: 'text-purple-600 dark:text-purple-400',
+    border: 'border-purple-100 dark:border-purple-900/30',
   },
   teal: {
-    bg: 'bg-blue-500/10',
-    text: 'text-[#2563EB]',
-    icon: 'bg-[#2563EB]',
-    border: 'border-blue-200 dark:border-teal-800/30',
+    bg: 'bg-cyan-50 dark:bg-cyan-950/20',
+    iconColor: 'text-cyan-600 dark:text-cyan-400',
+    border: 'border-cyan-100 dark:border-cyan-900/30',
   },
   blue: {
-    bg: 'bg-blue-500/10',
-    text: 'text-blue-600 dark:text-blue-400',
-    icon: 'bg-blue-500',
-    border: 'border-blue-200 dark:border-blue-800/30',
+    bg: 'bg-blue-50 dark:bg-blue-950/20',
+    iconColor: 'text-blue-600 dark:text-blue-400',
+    border: 'border-blue-100 dark:border-blue-900/30',
   },
   amber: {
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-600 dark:text-amber-400',
-    icon: 'bg-amber-500',
-    border: 'border-amber-200 dark:border-amber-800/30',
+    bg: 'bg-amber-50 dark:bg-amber-950/20',
+    iconColor: 'text-amber-600 dark:text-amber-400',
+    border: 'border-amber-100 dark:border-amber-900/30',
   },
   red: {
-    bg: 'bg-[#F5EAF8]0/10',
-    text: 'text-red-600 dark:text-purple-400',
-    icon: 'bg-[#F5EAF8]0',
-    border: 'border-purple-200 dark:border-red-800/30',
+    bg: 'bg-red-50 dark:bg-red-950/20',
+    iconColor: 'text-red-600 dark:text-red-400',
+    border: 'border-red-100 dark:border-red-900/30',
   },
   green: {
-    bg: 'bg-emerald-500/10',
-    text: 'text-emerald-600 dark:text-emerald-400',
-    icon: 'bg-emerald-500',
-    border: 'border-emerald-200 dark:border-emerald-800/30',
+    bg: 'bg-emerald-50 dark:bg-emerald-950/20',
+    iconColor: 'text-emerald-600 dark:text-emerald-400',
+    border: 'border-emerald-100 dark:border-emerald-900/30',
   },
 };
 
 export const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color = 'purple', subtitle }) => {
   const c = colorMap[color];
   return (
-    <div className={`bg-white dark:bg-[#1E293B] border ${c.border} rounded-2xl p-5 shadow-sm card-hover`}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">{title}</p>
-          <p className={`text-3xl font-bold mt-1 ${c.text}`}>{value}</p>
-          {subtitle && <p className="text-xs text-[var(--text-secondary)] mt-1">{subtitle}</p>}
+    <div className="bg-white dark:bg-[#1E293B] border border-slate-100 dark:border-slate-800/80 rounded-[18px] p-6 shadow-sm card-hover flex flex-col justify-between min-h-[128px]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">{title}</p>
+          <p className="text-3xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight mt-2">{value}</p>
         </div>
-        <div className={`${c.icon} rounded-xl p-3 text-white shadow-sm`}>
+        <div className={`${c.bg} ${c.iconColor} rounded-[14px] p-3 shadow-sm border ${c.border} flex items-center justify-center shrink-0`}>
           {icon}
         </div>
       </div>
+      {subtitle && (
+        <p className="text-xs text-[var(--text-secondary)] mt-3 pt-2.5 border-t border-slate-50 dark:border-slate-800/40">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 };

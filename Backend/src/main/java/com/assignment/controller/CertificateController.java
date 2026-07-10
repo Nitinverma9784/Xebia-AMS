@@ -61,7 +61,19 @@ public class CertificateController {
             throw new com.assignment.exception.BadRequestException("File URL is empty");
         }
         try {
-            java.io.InputStream in = new java.net.URL(fileUrl).openStream();
+            java.net.URL url = new java.net.URL(fileUrl);
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(15000);
+            
+            int responseCode = conn.getResponseCode();
+            if (responseCode != java.net.HttpURLConnection.HTTP_OK) {
+                throw new com.assignment.exception.CustomException("Server returned HTTP response code: " + responseCode + " for URL: " + fileUrl, responseCode);
+            }
+            
+            java.io.InputStream in = conn.getInputStream();
             java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
             byte[] buffer = new byte[4096];
             int n;
@@ -69,23 +81,28 @@ public class CertificateController {
                 out.write(buffer, 0, n);
             }
             in.close();
+            conn.disconnect();
             return out.toByteArray();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new com.assignment.exception.CustomException("Failed to download PDF content: " + e.getMessage(), 500);
         }
     }
 
-    @GetMapping("/api/student/certificates/{id}/download")
+    @GetMapping({"/api/student/certificates/{idOrUuid}/download", "/api/student/certificates/download/{idOrUuid}"})
     public ResponseEntity<byte[]> downloadCertificate(
-            @PathVariable Long id,
+            @PathVariable String idOrUuid,
             Principal principal
     ) {
-        CertificateResponse response = certificateService.getCertificateById(id, principal.getName(), "STUDENT");
-        byte[] pdfBytes = downloadFileFromUrl(response.getPdfFileUrl() != null ? response.getPdfFileUrl() : response.getCertificateUrl());
+        System.out.println("Download Certificate Request: " + idOrUuid);
+        
+        byte[] pdfBytes = certificateService.downloadCertificateByUuid(idOrUuid, principal.getName());
         
         org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
-        headers.setContentDisposition(org.springframework.http.ContentDisposition.attachment().filename("certificate-" + id + ".pdf").build());
+        headers.setContentDisposition(org.springframework.http.ContentDisposition.attachment()
+                .filename("certificate-" + idOrUuid + ".pdf")
+                .build());
         
         return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
@@ -95,7 +112,11 @@ public class CertificateController {
             @PathVariable Long id,
             Principal principal
     ) {
+        System.out.println("Certificate ID: " + id);
         CertificateResponse response = certificateService.getCertificateById(id, principal.getName(), "STUDENT");
+        System.out.println("PDF URL: " + response.getPdfFileUrl());
+        System.out.println("Certificate URL: " + response.getCertificateUrl());
+
         byte[] pdfBytes = downloadFileFromUrl(response.getPdfFileUrl() != null ? response.getPdfFileUrl() : response.getCertificateUrl());
         
         org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
@@ -131,7 +152,11 @@ public class CertificateController {
             @PathVariable Long id,
             Principal principal
     ) {
+        System.out.println("Certificate ID: " + id);
         CertificateResponse response = certificateService.getCertificateById(id, principal.getName(), "TEACHER");
+        System.out.println("PDF URL: " + response.getPdfFileUrl());
+        System.out.println("Certificate URL: " + response.getCertificateUrl());
+
         byte[] pdfBytes = downloadFileFromUrl(response.getPdfFileUrl() != null ? response.getPdfFileUrl() : response.getCertificateUrl());
         
         org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
@@ -146,7 +171,11 @@ public class CertificateController {
             @PathVariable Long id,
             Principal principal
     ) {
+        System.out.println("Certificate ID: " + id);
         CertificateResponse response = certificateService.getCertificateById(id, principal.getName(), "TEACHER");
+        System.out.println("PDF URL: " + response.getPdfFileUrl());
+        System.out.println("Certificate URL: " + response.getCertificateUrl());
+
         byte[] pdfBytes = downloadFileFromUrl(response.getPdfFileUrl() != null ? response.getPdfFileUrl() : response.getCertificateUrl());
         
         org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
@@ -164,5 +193,32 @@ public class CertificateController {
     ) {
         CertificateResponse response = certificateService.getCertificateByToken(token);
         return ResponseEntity.ok(ApiResponse.success("Certificate verified successfully", response));
+    }
+
+    // --- New Preview & Generate/Download Endpoints ---
+
+    @GetMapping("/api/student/certificates/preview/{assignmentOrQuizId}")
+    public ResponseEntity<ApiResponse<CertificateResponse>> getCertificatePreview(
+            @PathVariable Long assignmentOrQuizId,
+            Principal principal
+    ) {
+        CertificateResponse response = certificateService.getCertificatePreview(assignmentOrQuizId, principal.getName());
+        return ResponseEntity.ok(ApiResponse.success("Certificate preview generated successfully", response));
+    }
+
+    @PostMapping("/api/student/certificates/download/{assignmentOrQuizId}")
+    public ResponseEntity<byte[]> downloadOrGenerateCertificate(
+            @PathVariable Long assignmentOrQuizId,
+            Principal principal
+    ) {
+        byte[] pdfBytes = certificateService.downloadOrGenerateCertificate(assignmentOrQuizId, principal.getName());
+        
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(org.springframework.http.ContentDisposition.attachment()
+                .filename("certificate-" + assignmentOrQuizId + ".pdf")
+                .build());
+        
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 }

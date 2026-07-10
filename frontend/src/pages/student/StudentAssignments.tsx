@@ -99,7 +99,7 @@ export const StudentAssignments: React.FC = () => {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search assignments..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full search-bar-modern"
           />
         </div>
 
@@ -222,18 +222,25 @@ export const StudentAssignments: React.FC = () => {
                           >
                             <Eye size={15} />
                           </button>
-                          {certificates[`assignment-${a.id}`] && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                window.open(certificates[`assignment-${a.id}`], '_blank');
-                              }}
-                              className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
-                              title="Download Certificate"
-                            >
-                              <Award size={15} />
-                            </button>
-                          )}
+                          {(() => {
+                            const isEligible = a.submission && 
+                                               (a.submission.status === 'reviewed' || a.submission.status === 'submitted') && 
+                                               a.submission.marks !== null && 
+                                               a.submission.marks !== undefined && 
+                                               a.submission.marks >= (a.passingMarks || 0);
+                            return isEligible ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/student/certificates/preview/${a.id}`);
+                                }}
+                                className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                                title="View Certificate"
+                              >
+                                <Award size={15} />
+                              </button>
+                            ) : null;
+                          })()}
                         </div>
                       </td>
                     </tr>
@@ -330,19 +337,26 @@ export const StudentAssignments: React.FC = () => {
                             <span className="text-sm font-bold text-[#2563EB]">
                               {a.submission.marks}/{a.maxMarks}
                             </span>
-                            {certificates[`assignment-${a.id}`] && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(certificates[`assignment-${a.id}`], '_blank');
-                                }}
-                                className="p-1 rounded bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
-                                title="Download Certificate"
-                              >
-                                <Award size={12} />
-                                <span>Cert</span>
-                              </button>
-                            )}
+                            {(() => {
+                              const isEligible = a.submission && 
+                                                 (a.submission.status === 'reviewed' || a.submission.status === 'submitted') && 
+                                                 a.submission.marks !== null && 
+                                                 a.submission.marks !== undefined && 
+                                                 a.submission.marks >= (a.passingMarks || 0);
+                              return isEligible ? (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/student/certificates/preview/${a.id}`);
+                                  }}
+                                  className="p-1 rounded bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                                  title="View Certificate"
+                                >
+                                  <Award size={12} />
+                                  <span>Cert</span>
+                                </button>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -374,6 +388,7 @@ export const StudentAssignments: React.FC = () => {
           activityTitle={activeCert.assignmentTitle || activeCert.assignmentName || 'Assignment'}
           score={activeCert.marks}
           maxScore={activeCert.marks >= 100 ? activeCert.marks : 100}
+          assignmentOrQuizId={String(activeCert.assignmentId || activeCert.quizId || activeCert.id)}
         />
       )}
     </Layout>

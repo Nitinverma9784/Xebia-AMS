@@ -62,7 +62,7 @@ export const TeacherCertificates: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by student name..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors focus:outline-none"
+            className="w-full search-bar-modern"
           />
         </div>
 
@@ -119,7 +119,7 @@ export const TeacherCertificates: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="mt-2 text-[#4A1F4F] border-[#4A1F4F]/20 hover:bg-[#4A1F4F]/5"
+                        className="mt-2 text-[#2563EB] border-[#2563EB]/20 hover:bg-[#2563EB]/5"
                         onClick={fetchCertificates}
                       >
                         Try Again
@@ -185,10 +185,14 @@ export const TeacherCertificates: React.FC = () => {
                             <ExternalLink size={15} />
                           </button>
                           <button
-                            onClick={() => {
-                              const url = c.pdfFileUrl || c.certificateUrl;
-                              const downloadUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
-                              window.open(downloadUrl, '_blank');
+                            onClick={async () => {
+                              try {
+                                await certificateService.downloadCertificate(c.id, `certificate-${c.id}.pdf`);
+                              } catch (err) {
+                                const url = c.pdfFileUrl || c.certificateUrl;
+                                const downloadUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
+                                window.open(downloadUrl, '_blank');
+                              }
                             }}
                             title="Download PDF"
                             className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-colors cursor-pointer"

@@ -51,8 +51,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             java.util.Map<String, Object> options = new java.util.HashMap<>();
             options.put("folder", folder);
             if (isPdf) {
-                options.put("resource_type", "image");
-                options.put("format", "pdf");
+                options.put("resource_type", "raw");
             } else {
                 options.put("resource_type", "auto");
             }

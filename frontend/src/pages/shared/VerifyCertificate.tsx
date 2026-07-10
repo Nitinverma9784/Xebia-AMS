@@ -151,7 +151,7 @@ export const VerifyCertificate: React.FC = () => {
                 href={cert.pdfFileUrl || cert.certificateUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 bg-[#4A1F4F] hover:bg-[#521348] text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-lg shadow-[#4A1F4F]/15 cursor-pointer transition-colors"
+                className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer"
               >
                 <span>View Original PDF</span>
                 <ExternalLink size={13} />

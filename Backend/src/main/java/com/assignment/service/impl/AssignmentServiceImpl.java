@@ -155,6 +155,19 @@ public class AssignmentServiceImpl implements AssignmentService {
                     .orElseThrow(() -> new ResourceNotFoundException("Batch not found or unauthorized"));
         }
 
+        String statusStr = request.getStatus();
+        boolean isDraft = "draft".equalsIgnoreCase(statusStr);
+        boolean isPublished = "published".equalsIgnoreCase(statusStr) || "active".equalsIgnoreCase(statusStr);
+
+        if (statusStr == null || statusStr.isBlank()) {
+            isDraft = (request.getBatchId() == null);
+            isPublished = !isDraft;
+        }
+
+        if (isPublished && request.getBatchId() == null) {
+            throw new BadRequestException("Target Batch is required for publishing.");
+        }
+
         if (request.getPassingMarks() > request.getTotalMarks()) {
             throw new BadRequestException("Passing marks cannot exceed total marks");
         }
@@ -186,7 +199,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .dueTime(request.getDueTime())
                 .lateSubmissionAllowed(request.getLateSubmissionAllowed() != null ? request.getLateSubmissionAllowed() : false)
                 .maxFileSize(request.getMaxFileSize() != null ? request.getMaxFileSize() : 10485760L)
-                .status(request.getBatchId() == null ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE)
+                .status(isDraft ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE)
                 .build();
 
         Assignment savedAssignment = assignmentRepository.save(assignment);
@@ -284,6 +297,19 @@ public class AssignmentServiceImpl implements AssignmentService {
                     .orElseThrow(() -> new ResourceNotFoundException("Batch not found or unauthorized"));
         }
 
+        String statusStr = request.getStatus();
+        boolean isDraft = "draft".equalsIgnoreCase(statusStr);
+        boolean isPublished = "published".equalsIgnoreCase(statusStr) || "active".equalsIgnoreCase(statusStr);
+
+        if (statusStr == null || statusStr.isBlank()) {
+            isDraft = (request.getBatchId() == null);
+            isPublished = !isDraft;
+        }
+
+        if (isPublished && request.getBatchId() == null) {
+            throw new BadRequestException("Target Batch is required for publishing.");
+        }
+
         if (request.getPassingMarks() > request.getTotalMarks()) {
             throw new BadRequestException("Passing marks cannot exceed total marks");
         }
@@ -313,7 +339,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignment.setSubject(request.getSubject());
         assignment.setTopic(request.getTopic());
         assignment.setBatch(batch);
-        assignment.setStatus(batch == null ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE);
+        assignment.setStatus(isDraft ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE);
         assignment.setExternalLink(request.getExternalLink());
         assignment.setSubmissionType(request.getSubmissionType());
         assignment.setTotalMarks(request.getTotalMarks());

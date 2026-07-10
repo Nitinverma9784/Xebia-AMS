@@ -3,7 +3,8 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
   Plus, Search, Eye, Edit, Trash2, HelpCircle, Upload, 
   ArrowLeft, ArrowUp, ArrowDown, Copy, Settings, Check, 
-  AlertTriangle, FileSpreadsheet, Download, RefreshCw 
+  AlertTriangle, FileSpreadsheet, Download, RefreshCw,
+  Calendar, Clock, Users, CheckCircle2 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Layout } from '../../components/layout/Layout';
@@ -59,6 +60,7 @@ export const TeacherQuizzes: React.FC = () => {
   const [quizSubject, setQuizSubject] = useState('Mathematics');
   const [quizTopic, setQuizTopic] = useState('');
   const [quizBatchId, setQuizBatchId] = useState('');
+  const [quizBatchIds, setQuizBatchIds] = useState<string[]>([]);
   const [quizDueDate, setQuizDueDate] = useState('');
   const [quizTimeLimit, setQuizTimeLimit] = useState(30); // default 30 mins
   const [quizAttempts, setQuizAttempts] = useState(1);
@@ -131,6 +133,7 @@ export const TeacherQuizzes: React.FC = () => {
     setQuizSubject('Mathematics');
     setQuizTopic('');
     setQuizBatchId('');
+    setQuizBatchIds([]);
     setQuizDueDate(new Date(Date.now() + 86400000).toISOString().split('T')[0]); // tomorrow
     setQuizTimeLimit(30);
     setQuizAttempts(1);
@@ -156,6 +159,7 @@ export const TeacherQuizzes: React.FC = () => {
       setQuizSubject(q.subject || 'Mathematics');
       setQuizTopic(q.topic || '');
       setQuizBatchId(String(q.batchId || ''));
+      setQuizBatchIds(q.batchId ? [String(q.batchId)] : []);
       setQuizDueDate(q.dueDate || '');
       
       // Parse serialized metadata from instructions
@@ -401,8 +405,8 @@ export const TeacherQuizzes: React.FC = () => {
       toast.error('Quiz title is required.');
       return;
     }
-    if (status === 'published' && !quizBatchId) {
-      toast.error('Please select a batch to publish the quiz.');
+    if (status === 'published' && quizBatchIds.length === 0) {
+      toast.error('Please select at least one batch to publish the quiz.');
       return;
     }
     if (!quizDueDate) {
@@ -455,6 +459,13 @@ export const TeacherQuizzes: React.FC = () => {
       };
     });
 
+    // Determine batchId to send in the initial save/update payload:
+    // If we are publishing a quiz that is currently a draft or a new quiz,
+    // we save it as a draft first (batchId = null) and then call assignBatch.
+    // If it's an edit of a quiz that already has a batch, we keep it.
+    const isEditingAlreadyPublished = isEditMode && editingQuizId && quizzes.find(q => String(q.id) === String(editingQuizId))?.status === 'published';
+    const initialBatchId = isEditingAlreadyPublished && quizBatchIds.length > 0 ? Number(quizBatchIds[0]) : null;
+
     const payload = {
       title: quizTitle,
       description: quizDescription,
@@ -462,7 +473,7 @@ export const TeacherQuizzes: React.FC = () => {
       assignmentType: 'QUIZ',
       subject: quizSubject,
       topic: quizTopic,
-      batchId: quizBatchId ? Number(quizBatchId) : null,
+      batchId: initialBatchId,
       maxMarks: totalMarks,
       passingMarks,
       dueDate: quizDueDate,
@@ -470,19 +481,36 @@ export const TeacherQuizzes: React.FC = () => {
       lateSubmissionAllowed: false,
       maxFileSize: 10485760,
       questions: questionsPayload,
-      status: status === 'published' ? 'published' : 'draft'
     };
 
     const loadingToast = toast.loading(isEditMode ? 'Updating quiz...' : 'Creating quiz...');
 
     try {
+      let savedQuiz: any;
       if (isEditMode && editingQuizId) {
-        await teacherService.updateAssignment(editingQuizId, payload as any);
-        toast.success('Quiz updated successfully!', { id: loadingToast });
+        savedQuiz = await teacherService.updateAssignment(editingQuizId, payload as any);
       } else {
-        await teacherService.createAssignment(payload as any);
-        toast.success(status === 'published' ? 'Quiz published successfully!' : 'Quiz saved as draft!', { id: loadingToast });
+        savedQuiz = await teacherService.createAssignment(payload as any);
       }
+
+      const quizId = editingQuizId || savedQuiz?.assignment?.id || savedQuiz?.id;
+
+      // Call assignBatch if:
+      // 1. Status is 'published'
+      // 2. We have batch IDs selected
+      // 3. We didn't already send batchId in the initial payload (i.e. it was a draft or new quiz)
+      if (status === 'published' && quizBatchIds.length > 0 && !initialBatchId && quizId) {
+        await teacherService.assignBatch(quizId, quizBatchIds);
+      }
+
+      toast.success(
+        isEditMode
+          ? 'Quiz updated successfully.'
+          : status === 'published'
+          ? 'Quiz published successfully.'
+          : 'Quiz saved as draft successfully.',
+        { id: loadingToast }
+      );
       handleCloseCreateModal();
       fetchQuizzes();
     } catch (err: any) {
@@ -526,6 +554,490 @@ export const TeacherQuizzes: React.FC = () => {
 
   const todayDate = new Date().toISOString().split('T')[0];
 
+  if (showCreateModal) {
+    const pageTitle = isEditMode ? 'Edit Quiz' : 'Create Quiz';
+    return (
+      <Layout role="teacher" title={pageTitle} subtitle="Fill in the details below">
+        <div className="max-w-3xl mx-auto space-y-6 select-none animate-fadeIn">
+          {/* Back button */}
+          <button
+            type="button"
+            onClick={handleCloseCreateModal}
+            className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 cursor-pointer transition-colors"
+          >
+            <ArrowLeft size={16} /> Back to Quizzes
+          </button>
+
+          {/* Quiz Information Card */}
+          <Card className="bg-white dark:bg-[#1E293B] border border-slate-100 dark:border-slate-800/80 rounded-[16px] p-6 shadow-sm">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 pb-3 border-b border-[var(--brand-border)]">
+              Quiz Information
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Input label="Quiz Title" placeholder="e.g. Midterm Physics Evaluation" required value={quizTitle} onChange={(e) => setQuizTitle(e.target.value)} />
+              </div>
+              <div className="md:col-span-2">
+                <Select
+                  label="Subject"
+                  value={quizSubject}
+                  onChange={(e) => setQuizSubject(e.target.value)}
+                  options={SUBJECTS.filter(s => s !== 'All').map(s => ({ value: s, label: s }))}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Input label="Topic / Category" placeholder="e.g. Gravitation" value={quizTopic} onChange={(e) => setQuizTopic(e.target.value)} />
+              </div>
+              <div>
+                <Input label="Due Date" type="date" min={todayDate} required value={quizDueDate} onChange={(e) => setQuizDueDate(e.target.value)} />
+              </div>
+              <div>
+                <Input label="Passing Marks (%)" type="number" min={10} max={100} value={String(passingPercentage)} onChange={(e) => setPassingPercentage(Number(e.target.value))} />
+              </div>
+              <div>
+                <Input label="Time Limit (Mins)" type="number" min={5} value={String(quizTimeLimit)} onChange={(e) => setQuizTimeLimit(Number(e.target.value))} />
+              </div>
+              <div>
+                <Input label="Attempts Allowed" type="number" min={1} value={String(quizAttempts)} onChange={(e) => setQuizAttempts(Number(e.target.value))} />
+              </div>
+              <div className="md:col-span-2">
+                <Select
+                  label="Difficulty Level"
+                  value={quizDifficulty}
+                  onChange={(e) => setQuizDifficulty(e.target.value as any)}
+                  options={[
+                    { value: 'Easy', label: 'Easy' },
+                    { value: 'Medium', label: 'Medium' },
+                    { value: 'Hard', label: 'Hard' }
+                  ]}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Textarea label="Instructions" placeholder="Specific instructions for candidates..." rows={3} value={quizInstructions} onChange={(e) => setQuizInstructions(e.target.value)} />
+              </div>
+              <div className="md:col-span-2">
+                <Textarea label="Description" placeholder="Enter short quiz description..." rows={3} value={quizDescription} onChange={(e) => setQuizDescription(e.target.value)} />
+              </div>
+
+              {/* Target Batches Checklist */}
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider block">
+                  Target Batches
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto border border-slate-100 dark:border-slate-800/80 p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/20 shadow-inner">
+                  {batches.length === 0 ? (
+                    <p className="text-xs text-[var(--text-secondary)] italic col-span-full">No batches available.</p>
+                  ) : (
+                    batches.map((b) => {
+                      const isChecked = quizBatchIds.includes(String(b.id));
+                      return (
+                        <label key={b.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100/50 dark:hover:bg-slate-800/50 cursor-pointer text-xs text-[var(--text-primary)] transition-all select-none">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              if (isChecked) {
+                                setQuizBatchIds(quizBatchIds.filter((id: string) => id !== String(b.id)));
+                              } else {
+                                setQuizBatchIds([...quizBatchIds, String(b.id)]);
+                              }
+                            }}
+                            className="rounded border-slate-350 dark:border-slate-700 text-[#4A1F4F] focus:ring-[#4A1F4F] w-4.5 h-4.5 cursor-pointer"
+                          />
+                          <span className="font-semibold text-slate-750 dark:text-slate-200">{b.batchName}</span>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic leading-snug">
+                  Leave all batches unchecked to save as draft. Select at least one batch to publish the quiz.
+                </p>
+              </div>
+
+              {/* Score Summary Banner */}
+              <div className="md:col-span-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/85 flex flex-wrap gap-4 items-center justify-between text-xs select-none">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Questions:</span>
+                  <span className="font-black text-slate-850 dark:text-slate-100">{questionsList.length}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wider">Total Marks:</span>
+                  <span className="font-black text-[#2563EB]">{questionsList.reduce((sum, q) => sum + Number(q.marks || 0), 0)} pts</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wider">Passing Mark:</span>
+                  <span className="font-black text-emerald-600">
+                    {Math.round(questionsList.reduce((sum, q) => sum + Number(q.marks || 0), 0) * (passingPercentage / 100))} pts ({passingPercentage}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Segmented tabs */}
+          <div className="flex justify-center select-none">
+            <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800/60 rounded-full border border-slate-200/50 dark:border-slate-800/60 w-full">
+              <button
+                type="button"
+                onClick={() => setActiveCreatorTab('manual')}
+                className={`flex-1 py-2 px-4 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  activeCreatorTab === 'manual'
+                    ? 'bg-[#4A1F4F] text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+              >
+                <HelpCircle size={15} />
+                <span>Manual Question Builder</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveCreatorTab('import')}
+                className={`flex-1 py-2 px-4 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  activeCreatorTab === 'import'
+                    ? 'bg-[#4A1F4F] text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+              >
+                <FileSpreadsheet size={15} />
+                <span>Excel Bulk Upload</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Builder Panels */}
+          {activeCreatorTab === 'manual' ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-[var(--brand-border)]">
+                <div>
+                  <h3 className="text-sm font-bold text-[var(--text-primary)]">Question Builder</h3>
+                  <p className="text-[11px] text-[var(--text-secondary)]">Create and organize quiz questions below</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={<Plus size={14} />}
+                  onClick={() => {
+                    setActiveBuilderQuestion({
+                      questionType: 'MCQ',
+                      questionText: '',
+                      optionA: '',
+                      optionB: '',
+                      optionC: '',
+                      optionD: '',
+                      correctAnswer: 'A',
+                      marks: 2,
+                      difficulty: 'Medium',
+                      explanation: '',
+                      negativeMarks: 0
+                    });
+                    setActiveBuilderIndex(null);
+                  }}
+                  className="cursor-pointer"
+                >
+                  Add Question
+                </Button>
+              </div>
+
+              {/* Questions list */}
+              {questionsList.length === 0 ? (
+                <div className="text-center py-12 border-2 border-dashed border-[var(--brand-border)] rounded-2xl bg-white dark:bg-slate-900/10">
+                  <HelpCircle className="mx-auto mb-2 text-[var(--text-secondary)] animate-bounce" size={24} />
+                  <p className="text-xs font-semibold text-[var(--text-primary)]">Workspace Empty</p>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-1">Start by adding a question manually or import from Excel.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {questionsList.map((q, idx) => {
+                    const errs = getQuestionErrors(q);
+                    const isInvalid = errs.length > 0;
+                    const isCurrentlyEditing = activeBuilderIndex === idx;
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`p-5 rounded-2xl border shadow-sm transition-all ${
+                          isInvalid
+                            ? 'bg-rose-50/10 border-rose-200 dark:border-rose-900/30'
+                            : isCurrentlyEditing
+                            ? 'bg-[#4A1F4F05] border-[#4A1F4F]'
+                            : 'bg-white dark:bg-slate-800/10 border-[var(--brand-border)]'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 space-y-3 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-bold flex items-center justify-center shrink-0">
+                                {idx + 1}
+                              </span>
+                              <h4 className="text-xs font-bold text-[var(--text-primary)] leading-relaxed">{q.questionText}</h4>
+                            </div>
+
+                            {/* MCQ/MSQ options display */}
+                            {(q.questionType === 'MCQ' || q.questionType === 'MSQ') && (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-7">
+                                {['A', 'B', 'C', 'D'].map((optKey) => {
+                                  const val = q[`option${optKey}`];
+                                  const isCorrect = q.questionType === 'MSQ'
+                                    ? String(q.correctAnswer).split(',').map((p: string) => p.trim()).includes(optKey)
+                                    : q.correctAnswer === optKey;
+
+                                  return (
+                                    <p key={optKey} className={`text-[10px] px-2 py-1.5 rounded-lg border ${
+                                      isCorrect
+                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold'
+                                        : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
+                                    }`}>
+                                      <strong>{optKey}:</strong> {val || '—'}
+                                    </p>
+                                  );
+                                })}
+                              </div>
+                            )}
+
+                            {/* True/False Options display */}
+                            {q.questionType === 'TRUE_FALSE' && (
+                              <div className="flex gap-4 pl-7">
+                                {['A', 'B'].map((optKey) => {
+                                  const val = optKey === 'A' ? (q.optionA || 'True') : (q.optionB || 'False');
+                                  const isCorrect = String(q.correctAnswer).trim().toUpperCase() === optKey || String(q.correctAnswer).trim().toUpperCase() === val.toUpperCase();
+                                  return (
+                                    <p key={optKey} className={`text-[10px] px-2 py-1.5 rounded-lg border ${
+                                      isCorrect
+                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold'
+                                        : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
+                                    }`}>
+                                      <strong>{optKey === 'A' ? 'True' : 'False'}:</strong> {val}
+                                    </p>
+                                  );
+                                })}
+                              </div>
+                            )}
+
+                            {/* Short answer text */}
+                            {q.questionType === 'SHORT_ANSWER' && (
+                              <p className="text-[10px] text-[var(--text-secondary)] mt-1 pl-7">
+                                Correct text match: <span className="font-bold text-emerald-600 dark:text-emerald-400">{q.correctAnswer}</span>
+                              </p>
+                            )}
+
+                            {/* Question Validation Error display */}
+                            {isInvalid && (
+                              <div className="pl-7">
+                                <div className="mt-2.5 flex items-start gap-1.5 text-[10px] text-red-505 font-semibold bg-[#F5EAF8]0/5 p-2.5 rounded-lg border border-red-200 dark:border-red-900/20">
+                                  <AlertTriangle size={13} className="shrink-0 mt-0.5" />
+                                  <div className="space-y-0.5">
+                                    {errs.map((e, idxE) => <p key={idxE}>• {e}</p>)}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Question meta chips */}
+                            <div className="flex gap-3 pl-7 text-[9px] uppercase font-bold text-[var(--text-secondary)] tracking-wider items-center">
+                              <span>{q.marks} Marks</span>
+                              <span>•</span>
+                              <span className={
+                                q.difficulty === 'Easy' ? 'text-emerald-600' :
+                                q.difficulty === 'Hard' ? 'text-red-500' : 'text-amber-500'
+                              }>{q.difficulty}</span>
+                              <span>•</span>
+                              <span>{q.questionType}</span>
+                              {q.explanation && (
+                                <>
+                                  <span>•</span>
+                                  <span className="lowercase font-normal italic text-slate-400">has explanation</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Action controls */}
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <div className="flex gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveBuilderQuestion({ ...q });
+                                  setActiveBuilderIndex(idx);
+                                }}
+                                className="p-1.5 rounded bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-500/10 cursor-pointer"
+                                title="Edit Question"
+                              >
+                                <Edit size={13} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => duplicateQuestion(idx)}
+                                className="p-1.5 rounded bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-500/10 cursor-pointer"
+                                title="Duplicate Question"
+                              >
+                                <Copy size={13} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteQuestion(idx)}
+                                className="p-1.5 rounded bg-slate-50 dark:bg-slate-800 hover:bg-rose-50 cursor-pointer text-red-500"
+                                title="Delete"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => moveQuestion(idx, 'up')}
+                                className="p-1 rounded border border-[var(--brand-border)] disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                              >
+                                <ArrowUp size={11} />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={idx === questionsList.length - 1}
+                                onClick={() => moveQuestion(idx, 'down')}
+                                className="p-1 rounded border border-[var(--brand-border)] disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                              >
+                                <ArrowDown size={11} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  <div className="flex justify-center pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Plus size={14} />}
+                      onClick={() => {
+                        setActiveBuilderQuestion({
+                          questionType: 'MCQ',
+                          questionText: '',
+                          optionA: '',
+                          optionB: '',
+                          optionC: '',
+                          optionD: '',
+                          correctAnswer: 'A',
+                          marks: 2,
+                          difficulty: 'Medium',
+                          explanation: '',
+                          negativeMarks: 0
+                        });
+                        setActiveBuilderIndex(null);
+                      }}
+                      className="rounded-full px-6 font-bold border-dashed cursor-pointer"
+                    >
+                      Add Question
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Excel upload template panel */
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-[var(--brand-border)]">
+                <div>
+                  <h3 className="text-sm font-bold text-[var(--text-primary)]">Excel Import</h3>
+                  <p className="text-[11px] text-[var(--text-secondary)]">Import questions in bulk via template sheet</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={<Download size={13} />}
+                  onClick={downloadExcelTemplate}
+                >
+                  Download Template
+                </Button>
+              </div>
+
+              <div
+                className={`drop-zone p-8 text-center border-dashed border-2 rounded-2xl cursor-pointer ${
+                  isExcelDragging ? 'bg-[#4A1F4F]/5 border-[#4A1F4F]' : 'border-[var(--brand-border)] hover:border-slate-400'
+                }`}
+                onDragOver={(e) => { e.preventDefault(); setIsExcelDragging(true); }}
+                onDragLeave={() => setIsExcelDragging(false)}
+                onDrop={onExcelDrop}
+                onClick={() => excelRef.current?.click()}
+              >
+                <Upload size={28} className="mx-auto mb-2 text-[#4A1F4F] dark:text-purple-405" />
+                <p className="text-xs font-semibold text-[var(--text-primary)]">Drag & Drop Excel Spreadsheet here</p>
+                <p className="text-[10px] text-[var(--text-secondary)] mt-1">or click to browse local files (.xlsx, .xls) · Max 10MB</p>
+                <input
+                  ref={excelRef}
+                  type="file"
+                  className="hidden"
+                  accept=".xlsx,.xls"
+                  onChange={(e) => { if (e.target.files?.[0]) handleExcelFile(e.target.files[0]); }}
+                />
+              </div>
+
+              <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[10px] text-[var(--text-secondary)] space-y-1.5 leading-normal">
+                <p className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                  <AlertTriangle size={12} /> Excel Structure Specifications
+                </p>
+                <p>1. Row 1: Headers (Question, Option A, Option B, Option C, Option D, Correct Answer, Marks, Difficulty).</p>
+                <p>2. Correct Answer values: A, B, C, or D.</p>
+                <p>3. Blank Option C/D columns resolve to a True/False statement.</p>
+              </div>
+
+              {/* Imported preview list */}
+              {questionsList.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--text-primary)] border-b border-[var(--brand-border)] pb-2 mt-4">
+                    Imported Questions Preview ({questionsList.length})
+                  </h4>
+                  <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                    {questionsList.map((q, idx) => (
+                      <div key={idx} className="p-3 bg-white dark:bg-slate-800 border border-[var(--brand-border)] rounded-xl flex items-start gap-2.5 shadow-sm text-xs">
+                        <span className="w-5 h-5 rounded bg-slate-100 dark:bg-slate-700 text-[10px] font-bold flex items-center justify-center shrink-0">
+                          {idx + 1}
+                        </span>
+                        <div>
+                          <p className="font-bold text-[var(--text-primary)]">{q.questionText}</p>
+                          <p className="text-[10px] text-[var(--text-secondary)] mt-1">
+                            Type: {q.questionType} • Marks: {q.marks} • Answer: <span className="text-emerald-600 font-bold">{q.correctAnswer}</span>
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div className="flex items-center justify-between border-t border-[var(--brand-border)] pt-4 mt-6">
+            <Button variant="ghost" onClick={handleCloseCreateModal}>Cancel</Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                disabled={hasAnyValidationErrors()}
+                onClick={() => onSubmitQuiz('draft')}
+              >
+                Save Draft
+              </Button>
+              <Button
+                variant="primary"
+                disabled={questionsList.length === 0 || hasAnyValidationErrors()}
+                onClick={() => onSubmitQuiz('published')}
+              >
+                {isEditMode ? 'Save Changes' : 'Publish Quiz'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout role="teacher" title="Quizzes" subtitle="Manage online quizzes and analyze results">
       {/* Top Bar */}
@@ -536,7 +1048,7 @@ export const TeacherQuizzes: React.FC = () => {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search quizzes..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full search-bar-modern"
           />
         </div>
 
@@ -681,389 +1193,6 @@ export const TeacherQuizzes: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Redesigned Full Screen Split Panel Creator Modal */}
-      <Modal
-        isOpen={showCreateModal}
-        onClose={handleCloseCreateModal}
-        title={isEditMode ? 'Edit Quiz Workspace' : 'New Quiz Workspace'}
-        size="xl"
-      >
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 select-none">
-          
-          {/* ==================== LEFT COLUMN: Quiz Details ==================== */}
-          <div className="lg:col-span-5 flex flex-col space-y-4">
-            <div className="border-b border-[var(--brand-border)] pb-2 mb-1">
-              <h3 className="text-xs font-bold text-[#4A1F4F] dark:text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Settings size={14} /> 1. Quiz Settings
-              </h3>
-            </div>
-            
-            <Input label="Quiz Title" placeholder="e.g. Midterm Physics Evaluation" required value={quizTitle} onChange={(e) => setQuizTitle(e.target.value)} />
-            <Textarea label="Description" placeholder="Enter short quiz description..." rows={2} value={quizDescription} onChange={(e) => setQuizDescription(e.target.value)} />
-            
-            <Select
-              label="Subject"
-              value={quizSubject}
-              onChange={(e) => setQuizSubject(e.target.value)}
-              options={SUBJECTS.filter(s => s !== 'All').map(s => ({ value: s, label: s }))}
-            />
-
-            <Input label="Topic / Category" placeholder="e.g. Gravitation" value={quizTopic} onChange={(e) => setQuizTopic(e.target.value)} />
-
-            <Select
-              label="Target Batch (Optional)"
-              value={quizBatchId}
-              onChange={(e) => setQuizBatchId(e.target.value)}
-              options={[
-                { value: '', label: 'Save as Draft (No Batch)' },
-                ...(batches || []).map(b => ({ value: String(b.id), label: b.batchName }))
-              ]}
-            />
-
-            <Input label="Due Date" type="date" min={todayDate} required value={quizDueDate} onChange={(e) => setQuizDueDate(e.target.value)} />
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="Time Limit (Mins)" type="number" min={5} value={String(quizTimeLimit)} onChange={(e) => setQuizTimeLimit(Number(e.target.value))} />
-              <Input label="Attempts Allowed" type="number" min={1} value={String(quizAttempts)} onChange={(e) => setQuizAttempts(Number(e.target.value))} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="Difficulty Level"
-                value={quizDifficulty}
-                onChange={(e) => setQuizDifficulty(e.target.value as any)}
-                options={[
-                  { value: 'Easy', label: 'Easy' },
-                  { value: 'Medium', label: 'Medium' },
-                  { value: 'Hard', label: 'Hard' }
-                ]}
-              />
-              <Input label="Passing Marks (%)" type="number" min={10} max={100} value={String(passingPercentage)} onChange={(e) => setPassingPercentage(Number(e.target.value))} />
-            </div>
-
-            <Textarea label="Instructions" placeholder="Specific instructions for candidates..." rows={2} value={quizInstructions} onChange={(e) => setQuizInstructions(e.target.value)} />
-
-            {/* Calculations Card */}
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[var(--brand-border)]">
-              <div className="flex justify-between items-center text-xs text-[var(--text-secondary)]">
-                <span>Total Questions:</span>
-                <span className="font-bold text-[var(--text-primary)]">{questionsList.length}</span>
-              </div>
-              <div className="flex justify-between items-center text-xs text-[var(--text-secondary)] mt-1.5">
-                <span>Total Marks:</span>
-                <span className="font-bold text-[var(--text-primary)]">
-                  {questionsList.reduce((sum, q) => sum + Number(q.marks || 0), 0)} pts
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-xs text-[var(--text-secondary)] mt-1.5">
-                <span>Passing Mark:</span>
-                <span className="font-bold text-[#2563EB]">
-                  {Math.round(questionsList.reduce((sum, q) => sum + Number(q.marks || 0), 0) * (passingPercentage / 100))} pts ({passingPercentage}%)
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* ==================== RIGHT COLUMN: Question Builder ==================== */}
-          <div className="lg:col-span-7 flex flex-col">
-            {/* Header Tabs */}
-            <div className="flex border-b border-[var(--brand-border)] mb-4">
-              <button
-                type="button"
-                onClick={() => setActiveCreatorTab('manual')}
-                className={`py-2.5 px-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
-                  activeCreatorTab === 'manual' 
-                    ? 'border-[#4A1F4F] text-[#4A1F4F] dark:text-purple-400' 
-                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-              >
-                Questions List ({questionsList.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveCreatorTab('import')}
-                className={`py-2.5 px-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeCreatorTab === 'import' 
-                    ? 'border-[#4A1F4F] text-[#4A1F4F] dark:text-purple-400' 
-                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-              >
-                <FileSpreadsheet size={13} /> Excel Import
-              </button>
-            </div>
-
-            {/* TAB CONTENTS */}
-            <div className="space-y-4 mt-2">
-              {activeCreatorTab === 'manual' ? (
-                <>
-                  {/* Button to add new question manually */}
-                  <div className="flex justify-between items-center pb-2">
-                    <span className="text-xs text-[var(--text-secondary)]">Create, edit, duplicate, and reorder questions.</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon={<Plus size={14} />}
-                      onClick={() => {
-                        setActiveBuilderQuestion({
-                          questionType: 'MCQ',
-                          questionText: '',
-                          optionA: '',
-                          optionB: '',
-                          optionC: '',
-                          optionD: '',
-                          correctAnswer: 'A',
-                          marks: 2,
-                          difficulty: 'Medium',
-                          explanation: '',
-                          negativeMarks: 0
-                        });
-                        setActiveBuilderIndex(null);
-                      }}
-                    >
-                      Add Question
-                    </Button>
-                  </div>
-
-                  {questionsList.length === 0 ? (
-                    <div className="text-center py-16 border-2 border-dashed border-[var(--brand-border)] rounded-2xl">
-                      <HelpCircle className="mx-auto mb-2 text-[var(--text-secondary)] animate-bounce" size={26} />
-                      <p className="text-sm font-semibold text-[var(--text-primary)]">Workspace Empty</p>
-                      <p className="text-xs text-[var(--text-secondary)] mt-1">Start by adding a question manually or import from Excel tab.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {questionsList.map((q, idx) => {
-                        const errs = getQuestionErrors(q);
-                        const isInvalid = errs.length > 0;
-                        const isCurrentlyEditing = activeBuilderIndex === idx;
-
-                        return (
-                          <div 
-                            key={idx} 
-                            className={`p-4 rounded-xl border relative transition-all ${
-                              isInvalid 
-                                ? 'bg-[#F5EAF8]0/5 border-red-300 dark:border-red-900/40' 
-                                : isCurrentlyEditing 
-                                  ? 'bg-[#4A1F4F]/5 border-[#4A1F4F]/40' 
-                                  : 'bg-white dark:bg-slate-800/10 border-[var(--brand-border)]'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1">
-                                <p className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                                  <span className="w-5 h-5 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-[10px] text-[var(--text-secondary)]">
-                                    {idx + 1}
-                                  </span>
-                                  {q.questionText}
-                                </p>
-
-                                {/* MCQ/MSQ options grid */}
-                                {(q.questionType === 'MCQ' || q.questionType === 'MSQ') && (
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2.5 pl-6">
-                                    {['A', 'B', 'C', 'D'].map((optKey) => {
-                                      const val = q[`option${optKey}`];
-                                      const isCorrect = q.questionType === 'MSQ' 
-                                        ? String(q.correctAnswer).split(',').map((p: string) => p.trim()).includes(optKey)
-                                        : q.correctAnswer === optKey;
-
-                                      return (
-                                        <p key={optKey} className={`text-[10px] px-2.5 py-1.5 rounded-lg border ${
-                                          isCorrect 
-                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold' 
-                                            : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
-                                        }`}>
-                                          <strong>{optKey}:</strong> {val || '—'}
-                                        </p>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-
-                                {/* True/False display */}
-                                {q.questionType === 'TRUE_FALSE' && (
-                                  <div className="flex gap-4 mt-2.5 pl-6">
-                                    {['A', 'B'].map((optKey) => {
-                                      const val = optKey === 'A' ? (q.optionA || 'True') : (q.optionB || 'False');
-                                      const isCorrect = String(q.correctAnswer).trim().toUpperCase() === optKey || String(q.correctAnswer).trim().toUpperCase() === val.toUpperCase();
-                                      return (
-                                        <p key={optKey} className={`text-[10px] px-2.5 py-1.5 rounded-lg border ${
-                                          isCorrect 
-                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold' 
-                                            : 'border-[var(--brand-border)] text-[var(--text-secondary)]'
-                                        }`}>
-                                          <strong>{optKey === 'A' ? 'True' : 'False'}:</strong> {val}
-                                        </p>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-
-                                {/* Short answer display */}
-                                {q.questionType === 'SHORT_ANSWER' && (
-                                  <p className="text-[10px] text-[var(--text-secondary)] mt-2 pl-6">
-                                    Correct text matching: <span className="font-bold text-emerald-600">{q.correctAnswer}</span>
-                                  </p>
-                                )}
-
-                                {/* Warning log */}
-                                {isInvalid && (
-                                  <div className="mt-2.5 pl-6 flex items-start gap-1.5 text-[10px] text-red-500 font-semibold bg-[#F5EAF8]0/5 p-2 rounded-lg">
-                                    <AlertTriangle size={13} className="shrink-0 mt-0.5" />
-                                    <div className="space-y-0.5">
-                                      {errs.map((e, idxE) => <p key={idxE}>• {e}</p>)}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Question settings footer details */}
-                                <div className="flex gap-3 pl-6 mt-3 text-[9px] uppercase font-bold text-[var(--text-secondary)] tracking-wider">
-                                  <span>{q.marks} Marks</span>
-                                  <span>•</span>
-                                  <span className={
-                                    q.difficulty === 'Easy' ? 'text-emerald-600' :
-                                    q.difficulty === 'Hard' ? 'text-red-500' : 'text-amber-500'
-                                  }>{q.difficulty}</span>
-                                  <span>•</span>
-                                  <span>{q.questionType}</span>
-                                  {q.explanation && (
-                                    <>
-                                      <span>•</span>
-                                      <span className="lowercase italic text-[var(--text-secondary)] font-normal">has explanation</span>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Controls */}
-                              <div className="flex flex-col items-end gap-1.5 shrink-0">
-                                <div className="flex gap-1">
-                                  <button
-                                    onClick={() => {
-                                      setActiveBuilderQuestion({ ...q });
-                                      setActiveBuilderIndex(idx);
-                                    }}
-                                    className="p-1 rounded text-teal-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 cursor-pointer"
-                                    title="Edit Question"
-                                  >
-                                    <Edit size={14} />
-                                  </button>
-                                  <button
-                                    onClick={() => duplicateQuestion(idx)}
-                                    className="p-1 rounded text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 cursor-pointer"
-                                    title="Duplicate Question"
-                                  >
-                                    <Copy size={14} />
-                                  </button>
-                                  <button
-                                    onClick={() => deleteQuestion(idx)}
-                                    className="p-1 rounded text-red-500 hover:bg-[#F5EAF8] dark:hover:bg-[#F5EAF8]0/10 cursor-pointer"
-                                    title="Delete"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-
-                                <div className="flex gap-1 mt-1">
-                                  <button
-                                    disabled={idx === 0}
-                                    onClick={() => moveQuestion(idx, 'up')}
-                                    className="p-1 rounded border border-[var(--brand-border)] disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                                  >
-                                    <ArrowUp size={12} />
-                                  </button>
-                                  <button
-                                    disabled={idx === questionsList.length - 1}
-                                    onClick={() => moveQuestion(idx, 'down')}
-                                    className="p-1 rounded border border-[var(--brand-border)] disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                                  >
-                                    <ArrowDown size={12} />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </>
-              ) : (
-                /* EXCEL IMPORT TAB VIEW */
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between border-b border-[var(--brand-border)] pb-3">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-[var(--text-primary)]">Bulk Excel Upload</span>
-                      <span className="text-[10px] text-[var(--text-secondary)] mt-0.5">Use our predefined header structure for automatic matching.</span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon={<Download size={13} />}
-                      onClick={downloadExcelTemplate}
-                    >
-                      Download Template
-                    </Button>
-                  </div>
-
-                  <div
-                    className={`drop-zone p-10 text-center border-dashed border-2 rounded-2xl cursor-pointer ${
-                      isExcelDragging ? 'bg-[#4A1F4F]/5 border-[#4A1F4F]' : 'border-[var(--brand-border)] hover:border-slate-400'
-                    }`}
-                    onDragOver={(e) => { e.preventDefault(); setIsExcelDragging(true); }}
-                    onDragLeave={() => setIsExcelDragging(false)}
-                    onDrop={onExcelDrop}
-                    onClick={() => excelRef.current?.click()}
-                  >
-                    <Upload size={32} className="mx-auto mb-3 text-[#4A1F4F]" />
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">Drag & Drop Excel Spreadsheet here</p>
-                    <p className="text-xs text-[var(--text-secondary)] mt-1">or click to browse local files (.xlsx, .xls) · Max 10MB</p>
-                    <input
-                      ref={excelRef}
-                      type="file"
-                      className="hidden"
-                      accept=".xlsx,.xls"
-                      onChange={(e) => { if (e.target.files?.[0]) handleExcelFile(e.target.files[0]); }}
-                    />
-                  </div>
-
-                  {/* Excel import notes */}
-                  <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-[10px] text-[var(--text-secondary)] space-y-1.5 leading-normal">
-                    <p className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                      <AlertTriangle size={12} /> Excel Structure Specifications
-                    </p>
-                    <p>1. The first row must contain column headers. Question parsing begins on row 2.</p>
-                    <p>2. Columns: **A: Question**, **B: Option A**, **C: Option B**, **D: Option C**, **E: Option D**, **F: Correct Answer** (A, B, C, D), **G: Marks** (numerical), **H: Difficulty** (optional).</p>
-                    <p>3. If Options C and D are left empty, the parser automatically treats the row as a True/False statement.</p>
-                    <p>4. If Options A, B, C, and D are all empty, the parser treats the row as a Short Answer / Fill in the Blank.</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Sticky footer buttons */}
-        <div className="flex items-center justify-between border-t border-[var(--brand-border)] pt-4 mt-5">
-          <Button variant="ghost" onClick={handleCloseCreateModal}>Cancel</Button>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={questionsList.length === 0 || hasAnyValidationErrors()}
-              onClick={() => onSubmitQuiz('draft')}
-            >
-              Save Draft
-            </Button>
-            <Button
-              variant="primary"
-              disabled={questionsList.length === 0 || hasAnyValidationErrors()}
-              onClick={() => onSubmitQuiz('published')}
-            >
-              {isEditMode ? 'Save Changes' : 'Publish Quiz'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
 
       {/* Manual Question Form Submodal (Add/Edit Question) */}
       <Modal

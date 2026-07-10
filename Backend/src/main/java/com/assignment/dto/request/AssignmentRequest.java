@@ -63,5 +63,7 @@ public class AssignmentRequest {
     @Builder.Default
     private Long maxFileSize = 10485760L; // Default 10MB in bytes
 
+    private String status;
+
     private String questionsJson;
 }

@@ -106,7 +106,7 @@ export const StudentQuizzes: React.FC = () => {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search quizzes..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+            className="w-full search-bar-modern"
           />
         </div>
 
@@ -233,22 +233,29 @@ export const StudentQuizzes: React.FC = () => {
                     <div className="flex gap-2 w-full">
                       <Button
                         variant="outline"
-                        className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2 border-[#4A1F4F] text-[#4A1F4F] hover:bg-[#4A1F4F0D]"
+                        className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2 border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB]/5"
                         onClick={() => navigate(`/student/quizzes/${q.id}/review`)}
                       >
                         <span>View Review</span>
                         <CheckCircle2 size={13} className="text-[#2563EB]" />
                       </Button>
-                      {certificates[`quiz-${q.id}`] && (
-                        <Button
-                          variant="primary"
-                          className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2"
-                          onClick={() => window.open(certificates[`quiz-${q.id}`], '_blank')}
-                        >
-                          <span>Certificate</span>
-                          <Award size={13} />
-                        </Button>
-                      )}
+                      {(() => {
+                        const isEligible = q.submission && 
+                                           (q.submission.status === 'reviewed' || q.submission.status === 'submitted') && 
+                                           q.submission.marks !== null && 
+                                           q.submission.marks !== undefined && 
+                                           q.submission.marks >= (q.passingMarks || 0);
+                        return isEligible ? (
+                          <Button
+                            variant="primary"
+                            className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2"
+                            onClick={() => navigate(`/student/certificates/preview/${q.id}`)}
+                          >
+                            <span>View Certificate</span>
+                            <Award size={13} />
+                          </Button>
+                        ) : null;
+                      })()}
                     </div>
                   ) : (
                     <Button

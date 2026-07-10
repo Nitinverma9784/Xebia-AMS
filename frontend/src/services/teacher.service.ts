@@ -235,7 +235,7 @@ export const teacherService = {
     formData.append('instructions', data.instructions || '');
     formData.append('subject', data.subject);
     if (data.topic !== undefined) formData.append('topic', data.topic);
-    if (data.batchId) {
+    if (data.batchId !== undefined && data.batchId !== null && data.batchId !== 'null' && data.batchId !== '') {
       formData.append('batchId', String(data.batchId));
     }
     formData.append('totalMarks', String(data.maxMarks));
@@ -249,6 +249,10 @@ export const teacherService = {
     
     if (data.questions) {
       formData.append('questionsJson', JSON.stringify(data.questions));
+    }
+    
+    if (data.status !== undefined) {
+      formData.append('status', data.status);
     }
     
     if (data.attachment) {
@@ -273,7 +277,9 @@ export const teacherService = {
     if (data.instructions !== undefined) formData.append('instructions', data.instructions || '');
     if (data.subject !== undefined) formData.append('subject', data.subject);
     if (data.topic !== undefined) formData.append('topic', data.topic);
-    if (data.batchId !== undefined) formData.append('batchId', String(data.batchId));
+    if (data.batchId !== undefined && data.batchId !== null && data.batchId !== 'null' && data.batchId !== '') {
+      formData.append('batchId', String(data.batchId));
+    }
     
     if (data.maxMarks !== undefined) {
       formData.append('totalMarks', String(data.maxMarks));
@@ -295,6 +301,10 @@ export const teacherService = {
     
     if (data.questions) {
       formData.append('questionsJson', JSON.stringify(data.questions));
+    }
+    
+    if (data.status !== undefined) {
+      formData.append('status', data.status);
     }
     
     if (data.attachment) {

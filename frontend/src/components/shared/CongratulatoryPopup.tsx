@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Award, Download, X, CheckCircle, Sparkles } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
-import type { Certificate } from '../../services/certificate.service';
+import { certificateService, type Certificate } from '../../services/certificate.service';
 
 interface CongratulatoryPopupProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface CongratulatoryPopupProps {
   activityTitle: string;
   score: number;
   maxScore: number;
+  assignmentOrQuizId: string;
 }
 
 export const CongratulatoryPopup: React.FC<CongratulatoryPopupProps> = ({
@@ -19,8 +21,10 @@ export const CongratulatoryPopup: React.FC<CongratulatoryPopupProps> = ({
   certificate,
   activityTitle,
   score,
-  maxScore
+  maxScore,
+  assignmentOrQuizId
 }) => {
+  const navigate = useNavigate();
   // Trigger internal visual checks or effects on mount if needed
   useEffect(() => {
     if (isOpen) {
@@ -86,7 +90,7 @@ export const CongratulatoryPopup: React.FC<CongratulatoryPopupProps> = ({
             <div>
               <span className="text-[9px] uppercase font-bold text-slate-400 block">Certificate ID</span>
               <span className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
-                {certificate.certificateId}
+                {certificate?.certificateId || 'Pending Download'}
               </span>
             </div>
           </div>
@@ -98,12 +102,12 @@ export const CongratulatoryPopup: React.FC<CongratulatoryPopupProps> = ({
             variant="primary"
             className="w-full py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#4A1F4F]/10"
             onClick={() => {
-              window.open(certificate.pdfFileUrl || certificate.certificateUrl, '_blank');
+              navigate(`/student/certificates/preview/${assignmentOrQuizId}`);
               onClose();
             }}
           >
-            <Download size={14} />
-            <span>Download Certificate</span>
+            <Award size={14} />
+            <span>View Certificate</span>
           </Button>
           <Button
             variant="ghost"

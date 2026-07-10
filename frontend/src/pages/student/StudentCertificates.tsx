@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Award, Calendar, ExternalLink, Download, Share2, Search, BookOpen, User, CheckCircle, Eye } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
 import { Card } from '../../components/ui/Card';
@@ -11,6 +12,7 @@ import toast from 'react-hot-toast';
 import api from '../../services/api';
 
 export const StudentCertificates: React.FC = () => {
+  const navigate = useNavigate();
   const [certs, setCerts] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -146,7 +148,7 @@ export const StudentCertificates: React.FC = () => {
                   <Button
                     variant="primary"
                     className="flex-1 text-xs py-2 flex items-center justify-center gap-1.5 shadow-[#4A1F4F]/10 shadow-lg cursor-pointer"
-                    onClick={() => window.open(c.pdfFileUrl || c.certificateUrl, '_blank')}
+                    onClick={() => navigate(`/student/certificates/preview/${c.quizId || c.assignmentId}`)}
                   >
                     <span>View Certificate</span>
                     <Eye size={13} />
@@ -155,10 +157,14 @@ export const StudentCertificates: React.FC = () => {
                     variant="outline"
                     className="p-2 cursor-pointer flex items-center justify-center border-[var(--brand-border)] text-[var(--text-secondary)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10"
                     title="Download PDF"
-                    onClick={() => {
-                      const url = c.pdfFileUrl || c.certificateUrl;
-                      const downloadUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
-                      window.open(downloadUrl, '_blank');
+                    onClick={async () => {
+                      try {
+                        await certificateService.downloadCertificate(c.id, `certificate-${c.id}.pdf`);
+                      } catch (err) {
+                        const url = c.pdfFileUrl || c.certificateUrl;
+                        const downloadUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
+                        window.open(downloadUrl, '_blank');
+                      }
                     }}
                   >
                     <Download size={14} />

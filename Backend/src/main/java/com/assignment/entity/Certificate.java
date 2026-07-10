@@ -75,6 +75,15 @@ public class Certificate {
     @Column(name = "qr_code_url", length = 1000)
     private String qrCodeUrl;
 
+    @Column(name = "pdf_data", columnDefinition = "bytea")
+    private byte[] pdfData;
+
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "content_type")
+    private String contentType;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

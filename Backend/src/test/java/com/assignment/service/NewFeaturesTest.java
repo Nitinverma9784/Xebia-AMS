@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.assignment.repository.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -186,5 +187,84 @@ public class NewFeaturesTest {
             assertEquals(0.0, sheet.getRow(2).getCell(5).getNumericCellValue());
             assertEquals("Not Submitted", sheet.getRow(2).getCell(8).getStringCellValue());
         }
+    }
+
+    @Test
+    public void testCreateAssignmentDraftAndPublishValidation() {
+        AssignmentRepository assignmentRepository = org.mockito.Mockito.mock(AssignmentRepository.class);
+        TeacherRepository teacherRepository = org.mockito.Mockito.mock(TeacherRepository.class);
+        BatchRepository batchRepository = org.mockito.Mockito.mock(BatchRepository.class);
+        StudentRepository studentRepository = org.mockito.Mockito.mock(StudentRepository.class);
+        SubmissionRepository submissionRepository = org.mockito.Mockito.mock(SubmissionRepository.class);
+        CloudinaryService cloudinaryService = org.mockito.Mockito.mock(CloudinaryService.class);
+        RedisService redisService = org.mockito.Mockito.mock(RedisService.class);
+        com.assignment.mapper.AssignmentMapper assignmentMapper = org.mockito.Mockito.mock(com.assignment.mapper.AssignmentMapper.class);
+        com.assignment.repository.QuestionRepository questionRepository = org.mockito.Mockito.mock(com.assignment.repository.QuestionRepository.class);
+        com.assignment.mapper.QuestionMapper questionMapper = org.mockito.Mockito.mock(com.assignment.mapper.QuestionMapper.class);
+        com.fasterxml.jackson.databind.ObjectMapper objectMapper = org.mockito.Mockito.mock(com.fasterxml.jackson.databind.ObjectMapper.class);
+        com.assignment.service.ExcelImportService excelImportService = org.mockito.Mockito.mock(com.assignment.service.ExcelImportService.class);
+        com.assignment.service.ExcelExportService excelExportService = org.mockito.Mockito.mock(com.assignment.service.ExcelExportService.class);
+
+        com.assignment.service.impl.AssignmentServiceImpl service = new com.assignment.service.impl.AssignmentServiceImpl(
+            assignmentRepository, teacherRepository, batchRepository, studentRepository, submissionRepository,
+            cloudinaryService, redisService, assignmentMapper, questionRepository, questionMapper,
+            objectMapper, excelImportService, excelExportService
+        );
+
+        String teacherEmail = "teacher@test.com";
+        Teacher teacher = Teacher.builder()
+                .id(1L)
+                .email(teacherEmail)
+                .role(Role.TEACHER)
+                .build();
+        org.mockito.Mockito.when(teacherRepository.findByEmail(teacherEmail)).thenReturn(java.util.Optional.of(teacher));
+
+        // Scenario 1: status = "draft", batchId = null -> should pass
+        com.assignment.dto.request.AssignmentRequest draftRequest = com.assignment.dto.request.AssignmentRequest.builder()
+                .title("Draft Quiz")
+                .assignmentType(AssignmentType.QUIZ)
+                .subject("Math")
+                .totalMarks(10.0)
+                .passingMarks(5.0)
+                .dueDate(java.time.LocalDate.now().plusDays(1))
+                .dueTime(java.time.LocalTime.NOON)
+                .status("draft")
+                .batchId(null)
+                .build();
+
+        Assignment savedAssignment = Assignment.builder()
+                .id(100L)
+                .title("Draft Quiz")
+                .status(AssignmentStatus.DRAFT)
+                .build();
+        org.mockito.Mockito.when(assignmentRepository.save(org.mockito.Mockito.any(Assignment.class))).thenReturn(savedAssignment);
+        org.mockito.Mockito.when(assignmentRepository.findById(org.mockito.Mockito.anyLong())).thenReturn(java.util.Optional.of(savedAssignment));
+        org.mockito.Mockito.when(assignmentMapper.toResponse(org.mockito.Mockito.any(Assignment.class))).thenReturn(com.assignment.dto.response.AssignmentResponse.builder()
+                .id(100L)
+                .title("Draft Quiz")
+                .status(AssignmentStatus.DRAFT)
+                .build());
+
+        com.assignment.dto.response.AssignmentResponse draftResponse = service.createAssignment(draftRequest, teacherEmail);
+        assertNotNull(draftResponse);
+        assertEquals(AssignmentStatus.DRAFT, draftResponse.getStatus());
+
+        // Scenario 2: status = "published", batchId = null -> should throw BadRequestException
+        com.assignment.dto.request.AssignmentRequest publishRequest = com.assignment.dto.request.AssignmentRequest.builder()
+                .title("Published Quiz")
+                .assignmentType(AssignmentType.QUIZ)
+                .subject("Math")
+                .totalMarks(10.0)
+                .passingMarks(5.0)
+                .dueDate(java.time.LocalDate.now().plusDays(1))
+                .dueTime(java.time.LocalTime.NOON)
+                .status("published")
+                .batchId(null)
+                .build();
+
+        BadRequestException ex = assertThrows(BadRequestException.class, () -> {
+            service.createAssignment(publishRequest, teacherEmail);
+        });
+        assertEquals("Target Batch is required for publishing.", ex.getMessage());
     }
 }

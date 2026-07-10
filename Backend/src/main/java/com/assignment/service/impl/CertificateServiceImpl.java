@@ -11,6 +11,7 @@ import com.assignment.exception.CustomException;
 import com.assignment.exception.ResourceNotFoundException;
 import com.assignment.exception.UnauthorizedException;
 import com.assignment.mapper.CertificateMapper;
+import com.assignment.repository.AssignmentRepository;
 import com.assignment.repository.CertificateRepository;
 import com.assignment.repository.StudentRepository;
 import com.assignment.repository.SubmissionRepository;
@@ -44,6 +45,7 @@ public class CertificateServiceImpl implements CertificateService {
     private final StudentRepository studentRepository;
     private final CloudinaryService cloudinaryService;
     private final CertificateMapper certificateMapper;
+    private final AssignmentRepository assignmentRepository;
 
     @Override
     @Transactional
@@ -297,11 +299,11 @@ public class CertificateServiceImpl implements CertificateService {
             g2d.fillRoundRect((int) width - 180, logoY, 24, 24, 6, 6);
             g2d.setColor(Color.WHITE);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
-            g2d.drawString("C", (int) width - 173, logoY + 18);
+            g2d.drawString("X", (int) width - 173, logoY + 18);
  
             g2d.setColor(new Color(51, 51, 51));
             g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
-            g2d.drawString("Credentials", (int) width - 150, logoY + 18);
+            g2d.drawString("Xebia", (int) width - 150, logoY + 18);
  
             // 4. Certificate Header
             g2d.setColor(new Color(239, 68, 68));
@@ -315,7 +317,7 @@ public class CertificateServiceImpl implements CertificateService {
             // 5. Presentee text
             g2d.setColor(new Color(102, 102, 102));
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 15));
-            drawCenteredString(g2d, "This certificate is proudly presented to", (int) width, 195);
+            drawCenteredString(g2d, "Congratulations,", (int) width, 195);
  
             // 6. Student Name
             g2d.setColor(new Color(51, 51, 51));
@@ -325,7 +327,7 @@ public class CertificateServiceImpl implements CertificateService {
             // 7. Details description
             g2d.setColor(new Color(102, 102, 102));
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 14));
-            drawCenteredString(g2d, "for successfully completing the " + (isQuiz ? "Quiz" : "Assignment"), (int) width, 310);
+            drawCenteredString(g2d, "you have successfully completed the " + (isQuiz ? "Quiz" : "Assignment"), (int) width, 310);
  
             // 8. Quiz/Assignment Title
             g2d.setColor(new Color(51, 51, 51));
@@ -397,5 +399,278 @@ public class CertificateServiceImpl implements CertificateService {
         FontMetrics metrics = g.getFontMetrics(g.getFont());
         int x = (width - metrics.stringWidth(text)) / 2;
         g.drawString(text, x, y);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CertificateResponse getCertificatePreview(Long assignmentOrQuizId, String studentEmail) {
+        Student student = studentRepository.findByEmail(studentEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+        Assignment assignment = assignmentRepository.findById(assignmentOrQuizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment/Quiz not found"));
+
+        boolean isQuiz = assignment.getAssignmentType() == com.assignment.enums.AssignmentType.QUIZ;
+
+        // Check if certificate already exists in database
+        Optional<Certificate> existingCert = isQuiz ?
+                certificateRepository.findByStudentIdAndQuizId(student.getId(), assignment.getId()) :
+                certificateRepository.findByStudentIdAndAssignmentId(student.getId(), assignment.getId());
+
+        if (existingCert.isPresent()) {
+            CertificateResponse res = certificateMapper.toResponse(existingCert.get());
+            res.setMaxMarks(assignment.getTotalMarks());
+            return res;
+        }
+
+        // Generate dynamic preview metadata
+        Submission submission = submissionRepository.findByAssignmentIdAndStudentId(assignment.getId(), student.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No submission found for this assignment/quiz"));
+
+        if (submission.getStatus() != SubmissionStatus.REVIEWED && submission.getStatus() != SubmissionStatus.SUBMITTED) {
+            throw new BadRequestException("Submission has not been completed/submitted yet");
+        }
+
+        Double maxMarks = assignment.getTotalMarks();
+        Double marks = submission.getMarks();
+        if (marks == null) {
+            marks = maxMarks; // Default to maximum marks for completion certificate if not yet graded
+        }
+        Double passingMarks = assignment.getPassingMarks() != null ? assignment.getPassingMarks() : maxMarks * 0.4;
+        if (marks < passingMarks) {
+            throw new BadRequestException("Student did not pass the required passing score");
+        }
+
+        LocalDateTime completedAt = submission.getReviewedAt() != null ? submission.getReviewedAt() : submission.getSubmittedAt();
+        if (completedAt == null) {
+            completedAt = LocalDateTime.now();
+        }
+
+        String teacherName = assignment.getTeacher() != null ? assignment.getTeacher().getFullName() : "Course Instructor";
+
+        return CertificateResponse.builder()
+                .studentId(student.getId())
+                .studentName(student.getFullName())
+                .assignmentId(isQuiz ? null : assignment.getId())
+                .assignmentTitle(isQuiz ? null : assignment.getTitle())
+                .quizId(isQuiz ? assignment.getId() : null)
+                .quizTitle(isQuiz ? assignment.getTitle() : null)
+                .marks(marks)
+                .maxMarks(maxMarks)
+                .certificateType(isQuiz ? "QUIZ" : "ASSIGNMENT")
+                .teacherName(teacherName)
+                .completionDate(completedAt)
+                .generatedAt(LocalDateTime.now())
+                .generatedDate(LocalDateTime.now())
+                .certificateId("PREVIEW-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public byte[] downloadOrGenerateCertificate(Long assignmentOrQuizId, String studentEmail) {
+        Student student = studentRepository.findByEmail(studentEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+        Assignment assignment = assignmentRepository.findById(assignmentOrQuizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment/Quiz not found"));
+
+        boolean isQuiz = assignment.getAssignmentType() == com.assignment.enums.AssignmentType.QUIZ;
+
+        // Check if certificate already exists in database
+        Optional<Certificate> existingCert = isQuiz ?
+                certificateRepository.findByStudentIdAndQuizId(student.getId(), assignment.getId()) :
+                certificateRepository.findByStudentIdAndAssignmentId(student.getId(), assignment.getId());
+
+        if (existingCert.isPresent()) {
+            Certificate cert = existingCert.get();
+            // If PDF data is stored directly in database, return it immediately!
+            if (cert.getPdfData() != null && cert.getPdfData().length > 0) {
+                return cert.getPdfData();
+            }
+            
+            // Fallback: If not stored, download it, save it in the database for next time, and return
+            try {
+                byte[] pdfBytes = fetchPdfFromUrl(cert.getPdfFileUrl() != null ? cert.getPdfFileUrl() : cert.getCertificateUrl());
+                cert.setPdfData(pdfBytes);
+                cert.setFileName("certificate-" + cert.getCertificateId() + ".pdf");
+                cert.setContentType("application/pdf");
+                certificateRepository.saveAndFlush(cert);
+                return pdfBytes;
+            } catch (Exception e) {
+                throw new CustomException("Failed to download existing certificate PDF: " + e.getMessage(), 500);
+            }
+        }
+
+        // Generate new certificate on-the-fly and save to database
+        Submission submission = submissionRepository.findByAssignmentIdAndStudentId(assignment.getId(), student.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No submission found for this assignment/quiz"));
+
+        if (submission.getStatus() != SubmissionStatus.REVIEWED && submission.getStatus() != SubmissionStatus.SUBMITTED) {
+            throw new BadRequestException("Submission has not been completed/submitted yet");
+        }
+
+        Double maxMarks = assignment.getTotalMarks();
+        Double marks = submission.getMarks();
+        if (marks == null) {
+            marks = maxMarks;
+        }
+        Double passingMarks = assignment.getPassingMarks() != null ? assignment.getPassingMarks() : maxMarks * 0.4;
+        if (marks < passingMarks) {
+            throw new BadRequestException("Student did not pass the required passing score");
+        }
+
+        String studentName = student.getFullName();
+        String title = assignment.getTitle();
+        LocalDateTime completedAt = submission.getReviewedAt() != null ? submission.getReviewedAt() : submission.getSubmittedAt();
+        if (completedAt == null) {
+            completedAt = LocalDateTime.now();
+        }
+        String completionDateStr = completedAt.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
+        String teacherName = assignment.getTeacher() != null ? assignment.getTeacher().getFullName() : "Course Instructor";
+
+        String certId = "CERT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        String verificationToken = UUID.randomUUID().toString();
+        
+        String frontendUrl = System.getenv("FRONTEND_URL") != null ? System.getenv("FRONTEND_URL") : "http://localhost:5173";
+        String verificationUrl = frontendUrl + "/verify-certificate/" + verificationToken;
+
+        // Save placeholder first to verify database constraints
+        Certificate certificate = Certificate.builder()
+                .student(student)
+                .assignment(isQuiz ? null : assignment)
+                .quiz(isQuiz ? assignment : null)
+                .certificateUrl("PENDING_UPLOAD")
+                .cloudinaryPublicId(certId)
+                .marks(marks)
+                .generatedAt(LocalDateTime.now())
+                .certificateType(isQuiz ? "QUIZ" : "ASSIGNMENT")
+                .certificateId(certId)
+                .studentName(studentName)
+                .assignmentName(title)
+                .teacherId(assignment.getTeacher() != null ? assignment.getTeacher().getId() : null)
+                .teacherName(teacherName)
+                .completionDate(completedAt)
+                .generatedDate(LocalDateTime.now())
+                .pdfFileUrl("PENDING_UPLOAD")
+                .verificationToken(verificationToken)
+                .qrCodeUrl("PENDING_UPLOAD")
+                .build();
+
+        certificate = certificateRepository.saveAndFlush(certificate);
+
+        // Generate QR code and PDF bytes
+        byte[] qrBytes = QrCodeUtil.generateQrCode(verificationUrl, 200, 200);
+        String qrCodeUrl = cloudinaryService.uploadBytes(qrBytes, "assignment_system/qrcodes");
+
+        byte[] pdfBytes = renderPdfCertificate(studentName, title, marks, maxMarks, completionDateStr, teacherName, isQuiz, certId, qrBytes);
+        String pdfFileUrl = cloudinaryService.uploadBytes(pdfBytes, "assignment_system/certificates");
+
+        if (pdfFileUrl == null) {
+            throw new CustomException("Failed to upload certificate PDF to storage provider", 500);
+        }
+
+        // Update the certificate with the actual Cloudinary URLs AND the PDF bytes!
+        certificate.setQrCodeUrl(qrCodeUrl);
+        certificate.setCertificateUrl(pdfFileUrl);
+        certificate.setPdfFileUrl(pdfFileUrl);
+        certificate.setPdfData(pdfBytes);
+        certificate.setFileName("certificate-" + certId + ".pdf");
+        certificate.setContentType("application/pdf");
+        
+        certificateRepository.saveAndFlush(certificate);
+
+        return pdfBytes;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CertificateResponse getCertificateByUuid(String uuid, String email, String role) {
+        Certificate certificate = certificateRepository.findByCertificateId(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
+        
+        if ("STUDENT".equals(role)) {
+            Student student = studentRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+            if (!certificate.getStudent().getId().equals(student.getId())) {
+                throw new UnauthorizedException("You are not authorized to access this certificate");
+            }
+        }
+        return certificateMapper.toResponse(certificate);
+    }
+
+    @Override
+    @Transactional
+    public byte[] downloadCertificateByUuid(String idOrUuid, String studentEmail) {
+        Certificate certificate;
+        if (idOrUuid.matches("\\d+")) {
+            certificate = certificateRepository.findById(Long.parseLong(idOrUuid))
+                    .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
+        } else {
+            certificate = certificateRepository.findByCertificateId(idOrUuid)
+                    .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
+        }
+
+        // Verify ownership
+        if (!certificate.getStudent().getEmail().equals(studentEmail)) {
+            throw new UnauthorizedException("You are not authorized to access this certificate");
+        }
+
+        // If PDF data is stored directly in database, return it directly
+        if (certificate.getPdfData() != null && certificate.getPdfData().length > 0) {
+            return certificate.getPdfData();
+        }
+
+        // Generate PDF and save to database
+        Assignment assignment = certificate.getAssignment() != null ? certificate.getAssignment() : certificate.getQuiz();
+        if (assignment == null) {
+            throw new BadRequestException("Certificate is not linked to any assignment or quiz");
+        }
+
+        boolean isQuiz = certificate.getCertificateType().equals("QUIZ");
+        Double maxMarks = assignment.getTotalMarks();
+        Double marks = certificate.getMarks();
+        String studentName = certificate.getStudentName();
+        String title = certificate.getAssignmentName();
+        String completionDateStr = certificate.getCompletionDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
+        String teacherName = certificate.getTeacherName();
+        String certId = certificate.getCertificateId();
+
+        String frontendUrl = System.getenv("FRONTEND_URL") != null ? System.getenv("FRONTEND_URL") : "http://localhost:5173";
+        String verificationUrl = frontendUrl + "/verify-certificate/" + certificate.getVerificationToken();
+
+        byte[] qrBytes = QrCodeUtil.generateQrCode(verificationUrl, 200, 200);
+        byte[] pdfBytes = renderPdfCertificate(studentName, title, marks, maxMarks, completionDateStr, teacherName, isQuiz, certId, qrBytes);
+
+        certificate.setPdfData(pdfBytes);
+        certificate.setFileName("certificate-" + certId + ".pdf");
+        certificate.setContentType("application/pdf");
+        
+        certificateRepository.saveAndFlush(certificate);
+
+        return pdfBytes;
+    }
+
+    private byte[] fetchPdfFromUrl(String fileUrl) throws Exception {
+        java.net.URL url = new java.net.URL(fileUrl);
+        java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(15000);
+        
+        int responseCode = conn.getResponseCode();
+        if (responseCode != java.net.HttpURLConnection.HTTP_OK) {
+            throw new Exception("Server returned HTTP response code: " + responseCode);
+        }
+        
+        java.io.InputStream in = conn.getInputStream();
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int n;
+        while ((n = in.read(buffer)) != -1) {
+            out.write(buffer, 0, n);
+        }
+        in.close();
+        conn.disconnect();
+        return out.toByteArray();
     }
 }

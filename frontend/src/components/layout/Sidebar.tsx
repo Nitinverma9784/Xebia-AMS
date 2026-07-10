@@ -75,7 +75,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
           fixed top-0 left-0 z-50 h-screen w-64
           bg-[#4A1F4F] text-white
           border-r border-[#622865]
-          flex flex-col
+          rounded-none
+          shadow-lg shadow-purple-900/10
+          flex flex-col overflow-hidden
           sidebar-transition
           lg:translate-x-0
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -103,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-0.5 select-none">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1.5 select-none">
           <p className="px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-purple-200/50">
             Menu
           </p>
@@ -113,11 +115,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
               to={item.to}
               onClick={onClose}
               className={({ isActive }) => `
-                flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold
-                transition-all duration-200 cursor-pointer
+                flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold
+                transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer
                 ${isActive
-                  ? 'bg-[#7B2D7B] text-white shadow-md shadow-[#7B2D7B]/20 border-l-4 border-[#4A1F4F]'
-                  : 'text-purple-100/80 hover:bg-[#622865] hover:text-white'
+                  ? 'bg-[#7B2D7B] text-white shadow-[0_4px_12px_rgba(123,45,123,0.3)]'
+                  : 'text-purple-100/80 hover:bg-white/5 hover:text-white'
                 }
               `}
             >
@@ -140,7 +142,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isMobileOpen, onClose })
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-purple-400 hover:bg-white/5 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-purple-400 hover:bg-white/5 hover:text-white transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
           >
             <LogOut size={16} />
             Sign Out

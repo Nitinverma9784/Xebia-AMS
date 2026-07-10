@@ -415,6 +415,7 @@ export const QuizReview: React.FC = () => {
           activityTitle={quiz.title}
           score={quiz.submission.marks ?? 0}
           maxScore={quiz.maxMarks}
+          assignmentOrQuizId={quiz.id}
         />
       )}
     </Layout>

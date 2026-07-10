@@ -33,7 +33,7 @@ export const CreateAssignment: React.FC = () => {
   const isEdit = !!id;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [searchParams] = window.location.search ? new URLSearchParams(window.location.search) as any : useSearchParams();
+  const [searchParams] = useSearchParams(); // Fixed import
   const forcedType = searchParams?.get('type')?.toUpperCase(); // 'PDF' or 'QUIZ'
 
   const { batches } = useAppSelector((state) => state.batch);
@@ -212,8 +212,20 @@ export const CreateAssignment: React.FC = () => {
               Basic Information
             </h3>
             <div className="space-y-4">
-              <Input label="Assignment Title" placeholder="e.g. Chapter 5 — Newton's Laws" required error={errors.title?.message} {...register('title')} />
-              <Input label="Topic" placeholder="e.g. Laws of Motion" error={errors.topic?.message} {...register('topic')} />
+              <Input 
+                label="Assignment Title" 
+                placeholder="e.g. Chapter 5 — Newton's Laws" 
+                required 
+                error={errors.title?.message} 
+                {...register('title')} 
+              />
+              
+              <Input 
+                label="Topic" 
+                placeholder="e.g. Laws of Motion" 
+                error={errors.topic?.message} 
+                {...register('topic')} 
+              />
               
               {/* Searchable Batch Dropdown */}
               <div className="relative">
@@ -271,6 +283,7 @@ export const CreateAssignment: React.FC = () => {
                 {errors.batchId?.message && <p className="text-xs text-red-500 mt-1">{errors.batchId.message}</p>}
               </div>
 
+              {/* Subject Selector - Shows only subject names */}
               <Controller
                 name="subject"
                 control={control}
@@ -283,6 +296,7 @@ export const CreateAssignment: React.FC = () => {
                   />
                 )}
               />
+              
               <Textarea
                 label="Description"
                 placeholder="Describe what this assignment is about..."
@@ -291,6 +305,7 @@ export const CreateAssignment: React.FC = () => {
                 error={errors.description?.message}
                 {...register('description')}
               />
+              
               <Textarea
                 label="Instructions (Optional)"
                 placeholder="Detailed instructions for students..."

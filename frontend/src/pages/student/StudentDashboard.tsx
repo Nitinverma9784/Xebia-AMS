@@ -142,24 +142,24 @@ export const StudentDashboard: React.FC = () => {
   return (
     <Layout role="student" title="Dashboard" subtitle={`Welcome back, ${user?.name?.split(' ')[0]}!${stats?.batchName ? ` • ${stats.batchName}` : ''}`}>
       {/* Welcome banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#2563EB] via-[#0B7F76] to-[#2563EB] rounded-2xl p-6 mb-6 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#4A1F4F] via-[#5C195F] to-[#7B2C7B] rounded-[24px] p-8 mb-8 text-white border border-white/5 shadow-md shadow-purple-900/10">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
-        <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-[#4A1F4F]/10 blur-2xl" />
+        <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-[#2563EB]/10 blur-2xl" />
         <div className="relative z-10">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp size={18} className="text-white" />
-                <span className="text-white/95 text-sm font-semibold">Overview</span>
+                <span className="text-white/95 text-sm font-semibold tracking-wider uppercase">Overview</span>
               </div>
-              <h2 className="text-xl font-bold mb-1">Welcome to your Student Portal</h2>
-              <p className="text-white/80 text-sm">
+              <h2 className="text-2xl font-extrabold mb-1 tracking-tight">Welcome to your Student Portal</h2>
+              <p className="text-white/85 text-sm leading-relaxed max-w-xl">
                 Track your published assignments, submit your work, and review teacher feedback.
               </p>
             </div>
             {stats?.batchName && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold backdrop-blur">
-                <span className="w-2 h-2 rounded-full bg-[#4A1F4F]" />
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold backdrop-blur">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 Assigned Batch: {stats.batchName}
               </div>
             )}

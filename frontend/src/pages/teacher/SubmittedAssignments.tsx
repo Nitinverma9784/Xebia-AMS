@@ -412,13 +412,13 @@ export const SubmittedAssignments: React.FC = () => {
 
             {/* Search Bar */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={15} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input
                 type="text"
                 placeholder="Search assessments..."
                 value={assignmentSearch}
                 onChange={(e) => setAssignmentSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
+                className="w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-150 dark:border-slate-700/60 rounded-xl text-sm focus:outline-none focus:border-[#4A1F4F] transition-all"
               />
             </div>
 
@@ -611,13 +611,13 @@ export const SubmittedAssignments: React.FC = () => {
                 <div className="flex flex-col md:flex-row gap-3">
                   {/* Search Student */}
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={14} />
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                     <input
                       type="text"
                       placeholder="Search by student name or enrollment..."
                       value={studentSearch}
                       onChange={(e) => { setStudentSearch(e.target.value); setCurrentPage(1); }}
-                      className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl text-[var(--text-primary)] focus:outline-none transition-colors"
+                      className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-150 dark:border-slate-700/60 rounded-xl text-xs focus:outline-none focus:border-[#4A1F4F] transition-all shadow-inner"
                     />
                   </div>
 

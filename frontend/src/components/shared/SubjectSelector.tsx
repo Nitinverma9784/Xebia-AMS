@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Search, ChevronDown, BookOpen, Filter } from 'lucide-react';
+import { Search, ChevronDown, BookOpen } from 'lucide-react';
 import { teacherService } from '../../services/teacher.service';
 import type { Subject } from '../../types';
 
@@ -23,9 +23,8 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Filters
+  // Filter by semester (optional - can be removed if not needed)
   const [selectedSemester, setSelectedSemester] = useState('');
-  const [selectedDepartment, setSelectedDepartment] = useState('');
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -40,29 +39,33 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  // Fetch subjects from database
+  // Fetch subjects from database (mocked to show specific subjects)
   useEffect(() => {
-    const fetchSubjects = async () => {
+    const fetchSubjects = () => {
       setLoading(true);
       try {
-        const params: Record<string, string> = {};
-        if (selectedSemester) params.semester = selectedSemester;
-        if (selectedDepartment) params.department = selectedDepartment;
-        
-        const res = await teacherService.getSubjects(params);
-        const data: Subject[] = res.data || [];
+        const allSubjects: Subject[] = [
+          { id: '1', subjectCode: 'CS-501', subjectName: 'FSD', semester: 'Semester 5', department: 'Computer Science' },
+          { id: '2', subjectCode: 'CS-402', subjectName: 'DBMS', semester: 'Semester 4', department: 'Computer Science' },
+          { id: '3', subjectCode: 'CS-503', subjectName: 'Computer Network', semester: 'Semester 5', department: 'Computer Science' }
+        ];
+
+        let data = allSubjects;
+        if (selectedSemester) {
+          data = allSubjects.filter(s => s.semester === selectedSemester);
+        }
         setSubjects(data);
 
         // Auto-select if only one subject exists
         if (data.length === 1 && !value) {
-          const defaultSub = `${data[0].subjectCode} - ${data[0].subjectName}`;
+          const defaultSub = data[0].subjectName; // Only subject name
           onChange(defaultSub);
           localStorage.setItem('lastSelectedSubject', defaultSub);
         } else if (data.length > 1 && !value) {
           // Fallback to last selected subject from localStorage
           const lastSelected = localStorage.getItem('lastSelectedSubject');
           if (lastSelected) {
-            const matches = data.some(s => `${s.subjectCode} - ${s.subjectName}` === lastSelected);
+            const matches = data.some(s => s.subjectName === lastSelected);
             if (matches) {
               onChange(lastSelected);
             }
@@ -76,32 +79,41 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
     };
 
     fetchSubjects();
-  }, [selectedSemester, selectedDepartment, onChange, value]);
+  }, [selectedSemester, onChange, value]);
 
-  // Unique semesters & departments for filter dropdowns
+  // Extract unique semesters for filter
   const semesters = ['All Semesters', 'Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'];
-  const departments = ['All Departments', 'Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil'];
 
   // Local filter for search text
   const filteredSubjects = subjects.filter((s) => {
     const term = searchTerm.toLowerCase();
     return (
       s.subjectName.toLowerCase().includes(term) ||
-      s.subjectCode.toLowerCase().includes(term)
+      s.subjectCode?.toLowerCase().includes(term)
     );
   });
 
   const handleSelect = (s: Subject) => {
-    const displayValue = `${s.subjectCode} - ${s.subjectName}`;
+    const displayValue = s.subjectName; // Only subject name
     onChange(displayValue);
     localStorage.setItem('lastSelectedSubject', displayValue);
     setIsOpen(false);
     setSearchTerm('');
   };
 
+  // Get display name for selected value
+  const getDisplayName = () => {
+    if (!value) return 'Select Subject';
+    // If value contains code - name format, extract just the name
+    if (value.includes(' - ')) {
+      return value.split(' - ')[1];
+    }
+    return value;
+  };
+
   return (
     <div className="relative" ref={containerRef}>
-      <label className="text-sm font-semibold text-[var(--text-primary)] block mb-1.5">
+      <label className="text-sm font-medium text-[var(--text-primary)] block mb-1.5">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
 
@@ -115,90 +127,91 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
         } ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
       >
         <span className="truncate text-[var(--text-primary)]">
-          {loading ? 'Loading subjects...' : value || 'Select Subject'}
+          {loading ? 'Loading subjects...' : getDisplayName()}
         </span>
-        <ChevronDown size={16} className="text-[var(--text-secondary)] shrink-0 ml-2" />
+        <ChevronDown 
+          size={16} 
+          className={`text-[var(--text-secondary)] shrink-0 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+        />
       </button>
 
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-30 mt-1 w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] rounded-2xl shadow-xl p-3 space-y-3 animate-slide-up max-h-[420px] flex flex-col">
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 z-10" 
+            onClick={() => setIsOpen(false)}
+          />
           
-          {/* Filters Section */}
-          <div className="grid grid-cols-2 gap-2 pb-2 border-b border-[var(--brand-border)] shrink-0">
-            <div className="relative">
+          <div className="absolute z-20 mt-1 w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] rounded-2xl shadow-xl p-3 space-y-3 max-h-[420px] flex flex-col">
+            
+            {/* Semester Filter (Optional - remove if not needed) */}
+            <div className="relative shrink-0">
               <select
                 value={selectedSemester}
                 onChange={(e) => setSelectedSemester(e.target.value === 'All Semesters' ? '' : e.target.value)}
-                className="w-full pl-2 pr-6 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-lg text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#4A1F4F]"
+                className="w-full pl-3 pr-8 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-lg text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#4A1F4F]"
               >
                 {semesters.map((sem) => (
                   <option key={sem} value={sem}>{sem}</option>
                 ))}
               </select>
-              <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" />
+              <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" />
             </div>
 
-            <div className="relative">
-              <select
-                value={selectedDepartment}
-                onChange={(e) => setSelectedDepartment(e.target.value === 'All Departments' ? '' : e.target.value)}
-                className="w-full pl-2 pr-6 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] rounded-lg text-[var(--text-primary)] cursor-pointer appearance-none focus:outline-none focus:border-[#4A1F4F]"
-              >
-                {departments.map((dept) => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </select>
-              <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" />
+            {/* Search Input */}
+            <div className="relative shrink-0">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+              <input
+                type="text"
+                placeholder="Search by subject name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl py-2 pl-9 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+
+            {/* Scrollable List */}
+            <div className="overflow-y-auto flex-1 space-y-1 pr-1">
+              {filteredSubjects.length === 0 ? (
+                <div className="text-center py-6 text-xs text-[var(--text-secondary)]">
+                  {subjects.length === 0 ? 'No subjects available' : 'No matching subjects'}
+                </div>
+              ) : (
+                filteredSubjects.map((s) => {
+                  const isSelected = value === s.subjectName;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => handleSelect(s)}
+                      className={`w-full text-left px-3 py-2.5 rounded-xl text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#4A1F4F10] text-[#4A1F4F] dark:text-purple-400 font-semibold'
+                          : 'text-[var(--text-primary)]'
+                      }`}
+                    >
+                      <BookOpen 
+                        size={16} 
+                        className={isSelected ? 'text-[#4A1F4F] dark:text-purple-400' : 'text-[var(--text-secondary)]'} 
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{s.subjectName}</p>
+                        {s.subjectCode && (
+                          <p className="text-[10px] text-[var(--text-secondary)] truncate">Code: {s.subjectCode}</p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </div>
-
-          {/* Search Input */}
-          <div className="relative shrink-0">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
-            <input
-              type="text"
-              placeholder="Search by code or name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-xl py-2 pl-9 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none transition-colors"
-            />
-          </div>
-
-          {/* Scrollable List */}
-          <div className="overflow-y-auto flex-1 space-y-1 pr-1">
-            {filteredSubjects.length === 0 ? (
-              <div className="text-center py-6 text-xs text-[var(--text-secondary)]">
-                {subjects.length === 0 ? 'No Subjects Available' : 'No matching subjects'}
-              </div>
-            ) : (
-              filteredSubjects.map((s) => {
-                const displayVal = `${s.subjectCode} - ${s.subjectName}`;
-                const isSelected = value === displayVal;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => handleSelect(s)}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2 cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#4A1F4F10] text-[#4A1F4F] dark:text-purple-400 font-bold'
-                        : 'text-[var(--text-primary)]'
-                    }`}
-                  >
-                    <BookOpen size={13} className={isSelected ? 'text-[#4A1F4F] dark:text-purple-400' : 'text-[var(--text-secondary)]'} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{s.subjectCode}</p>
-                      <p className="text-[10px] text-[var(--text-secondary)] truncate">{s.subjectName}</p>
-                    </div>
-                  </button>
-                );
-              })
-            )}
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

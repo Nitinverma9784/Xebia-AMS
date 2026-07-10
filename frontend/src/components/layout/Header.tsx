@@ -15,7 +15,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onMenuToggle })
   const { user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 h-16 flex items-center px-4 md:px-6 bg-white/80 dark:bg-[#0B1120]/80 backdrop-blur-md border-b border-[var(--brand-border)]">
+    <header className="sticky top-0 z-30 h-16 flex items-center px-6 md:px-8 bg-[var(--brand-surface)]/80 dark:bg-[#0B0F19]/80 backdrop-blur-md">
       {/* Mobile menu button */}
       <button
         onClick={onMenuToggle}

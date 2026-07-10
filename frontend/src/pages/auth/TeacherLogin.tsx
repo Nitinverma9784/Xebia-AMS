@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, GraduationCap, BookOpen, ChevronRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, GraduationCap, Moon, Sun, ArrowLeft, User } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +10,6 @@ import { Input } from '../../components/ui/Input';
 import { authService } from '../../services/auth.service';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Moon, Sun } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -85,72 +84,60 @@ export const TeacherLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-[var(--brand-surface)]">
-      {/* Left Panel — Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#4A1F4F] via-[#511345] to-[#622865] relative overflow-hidden flex-col justify-center items-center p-12">
-        {/* Background orbs */}
-        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#2563EB]/10 blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#F8FAFC] dark:bg-[#0F172A] relative overflow-hidden font-sans bg-grid-pattern">
+      
+      {/* Subtle Moving Blurry Background circles */}
+      <div className="absolute top-[-15%] left-[-15%] w-[45%] h-[45%] rounded-full bg-[#4A1F4F]/8 dark:bg-[#4A1F4F]/12 blur-3xl animate-blob-1" />
+      <div className="absolute bottom-[-15%] right-[-15%] w-[45%] h-[45%] rounded-full bg-[#2563EB]/8 dark:bg-[#2563EB]/12 blur-3xl animate-blob-2" />
 
-        <div className="relative z-10 text-center space-y-6">
-          <div className="w-20 h-20 rounded-3xl bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
-            <GraduationCap size={40} className="text-white" />
-          </div>
-          <div>
-            <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Xebia LMS</p>
-            <h1 className="text-4xl font-bold text-white mt-2">Teacher Portal</h1>
-            <p className="text-white/70 mt-3 text-lg leading-relaxed">
-              Manage assignments, review submissions,<br />and guide your students to success.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
-            {['Create Assignments', 'Review Submissions', 'Grade Students', 'Track Progress'].map((f) => (
-              <div key={f} className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-                <ChevronRight size={14} className="text-[#2563EB]" />
-                <span className="text-white/80 text-xs font-medium">{f}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Right Panel — Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 relative">
-        {/* Dark mode toggle */}
+      {/* Utilities header */}
+      <div className="absolute top-6 right-6 z-20">
         <button
           onClick={toggle}
-          className="absolute top-6 right-6 p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+          className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-[#4A1F4F] dark:hover:text-purple-400 transition-colors cursor-pointer shadow-sm"
+          aria-label="Toggle theme"
         >
           {isDark ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} />}
         </button>
+      </div>
 
-        <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#4A1F4F] to-[#622865] flex items-center justify-center">
-              <GraduationCap size={20} className="text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-secondary)]">Xebia LMS</p>
-              <p className="text-sm font-bold text-[var(--text-primary)]">Teacher Portal</p>
-            </div>
+      {/* Centered Auth Card */}
+      <div className="relative z-10 w-full max-w-[500px] bg-white/80 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-8 sm:p-10 rounded-[20px] shadow-2xl transition-all duration-300">
+        
+        {/* Branding Title */}
+        <div className="text-center space-y-2 mb-6 select-none">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4A1F4F] via-[#7A2676] to-[#2563EB] flex items-center justify-center mx-auto shadow-md">
+            <GraduationCap size={26} className="text-white" />
           </div>
+          <h1 className="text-[30px] font-black text-slate-900 dark:text-white tracking-tight pt-1">
+            Xebia LMS
+          </h1>
+          <div className="space-y-0.5">
+            <h2 className="text-[22px] font-extrabold text-slate-800 dark:text-slate-200">
+              {isRegister ? 'Create Account' : 'Welcome Back'}
+            </h2>
+            <p className="text-[15px] text-slate-450 dark:text-slate-500">
+              {isRegister ? 'Sign up as a teacher to get started' : 'Sign in to continue'}
+            </p>
+          </div>
+        </div>
 
-          <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
-            {isRegister ? 'Create Account' : 'Welcome back'}
-          </h2>
-          <p className="text-sm text-[var(--text-secondary)] mb-7">
-            {isRegister
-              ? 'Register as a teacher to get started'
-              : 'Sign in to your teacher account'}
-          </p>
+        {isRegister ? (
+          <div className="space-y-5">
+            {/* Back Arrow to Login */}
+            <button
+              onClick={() => { setIsRegister(false); registerForm.reset(); }}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-450 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer select-none"
+            >
+              <ArrowLeft size={14} /> Back to Sign In
+            </button>
 
-          {isRegister ? (
             <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
               <Input
                 label="Full Name"
                 placeholder="Dr. Jane Smith"
                 required
+                leftIcon={<User size={16} />}
                 error={registerForm.formState.errors.name?.message}
                 {...registerForm.register('name')}
               />
@@ -166,6 +153,8 @@ export const TeacherLogin: React.FC = () => {
               <Input
                 label="Subject (Optional)"
                 placeholder="e.g. Mathematics, Physics"
+                leftIcon={<User size={16} />}
+                error={registerForm.formState.errors.subject?.message}
                 {...registerForm.register('subject')}
               />
               <div className="relative">
@@ -184,48 +173,54 @@ export const TeacherLogin: React.FC = () => {
                   {...registerForm.register('password')}
                 />
               </div>
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full mt-2"
-                loading={registerForm.formState.isSubmitting}
-              >
-                Create Account
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
-              <Input
-                label="Email"
-                type="email"
-                placeholder="teacher@school.edu"
-                required
-                leftIcon={<Mail size={16} />}
-                error={loginForm.formState.errors.email?.message}
-                {...loginForm.register('email')}
-              />
-              <div className="relative">
-                <Input
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Your password"
-                  required
-                  leftIcon={<Lock size={16} />}
-                  rightIcon={
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer">
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  }
-                  error={loginForm.formState.errors.password?.message}
-                  {...loginForm.register('password')}
-                />
+              
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  variant="brand"
+                  size="lg"
+                  className="w-full h-12 rounded-xl font-bold cursor-pointer text-[16px]"
+                  loading={registerForm.formState.isSubmitting}
+                >
+                  Create Account
+                </Button>
               </div>
+            </form>
+          </div>
+        ) : (
+          <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+            <Input
+              label="Email"
+              type="email"
+              placeholder="teacher@school.edu"
+              required
+              leftIcon={<Mail size={16} />}
+              error={loginForm.formState.errors.email?.message}
+              {...loginForm.register('email')}
+            />
+            <div className="relative">
+              <Input
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Your password"
+                required
+                leftIcon={<Lock size={16} />}
+                rightIcon={
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer">
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
+                error={loginForm.formState.errors.password?.message}
+                {...loginForm.register('password')}
+              />
+            </div>
+            
+            <div className="pt-2 space-y-2">
               <Button
                 type="submit"
-                variant="primary"
+                variant="brand"
                 size="lg"
-                className="w-full mt-2"
+                className="w-full h-12 rounded-xl font-bold cursor-pointer text-[16px]"
                 loading={loginForm.formState.isSubmitting}
               >
                 Sign In
@@ -234,34 +229,35 @@ export const TeacherLogin: React.FC = () => {
                 type="button"
                 variant="outline"
                 size="lg"
-                className="w-full border-[#4A1F4F] text-[#4A1F4F] hover:bg-[#4A1F4F]/5 mt-2"
+                className="w-full h-12 rounded-xl font-bold border-[#4A1F4F]/25 text-[#4A1F4F] hover:bg-[#4A1F4F]/5 cursor-pointer transition-all text-[16px]"
                 onClick={onDirectLogin}
               >
-                Quick Direct Login (Demo)
+                Quick Direct Teacher Login (Demo)
               </Button>
-            </form>
-          )}
+            </div>
+          </form>
+        )}
 
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => { setIsRegister(!isRegister); loginForm.reset(); registerForm.reset(); }}
-              className="text-sm text-[#4A1F4F] dark:text-purple-400 hover:underline font-medium cursor-pointer"
-            >
-              {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
-            </button>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-[var(--brand-border)]">
-            <p className="text-xs text-center text-[var(--text-secondary)] mb-3">Other Portals</p>
-            <Link
-              to="/student/login"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[var(--brand-border)] text-sm text-[var(--text-secondary)] hover:border-[#2563EB] hover:text-[#2563EB] transition-all"
-            >
-              <BookOpen size={16} />
-              Student Portal →
-            </Link>
-          </div>
+        <div className="text-center pt-3 mt-6 border-t border-slate-200/50 dark:border-slate-800/50">
+          <button
+            onClick={() => { setIsRegister(!isRegister); loginForm.reset(); registerForm.reset(); }}
+            className="text-xs text-[#4A1F4F] dark:text-purple-400 hover:underline font-bold cursor-pointer"
+          >
+            {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
+          </button>
         </div>
+
+        <div className="mt-8 pt-6 border-t border-slate-200/50 dark:border-slate-800/50">
+          <p className="text-xs text-center text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mb-3">Other Portals</p>
+          <Link
+            to="/student/login"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-bold text-slate-500 dark:text-slate-400 hover:border-[#4A1F4F] hover:text-[#4A1F4F] dark:hover:text-purple-400 transition-all cursor-pointer"
+          >
+            <GraduationCap size={16} />
+            Student Portal →
+          </Link>
+        </div>
+
       </div>
     </div>
   );

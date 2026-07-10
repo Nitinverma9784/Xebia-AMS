@@ -72,6 +72,18 @@ public class SubmissionServiceImpl implements SubmissionService {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
         if (assignment == null) return null;
 
+        if (assignment.getBatch() == null) {
+            AssignmentStatusResponse cache = AssignmentStatusResponse.builder()
+                    .submittedStudentIds(List.of())
+                    .pendingStudentIds(List.of())
+                    .submittedCount(0)
+                    .pendingCount(0)
+                    .completionPercentage(0.0)
+                    .build();
+            redisService.saveAssignmentStatus(assignmentId, cache);
+            return cache;
+        }
+
         List<Student> students = studentRepository.findByBatchId(assignment.getBatch().getId());
         List<Long> allStudentIds = students.stream().map(Student::getId).toList();
 
@@ -260,6 +272,9 @@ public class SubmissionServiceImpl implements SubmissionService {
         Assignment assignment = assignmentRepository.findByIdAndTeacherId(assignmentId, teacher.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
 
+        if (assignment.getBatch() == null) {
+            return List.of();
+        }
         List<Student> allStudents = studentRepository.findByBatchId(assignment.getBatch().getId());
         List<Long> submittedStudentIds = submissionRepository.findByAssignmentId(assignmentId).stream()
                 .map(sub -> sub.getStudent().getId())

@@ -85,16 +85,16 @@ export const TeacherDashboard: React.FC = () => {
   return (
     <Layout role="teacher" title="Dashboard" subtitle={`Good day, ${user?.name?.split(' ')[0]}!`}>
       {/* Welcome banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#4A1F4F] via-[#511345] to-[#622865] rounded-2xl p-6 mb-6 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#4A1F4F] via-[#5C195F] to-[#7B2C7B] rounded-[24px] p-8 mb-8 text-white border border-white/5 shadow-md shadow-purple-900/10">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
         <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full bg-[#2563EB]/10 blur-2xl" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp size={18} className="text-[#2563EB]" />
-            <span className="text-[#2563EB] text-sm font-medium">Overview</span>
+            <TrendingUp size={18} className="text-white" />
+            <span className="text-white/95 text-sm font-semibold tracking-wider uppercase">Overview</span>
           </div>
-          <h2 className="text-xl font-bold mb-1">Welcome to your Teacher Portal</h2>
-          <p className="text-white/70 text-sm">
+          <h2 className="text-2xl font-extrabold mb-1 tracking-tight">Welcome to your Teacher Portal</h2>
+          <p className="text-white/85 text-sm leading-relaxed max-w-xl">
             Manage batches, publish assignments, grade submissions, and track student progress all in one place.
           </p>
         </div>

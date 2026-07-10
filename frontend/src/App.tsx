@@ -27,6 +27,7 @@ import { QuizAttempt } from './pages/student/QuizAttempt';
 import { QuizReview } from './pages/student/QuizReview';
 
 import { StudentCertificates } from './pages/student/StudentCertificates';
+import { CertificatePreview } from './pages/student/CertificatePreview';
 import { TeacherCertificates } from './pages/teacher/TeacherCertificates';
 import { VerifyCertificate } from './pages/shared/VerifyCertificate';
 
@@ -124,6 +125,10 @@ function App() {
             <Route
               path="/student/certificates"
               element={<ProtectedRoute role="student"><StudentCertificates /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/certificates/preview/:id"
+              element={<ProtectedRoute role="student"><CertificatePreview /></ProtectedRoute>}
             />
             <Route
               path="/student/progress"

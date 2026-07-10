@@ -30,4 +30,5 @@ public class CertificateResponse {
     private String pdfFileUrl;
     private String verificationToken;
     private String qrCodeUrl;
+    private Double maxMarks;
 }

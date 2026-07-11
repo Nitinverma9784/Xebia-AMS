@@ -7,15 +7,19 @@ import com.assignment.entity.Teacher;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-07-06T21:30:59+0530",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.40.0.v20241112-0530, environment: Java 21.0.5 (Eclipse Adoptium)"
+    date = "2026-07-11T09:49:48+0530",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
 public class AssignmentMapperImpl implements AssignmentMapper {
+
+    @Autowired
+    private QuestionMapper questionMapper;
 
     @Override
     public AssignmentResponse toResponse(Assignment assignment) {
@@ -29,25 +33,26 @@ public class AssignmentMapperImpl implements AssignmentMapper {
         assignmentResponse.batchName( assignmentBatchBatchName( assignment ) );
         assignmentResponse.teacherId( assignmentTeacherId( assignment ) );
         assignmentResponse.teacherName( assignmentTeacherFullName( assignment ) );
-        assignmentResponse.assignmentType( assignment.getAssignmentType() );
-        assignmentResponse.createdAt( assignment.getCreatedAt() );
+        assignmentResponse.id( assignment.getId() );
+        assignmentResponse.title( assignment.getTitle() );
         assignmentResponse.description( assignment.getDescription() );
+        assignmentResponse.instructions( assignment.getInstructions() );
+        assignmentResponse.assignmentType( assignment.getAssignmentType() );
+        assignmentResponse.subject( assignment.getSubject() );
+        assignmentResponse.topic( assignment.getTopic() );
+        assignmentResponse.resourceUrl( assignment.getResourceUrl() );
+        assignmentResponse.externalLink( assignment.getExternalLink() );
+        assignmentResponse.submissionType( assignment.getSubmissionType() );
+        assignmentResponse.totalMarks( assignment.getTotalMarks() );
+        assignmentResponse.passingMarks( assignment.getPassingMarks() );
         assignmentResponse.dueDate( assignment.getDueDate() );
         assignmentResponse.dueTime( assignment.getDueTime() );
-        assignmentResponse.externalLink( assignment.getExternalLink() );
-        assignmentResponse.id( assignment.getId() );
-        assignmentResponse.instructions( assignment.getInstructions() );
         assignmentResponse.lateSubmissionAllowed( assignment.getLateSubmissionAllowed() );
         assignmentResponse.maxFileSize( assignment.getMaxFileSize() );
-        assignmentResponse.passingMarks( assignment.getPassingMarks() );
-        assignmentResponse.resourceUrl( assignment.getResourceUrl() );
         assignmentResponse.status( assignment.getStatus() );
-        assignmentResponse.subject( assignment.getSubject() );
-        assignmentResponse.submissionType( assignment.getSubmissionType() );
-        assignmentResponse.title( assignment.getTitle() );
-        assignmentResponse.topic( assignment.getTopic() );
-        assignmentResponse.totalMarks( assignment.getTotalMarks() );
+        assignmentResponse.createdAt( assignment.getCreatedAt() );
         assignmentResponse.updatedAt( assignment.getUpdatedAt() );
+        assignmentResponse.questions( questionMapper.toResponseList( assignment.getQuestions() ) );
 
         return assignmentResponse.build();
     }
@@ -67,62 +72,34 @@ public class AssignmentMapperImpl implements AssignmentMapper {
     }
 
     private Long assignmentBatchId(Assignment assignment) {
-        if ( assignment == null ) {
-            return null;
-        }
         Batch batch = assignment.getBatch();
         if ( batch == null ) {
             return null;
         }
-        Long id = batch.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
+        return batch.getId();
     }
 
     private String assignmentBatchBatchName(Assignment assignment) {
-        if ( assignment == null ) {
-            return null;
-        }
         Batch batch = assignment.getBatch();
         if ( batch == null ) {
             return null;
         }
-        String batchName = batch.getBatchName();
-        if ( batchName == null ) {
-            return null;
-        }
-        return batchName;
+        return batch.getBatchName();
     }
 
     private Long assignmentTeacherId(Assignment assignment) {
-        if ( assignment == null ) {
-            return null;
-        }
         Teacher teacher = assignment.getTeacher();
         if ( teacher == null ) {
             return null;
         }
-        Long id = teacher.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
+        return teacher.getId();
     }
 
     private String assignmentTeacherFullName(Assignment assignment) {
-        if ( assignment == null ) {
-            return null;
-        }
         Teacher teacher = assignment.getTeacher();
         if ( teacher == null ) {
             return null;
         }
-        String fullName = teacher.getFullName();
-        if ( fullName == null ) {
-            return null;
-        }
-        return fullName;
+        return teacher.getFullName();
     }
 }

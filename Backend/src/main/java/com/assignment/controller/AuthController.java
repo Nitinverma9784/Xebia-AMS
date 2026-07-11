@@ -75,4 +75,16 @@ public class AuthController {
         java.util.List<com.assignment.dto.response.BatchResponse> response = authService.getPublicBatches();
         return ResponseEntity.ok(ApiResponse.success("Batches retrieved successfully", response));
     }
+
+    @PutMapping("/profile/update")
+    public ResponseEntity<ApiResponse<AuthResponse>> updateProfile(
+            @RequestParam("name") String name,
+            java.security.Principal principal
+    ) {
+        if (principal == null) {
+            throw new com.assignment.exception.UnauthorizedException("Access Denied: You must be logged in to update your profile");
+        }
+        AuthResponse response = authService.updateProfile(principal.getName(), name);
+        return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", response));
+    }
 }

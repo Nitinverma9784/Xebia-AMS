@@ -61,6 +61,18 @@ public class StudentServiceImpl implements StudentService {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
         if (assignment == null) return;
 
+        if (assignment.getBatch() == null) {
+            AssignmentStatusResponse cache = AssignmentStatusResponse.builder()
+                    .submittedStudentIds(List.of())
+                    .pendingStudentIds(List.of())
+                    .submittedCount(0)
+                    .pendingCount(0)
+                    .completionPercentage(0.0)
+                    .build();
+            redisService.saveAssignmentStatus(assignmentId, cache);
+            return;
+        }
+
         List<Student> students = studentRepository.findByBatchId(assignment.getBatch().getId());
         List<Long> allStudentIds = students.stream().map(Student::getId).toList();
 

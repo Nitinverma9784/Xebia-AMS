@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     Optional<Submission> findByAssignmentIdAndStudentId(Long assignmentId, Long studentId);
     List<Submission> findByAssignmentId(Long assignmentId);
+    long countByAssignmentId(Long assignmentId);
     List<Submission> findByAssignmentIdAndStatus(Long assignmentId, SubmissionStatus status);
     Page<Submission> findByStudentId(Long studentId, Pageable pageable);
     List<Submission> findByStudentId(Long studentId);

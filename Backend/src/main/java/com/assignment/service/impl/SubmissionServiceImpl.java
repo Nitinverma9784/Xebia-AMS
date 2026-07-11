@@ -38,6 +38,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubmissionServiceImpl implements SubmissionService {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SubmissionServiceImpl.class);
+
+
     private final SubmissionRepository submissionRepository;
     private final AssignmentRepository assignmentRepository;
     private final StudentRepository studentRepository;
@@ -46,6 +49,9 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final RedisService redisService;
     private final SubmissionMapper submissionMapper;
     private final UserMapper userMapper;
+    private final com.assignment.repository.QuestionRepository questionRepository;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    private final com.assignment.service.CertificateService certificateService;
 
     private Student getStudent(String email) {
         Student student = studentRepository.findByEmail(email)
@@ -65,9 +71,21 @@ public class SubmissionServiceImpl implements SubmissionService {
         return teacher;
     }
 
-    private void rebuildAssignmentStatusCache(Long assignmentId) {
+    private AssignmentStatusResponse rebuildAssignmentStatusCache(Long assignmentId) {
         Assignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
-        if (assignment == null) return;
+        if (assignment == null) return null;
+
+        if (assignment.getBatch() == null) {
+            AssignmentStatusResponse cache = AssignmentStatusResponse.builder()
+                    .submittedStudentIds(List.of())
+                    .pendingStudentIds(List.of())
+                    .submittedCount(0)
+                    .pendingCount(0)
+                    .completionPercentage(0.0)
+                    .build();
+            redisService.saveAssignmentStatus(assignmentId, cache);
+            return cache;
+        }
 
         List<Student> students = studentRepository.findByBatchId(assignment.getBatch().getId());
         List<Long> allStudentIds = students.stream().map(Student::getId).toList();
@@ -96,14 +114,63 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .build();
 
         redisService.saveAssignmentStatus(assignmentId, cache);
+        return cache;
+    }
+
+    private boolean checkAnswerCorrectness(com.assignment.entity.Question q, String studentAnswer) {
+        if (q == null || studentAnswer == null) {
+            return false;
+        }
+        
+        String correctAnswer = q.getCorrectAnswer();
+        if (correctAnswer == null) {
+            return false;
+        }
+        
+        String cleanCorrect = correctAnswer.trim().toUpperCase();
+        String cleanStudent = studentAnswer.trim().toUpperCase();
+        
+        if (cleanCorrect.equals(cleanStudent)) {
+            return true;
+        }
+        
+        // Handle Multiple Select Questions (MSQ) - comma separated
+        if ("MSQ".equalsIgnoreCase(q.getQuestionType()) || cleanCorrect.contains(",") || cleanStudent.contains(",")) {
+            String[] correctParts = cleanCorrect.split("\\s*,\\s*");
+            String[] studentParts = cleanStudent.split("\\s*,\\s*");
+            
+            if (correctParts.length != studentParts.length) {
+                return false;
+            }
+            
+            java.util.Set<String> correctSet = new java.util.HashSet<>(java.util.Arrays.asList(correctParts));
+            java.util.Set<String> studentSet = new java.util.HashSet<>(java.util.Arrays.asList(studentParts));
+            
+            return correctSet.equals(studentSet);
+        }
+        
+        return false;
     }
 
     @Override
     @Transactional
     public SubmissionResponse submitAssignment(Long assignmentId, StudentSubmitRequest request, String studentEmail) {
-        Student student = getStudent(studentEmail);
-        Assignment assignment = assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
+        Student student;
+        try {
+            student = getStudent(studentEmail);
+        } catch (Exception e) {
+            log.error("Error retrieving student profile for email: " + studentEmail, e);
+            throw e;
+        }
+
+        Assignment assignment;
+        try {
+            assignment = assignmentRepository.findById(assignmentId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
+        } catch (Exception e) {
+            log.error("Error retrieving assignment with id: " + assignmentId, e);
+            throw e;
+        }
 
         if (student.getBatch() == null || !student.getBatch().getId().equals(assignment.getBatch().getId())) {
             throw new BadRequestException("This assignment is not assigned to your batch");
@@ -119,6 +186,126 @@ public class SubmissionServiceImpl implements SubmissionService {
             }
         }
 
+        // If it's a QUIZ assignment, evaluate it immediately
+        if (assignment.getAssignmentType() == com.assignment.enums.AssignmentType.QUIZ) {
+            if (request.getQuizAnswersJson() == null || request.getQuizAnswersJson().isBlank()) {
+                throw new BadRequestException("Quiz answers are required");
+            }
+            
+            // Prevent duplicate submissions unless retries are explicitly allowed
+            Optional<Submission> existingSub;
+            try {
+                existingSub = submissionRepository.findByAssignmentIdAndStudentId(assignmentId, student.getId());
+            } catch (Exception e) {
+                log.error("Error checking existing quiz submission for student: " + student.getId() + ", assignment: " + assignmentId, e);
+                throw e;
+            }
+
+            if (existingSub.isPresent()) {
+                int attemptsAllowed = 1;
+                try {
+                    String instructions = assignment.getInstructions();
+                    if (instructions != null && instructions.trim().startsWith("{")) {
+                        com.fasterxml.jackson.databind.JsonNode meta = objectMapper.readTree(instructions);
+                        if (meta.has("attemptsAllowed")) {
+                            attemptsAllowed = meta.get("attemptsAllowed").asInt();
+                        }
+                    }
+                } catch (Exception e) {
+                    // Ignore
+                }
+                if (attemptsAllowed <= 1) {
+                    throw new BadRequestException("You have already completed this quiz");
+                }
+            }
+            
+            // Fetch all questions
+            List<com.assignment.entity.Question> questions;
+            try {
+                questions = questionRepository.findByAssignmentId(assignmentId);
+            } catch (Exception e) {
+                log.error("Error fetching questions for assignment: " + assignmentId, e);
+                throw e;
+            }
+
+            double totalScore = 0.0;
+            try {
+                // Parse student answers
+                List<java.util.Map<String, Object>> studentAnswers = objectMapper.readValue(
+                        request.getQuizAnswersJson(),
+                        new com.fasterxml.jackson.core.type.TypeReference<List<java.util.Map<String, Object>>>() {}
+                );
+
+                java.util.Map<Long, com.assignment.entity.Question> questionMap = new java.util.HashMap<>();
+                for (com.assignment.entity.Question q : questions) {
+                    questionMap.put(q.getId(), q);
+                }
+                
+                for (java.util.Map<String, Object> ans : studentAnswers) {
+                    Number qIdNum = (Number) ans.get("questionId");
+                    if (qIdNum == null) continue;
+                    Long qId = qIdNum.longValue();
+                    String selectedOption = (String) ans.get("selectedOption");
+                    if (selectedOption == null) selectedOption = "";
+                    
+                    com.assignment.entity.Question q = questionMap.get(qId);
+                    if (q != null && checkAnswerCorrectness(q, selectedOption)) {
+                        totalScore += q.getMarks();
+                    }
+                }
+            } catch (Exception e) {
+                throw new BadRequestException("Failed to evaluate quiz submission: " + e.getMessage());
+            }
+
+            Submission submission;
+            if (existingSub.isPresent()) {
+                submission = existingSub.get();
+                submission.setSubmissionUrl("QUIZ_SUBMISSION");
+                submission.setQuizAnswers(request.getQuizAnswersJson());
+                submission.setComment(request.getComment());
+                submission.setSubmittedAt(LocalDateTime.now());
+                submission.setReviewedAt(LocalDateTime.now());
+                submission.setMarks(totalScore);
+                submission.setFeedback("Auto-graded Quiz");
+                submission.setStatus(SubmissionStatus.REVIEWED);
+            } else {
+                submission = Submission.builder()
+                        .assignment(assignment)
+                        .student(student)
+                        .submissionUrl("QUIZ_SUBMISSION")
+                        .quizAnswers(request.getQuizAnswersJson())
+                        .comment(request.getComment())
+                        .submittedAt(LocalDateTime.now())
+                        .reviewedAt(LocalDateTime.now())
+                        .marks(totalScore)
+                        .feedback("Auto-graded Quiz")
+                        .status(SubmissionStatus.REVIEWED)
+                        .build();
+            }
+            
+            Submission savedSubmission;
+            try {
+                savedSubmission = submissionRepository.save(submission);
+            } catch (Exception e) {
+                log.error("Error saving quiz submission for student: " + student.getId() + ", assignment: " + assignmentId, e);
+                throw e;
+            }
+
+            try {
+                rebuildAssignmentStatusCache(assignmentId);
+            } catch (Exception e) {
+                log.error("Error rebuilding assignment status cache for assignment: " + assignmentId, e);
+                throw e;
+            }
+
+            try {
+                certificateService.generateCertificateForSubmission(savedSubmission.getId());
+            } catch (Exception e) {
+                log.error("Failed to generate quiz certificate for submission: " + savedSubmission.getId(), e);
+            }
+            return submissionMapper.toResponse(savedSubmission);
+        }
+
         // File upload
         String fileUrl = null;
         if (request.getFile() != null && !request.getFile().isEmpty()) {
@@ -131,7 +318,14 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
 
         // Check if student already has a submission (allow resubmission / update)
-        Optional<Submission> existingSub = submissionRepository.findByAssignmentIdAndStudentId(assignmentId, student.getId());
+        Optional<Submission> existingSub;
+        try {
+            existingSub = submissionRepository.findByAssignmentIdAndStudentId(assignmentId, student.getId());
+        } catch (Exception e) {
+            log.error("Error checking existing submission for student: " + student.getId() + ", assignment: " + assignmentId, e);
+            throw e;
+        }
+
         Submission submission;
         if (existingSub.isPresent()) {
             submission = existingSub.get();
@@ -150,10 +344,27 @@ public class SubmissionServiceImpl implements SubmissionService {
                     .build();
         }
 
-        Submission savedSubmission = submissionRepository.save(submission);
+        Submission savedSubmission;
+        try {
+            savedSubmission = submissionRepository.save(submission);
+        } catch (Exception e) {
+            log.error("Error saving submission for student: " + student.getId() + ", assignment: " + assignmentId, e);
+            throw e;
+        }
 
         // Update Redis
-        rebuildAssignmentStatusCache(assignmentId);
+        try {
+            rebuildAssignmentStatusCache(assignmentId);
+        } catch (Exception e) {
+            log.error("Error rebuilding assignment status cache for assignment: " + assignmentId, e);
+            throw e;
+        }
+
+        try {
+            certificateService.generateCertificateForSubmission(savedSubmission.getId());
+        } catch (Exception e) {
+            log.error("Failed to generate assignment certificate on submission for submission: " + savedSubmission.getId(), e);
+        }
 
         return submissionMapper.toResponse(savedSubmission);
     }
@@ -165,19 +376,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         Assignment assignment = assignmentRepository.findByIdAndTeacherId(assignmentId, teacher.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
 
-        // Read from Redis to quickly get student ids
-        AssignmentStatusResponse cache = redisService.getAssignmentStatus(assignmentId);
-        if (cache == null) {
-            rebuildAssignmentStatusCache(assignmentId);
-            cache = redisService.getAssignmentStatus(assignmentId);
-        }
-
-        List<Long> studentIds = cache.getSubmittedStudentIds();
-        // Retrieve submission records for those student IDs
-        List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId).stream()
-                .filter(sub -> studentIds.contains(sub.getStudent().getId()))
-                .toList();
-
+        List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId);
         return submissionMapper.toResponseList(submissions);
     }
 
@@ -188,15 +387,17 @@ public class SubmissionServiceImpl implements SubmissionService {
         Assignment assignment = assignmentRepository.findByIdAndTeacherId(assignmentId, teacher.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found or unauthorized"));
 
-        // Read from Redis to quickly get pending student ids
-        AssignmentStatusResponse cache = redisService.getAssignmentStatus(assignmentId);
-        if (cache == null) {
-            rebuildAssignmentStatusCache(assignmentId);
-            cache = redisService.getAssignmentStatus(assignmentId);
+        if (assignment.getBatch() == null) {
+            return List.of();
         }
+        List<Student> allStudents = studentRepository.findByBatchId(assignment.getBatch().getId());
+        List<Long> submittedStudentIds = submissionRepository.findByAssignmentId(assignmentId).stream()
+                .map(sub -> sub.getStudent().getId())
+                .toList();
 
-        List<Long> pendingStudentIds = cache.getPendingStudentIds();
-        List<Student> pendingStudents = studentRepository.findAllById(pendingStudentIds);
+        List<Student> pendingStudents = allStudents.stream()
+                .filter(student -> !submittedStudentIds.contains(student.getId()))
+                .toList();
 
         return userMapper.toStudentResponseList(pendingStudents);
     }
@@ -205,8 +406,14 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Transactional
     public SubmissionResponse reviewSubmission(Long submissionId, SubmissionReviewRequest request, String teacherEmail) {
         Teacher teacher = getTeacher(teacherEmail);
-        Submission submission = submissionRepository.findByIdAndAssignmentTeacherId(submissionId, teacher.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Submission not found or unauthorized"));
+        Submission submission;
+        try {
+            submission = submissionRepository.findByIdAndAssignmentTeacherId(submissionId, teacher.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Submission not found or unauthorized"));
+        } catch (Exception e) {
+            log.error("Error retrieving submission for review with id: " + submissionId + ", teacher: " + teacher.getId(), e);
+            throw e;
+        }
 
         if (request.getMarks() > submission.getAssignment().getTotalMarks()) {
             throw new BadRequestException("Assigned marks cannot exceed total assignment marks of " + submission.getAssignment().getTotalMarks());
@@ -217,7 +424,19 @@ public class SubmissionServiceImpl implements SubmissionService {
         submission.setStatus(SubmissionStatus.REVIEWED);
         submission.setReviewedAt(LocalDateTime.now());
 
-        Submission reviewedSubmission = submissionRepository.save(submission);
+        Submission reviewedSubmission;
+        try {
+            reviewedSubmission = submissionRepository.save(submission);
+        } catch (Exception e) {
+            log.error("Error saving reviewed submission with id: " + submissionId, e);
+            throw e;
+        }
+
+        try {
+            certificateService.generateCertificateForSubmission(reviewedSubmission.getId());
+        } catch (Exception e) {
+            log.error("Failed to generate assignment certificate during review for submission: " + reviewedSubmission.getId(), e);
+        }
         return submissionMapper.toResponse(reviewedSubmission);
     }
 

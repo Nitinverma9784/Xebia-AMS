@@ -54,7 +54,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .map(a -> TeacherDashboardResponse.RecentAssignment.builder()
                         .id(a.getId())
                         .title(a.getTitle())
-                        .batch(a.getBatch().getBatchName())
+                        .batch(a.getBatch() != null ? a.getBatch().getBatchName() : "Draft")
                         .dueDate(a.getDueDate().toString())
                         .build())
                 .collect(Collectors.toList());
@@ -110,11 +110,11 @@ public class DashboardServiceImpl implements DashboardService {
         Long batchId = student.getBatch().getId();
         Long studentId = student.getId();
 
-        long totalAssignments = assignmentRepository.countByBatchId(batchId);
+        long totalAssignments = assignmentRepository.countByBatchIdAndStatus(batchId, AssignmentStatus.ACTIVE);
         long submittedAssignments = submissionRepository.countByStudentId(studentId);
         long pendingAssignments = Math.max(0, totalAssignments - submittedAssignments);
 
-        List<Assignment> recentList = assignmentRepository.findTop5ByBatchIdOrderByCreatedAtDesc(batchId);
+        List<Assignment> recentList = assignmentRepository.findTop5ByBatchIdAndStatusOrderByCreatedAtDesc(batchId, AssignmentStatus.ACTIVE);
         List<StudentDashboardResponse.RecentAssignment> recentAssignments = recentList.stream()
                 .map(a -> StudentDashboardResponse.RecentAssignment.builder()
                         .id(a.getId())
@@ -133,7 +133,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .collect(Collectors.toList());
 
         List<Assignment> upcomingList = assignmentRepository
-                .findByBatchIdAndDueDateGreaterThanEqualOrderByDueDateAscDueTimeAsc(batchId, LocalDate.now());
+                .findByBatchIdAndStatusAndDueDateGreaterThanEqualOrderByDueDateAscDueTimeAsc(batchId, AssignmentStatus.ACTIVE, LocalDate.now());
         List<StudentDashboardResponse.UpcomingDeadline> upcomingDeadlines = upcomingList.stream()
                 .limit(5)
                 .map(a -> StudentDashboardResponse.UpcomingDeadline.builder()

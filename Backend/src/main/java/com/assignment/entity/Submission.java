@@ -52,6 +52,9 @@ public class Submission {
     @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
 
+    @Column(name = "quiz_answers", columnDefinition = "TEXT")
+    private String quizAnswers;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

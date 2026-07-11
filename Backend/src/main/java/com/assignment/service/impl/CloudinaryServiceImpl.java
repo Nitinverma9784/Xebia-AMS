@@ -35,4 +35,34 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             throw new CustomException("Failed to upload file to Cloudinary: " + e.getMessage(), 500);
         }
     }
+
+    @Override
+    public String uploadBytes(byte[] bytes, String folder) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        try {
+            boolean isPdf = bytes.length > 4 && 
+                            bytes[0] == 0x25 && // '%'
+                            bytes[1] == 0x50 && // 'P'
+                            bytes[2] == 0x44 && // 'D'
+                            bytes[3] == 0x46;   // 'F'
+            
+            java.util.Map<String, Object> options = new java.util.HashMap<>();
+            options.put("folder", folder);
+            if (isPdf) {
+                options.put("resource_type", "raw");
+            } else {
+                options.put("resource_type", "auto");
+            }
+
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                    bytes,
+                    options
+            );
+            return (String) uploadResult.get("secure_url");
+        } catch (IOException e) {
+            throw new CustomException("Failed to upload bytes to Cloudinary: " + e.getMessage(), 500);
+        }
+    }
 }

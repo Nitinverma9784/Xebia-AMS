@@ -37,4 +37,9 @@ public class AssignmentResponse {
     private AssignmentStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private java.util.List<QuestionResponse> questions;
+    private Integer totalStudents;
+    private Integer submittedCount;
+    private Integer pendingCount;
+    private Double submissionPercentage;
 }

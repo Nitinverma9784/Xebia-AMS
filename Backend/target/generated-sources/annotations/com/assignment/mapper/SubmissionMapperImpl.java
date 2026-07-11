@@ -2,6 +2,7 @@ package com.assignment.mapper;
 
 import com.assignment.dto.response.SubmissionResponse;
 import com.assignment.entity.Assignment;
+import com.assignment.entity.Batch;
 import com.assignment.entity.Student;
 import com.assignment.entity.Submission;
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-07-06T21:30:59+0530",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.40.0.v20241112-0530, environment: Java 21.0.5 (Eclipse Adoptium)"
+    date = "2026-07-11T09:49:49+0530",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
 public class SubmissionMapperImpl implements SubmissionMapper {
@@ -29,16 +30,21 @@ public class SubmissionMapperImpl implements SubmissionMapper {
         submissionResponse.assignmentTitle( submissionAssignmentTitle( submission ) );
         submissionResponse.studentId( submissionStudentId( submission ) );
         submissionResponse.studentName( submissionStudentFullName( submission ) );
-        submissionResponse.comment( submission.getComment() );
-        submissionResponse.createdAt( submission.getCreatedAt() );
-        submissionResponse.feedback( submission.getFeedback() );
+        submissionResponse.studentEmail( submissionStudentEmail( submission ) );
+        submissionResponse.studentBatchName( submissionStudentBatchBatchName( submission ) );
         submissionResponse.id( submission.getId() );
-        submissionResponse.marks( submission.getMarks() );
-        submissionResponse.reviewedAt( submission.getReviewedAt() );
-        submissionResponse.status( submission.getStatus() );
         submissionResponse.submissionUrl( submission.getSubmissionUrl() );
+        submissionResponse.comment( submission.getComment() );
         submissionResponse.submittedAt( submission.getSubmittedAt() );
+        submissionResponse.marks( submission.getMarks() );
+        submissionResponse.feedback( submission.getFeedback() );
+        submissionResponse.status( submission.getStatus() );
+        submissionResponse.reviewedAt( submission.getReviewedAt() );
+        submissionResponse.createdAt( submission.getCreatedAt() );
         submissionResponse.updatedAt( submission.getUpdatedAt() );
+        submissionResponse.quizAnswers( submission.getQuizAnswers() );
+
+        submissionResponse.studentEnrollment( "ENR-" + submission.getStudent().getId() );
 
         return submissionResponse.build();
     }
@@ -58,62 +64,54 @@ public class SubmissionMapperImpl implements SubmissionMapper {
     }
 
     private Long submissionAssignmentId(Submission submission) {
-        if ( submission == null ) {
-            return null;
-        }
         Assignment assignment = submission.getAssignment();
         if ( assignment == null ) {
             return null;
         }
-        Long id = assignment.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
+        return assignment.getId();
     }
 
     private String submissionAssignmentTitle(Submission submission) {
-        if ( submission == null ) {
-            return null;
-        }
         Assignment assignment = submission.getAssignment();
         if ( assignment == null ) {
             return null;
         }
-        String title = assignment.getTitle();
-        if ( title == null ) {
-            return null;
-        }
-        return title;
+        return assignment.getTitle();
     }
 
     private Long submissionStudentId(Submission submission) {
-        if ( submission == null ) {
-            return null;
-        }
         Student student = submission.getStudent();
         if ( student == null ) {
             return null;
         }
-        Long id = student.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
+        return student.getId();
     }
 
     private String submissionStudentFullName(Submission submission) {
-        if ( submission == null ) {
-            return null;
-        }
         Student student = submission.getStudent();
         if ( student == null ) {
             return null;
         }
-        String fullName = student.getFullName();
-        if ( fullName == null ) {
+        return student.getFullName();
+    }
+
+    private String submissionStudentEmail(Submission submission) {
+        Student student = submission.getStudent();
+        if ( student == null ) {
             return null;
         }
-        return fullName;
+        return student.getEmail();
+    }
+
+    private String submissionStudentBatchBatchName(Submission submission) {
+        Student student = submission.getStudent();
+        if ( student == null ) {
+            return null;
+        }
+        Batch batch = student.getBatch();
+        if ( batch == null ) {
+            return null;
+        }
+        return batch.getBatchName();
     }
 }

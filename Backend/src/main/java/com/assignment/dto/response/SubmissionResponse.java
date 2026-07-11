@@ -25,4 +25,8 @@ public class SubmissionResponse {
     private LocalDateTime reviewedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String quizAnswers;
+    private String studentEmail;
+    private String studentEnrollment;
+    private String studentBatchName;
 }

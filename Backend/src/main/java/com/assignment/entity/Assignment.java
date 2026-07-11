@@ -46,7 +46,7 @@ public class Assignment {
     private String topic;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "batch_id", nullable = false)
+    @JoinColumn(name = "batch_id", nullable = true)
     private Batch batch;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -90,6 +90,10 @@ public class Assignment {
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Submission> submissions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Question> questions = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

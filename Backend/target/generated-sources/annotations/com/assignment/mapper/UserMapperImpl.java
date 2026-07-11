@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-07-06T21:30:59+0530",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.40.0.v20241112-0530, environment: Java 21.0.5 (Eclipse Adoptium)"
+    date = "2026-07-11T09:49:48+0530",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -26,12 +26,12 @@ public class UserMapperImpl implements UserMapper {
 
         TeacherResponse.TeacherResponseBuilder teacherResponse = TeacherResponse.builder();
 
-        teacherResponse.createdAt( teacher.getCreatedAt() );
-        teacherResponse.email( teacher.getEmail() );
-        teacherResponse.fullName( teacher.getFullName() );
         teacherResponse.id( teacher.getId() );
+        teacherResponse.fullName( teacher.getFullName() );
+        teacherResponse.email( teacher.getEmail() );
         teacherResponse.phone( teacher.getPhone() );
         teacherResponse.role( teacher.getRole() );
+        teacherResponse.createdAt( teacher.getCreatedAt() );
         teacherResponse.updatedAt( teacher.getUpdatedAt() );
 
         return teacherResponse.build();
@@ -47,12 +47,12 @@ public class UserMapperImpl implements UserMapper {
 
         studentResponse.batchId( studentBatchId( student ) );
         studentResponse.batchName( studentBatchBatchName( student ) );
-        studentResponse.createdAt( student.getCreatedAt() );
-        studentResponse.email( student.getEmail() );
-        studentResponse.fullName( student.getFullName() );
         studentResponse.id( student.getId() );
+        studentResponse.fullName( student.getFullName() );
+        studentResponse.email( student.getEmail() );
         studentResponse.phone( student.getPhone() );
         studentResponse.role( student.getRole() );
+        studentResponse.createdAt( student.getCreatedAt() );
         studentResponse.updatedAt( student.getUpdatedAt() );
 
         return studentResponse.build();
@@ -73,32 +73,18 @@ public class UserMapperImpl implements UserMapper {
     }
 
     private Long studentBatchId(Student student) {
-        if ( student == null ) {
-            return null;
-        }
         Batch batch = student.getBatch();
         if ( batch == null ) {
             return null;
         }
-        Long id = batch.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
+        return batch.getId();
     }
 
     private String studentBatchBatchName(Student student) {
-        if ( student == null ) {
-            return null;
-        }
         Batch batch = student.getBatch();
         if ( batch == null ) {
             return null;
         }
-        String batchName = batch.getBatchName();
-        if ( batchName == null ) {
-            return null;
-        }
-        return batchName;
+        return batch.getBatchName();
     }
 }

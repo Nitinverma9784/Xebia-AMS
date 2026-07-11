@@ -2,5 +2,6 @@ package com.assignment.enums;
 
 public enum AssignmentStatus {
     ACTIVE,
-    COMPLETED
+    COMPLETED,
+    DRAFT
 }

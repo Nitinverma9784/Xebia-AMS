@@ -51,7 +51,7 @@ export const StudentProfile: React.FC = () => {
         <Card>
           <div className="flex items-center gap-5">
             <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#6C1D5F] to-[#84117C] flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#4A1F4F] to-[#622865] flex items-center justify-center text-white text-2xl font-bold">
                 {student?.avatar ? (
                   <img src={student.avatar} alt="Avatar" className="w-full h-full rounded-2xl object-cover" />
                 ) : (
@@ -63,11 +63,11 @@ export const StudentProfile: React.FC = () => {
               <h2 className="text-lg font-bold text-[var(--text-primary)]">{student?.name}</h2>
               <p className="text-sm text-[var(--text-secondary)]">{student?.email}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 text-[#6C1D5F] dark:text-purple-300 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F5EAF8]0/10 text-[#4A1F4F] dark:text-purple-300 text-xs font-medium">
                   <BookOpen size={12} />
                   Student
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-500/10 text-[#01AC9F] text-xs font-medium font-mono">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 text-[#2563EB] text-xs font-medium font-mono">
                   <Hash size={11} />
                   {student?.enrollmentNumber}
                 </span>

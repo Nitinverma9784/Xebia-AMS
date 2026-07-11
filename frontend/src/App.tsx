@@ -5,21 +5,27 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { ProtectedRoute, PublicRoute } from './components/shared/ProtectedRoute';
 
 // Pages
-import { LandingPage } from './pages/LandingPage';
-import { TeacherLogin } from './pages/auth/TeacherLogin';
-import { StudentLogin } from './pages/auth/StudentLogin';
+import { AuthPage } from './pages/auth/AuthPage';
 import { TeacherDashboard } from './pages/teacher/TeacherDashboard';
 import { TeacherAssignments } from './pages/teacher/TeacherAssignments';
+import { TeacherQuizzes } from './pages/teacher/TeacherQuizzes';
 import { CreateAssignment } from './pages/teacher/CreateAssignment';
 import { SubmittedAssignments } from './pages/teacher/SubmittedAssignments';
 import { TeacherProfile } from './pages/teacher/TeacherProfile';
 import { BatchManagement } from './pages/teacher/BatchManagement';
-
+import { CourseCatalog } from './pages/teacher/CourseCatalog';
 import { StudentDashboard } from './pages/student/StudentDashboard';
 import { StudentAssignments } from './pages/student/StudentAssignments';
 import { AssignmentDetail } from './pages/student/AssignmentDetail';
 import { LearningProgress } from './pages/student/LearningProgress';
 import { StudentProfile } from './pages/student/StudentProfile';
+import { StudentQuizzes } from './pages/student/StudentQuizzes';
+import { QuizAttempt } from './pages/student/QuizAttempt';
+import { QuizReview } from './pages/student/QuizReview';
+import { StudentCertificates } from './pages/student/StudentCertificates';
+import { CertificatePreview } from './pages/student/CertificatePreview';
+import { TeacherCertificates } from './pages/teacher/TeacherCertificates';
+import { VerifyCertificate } from './pages/shared/VerifyCertificate';
 
 function App() {
   return (
@@ -27,14 +33,14 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Landing */}
-            <Route path="/" element={<LandingPage />} />
+            {/* Unified Auth Page as default route */}
+            <Route path="/" element={<AuthPage />} />
+            
+            {/* Public Certificate Verification Link */}
+            <Route path="/verify-certificate/:token" element={<VerifyCertificate />} />
 
-            {/* Teacher Auth */}
-            <Route
-              path="/teacher/login"
-              element={<PublicRoute role="teacher"><TeacherLogin /></PublicRoute>}
-            />
+            {/* Redirect legacy teacher login */}
+            <Route path="/teacher/login" element={<Navigate to="/?role=teacher" replace />} />
 
             {/* Teacher Protected */}
             <Route
@@ -50,6 +56,10 @@ function App() {
               element={<ProtectedRoute role="teacher"><TeacherAssignments /></ProtectedRoute>}
             />
             <Route
+              path="/teacher/quizzes"
+              element={<ProtectedRoute role="teacher"><TeacherQuizzes /></ProtectedRoute>}
+            />
+            <Route
               path="/teacher/assignments/create"
               element={<ProtectedRoute role="teacher"><CreateAssignment /></ProtectedRoute>}
             />
@@ -62,15 +72,20 @@ function App() {
               element={<ProtectedRoute role="teacher"><SubmittedAssignments /></ProtectedRoute>}
             />
             <Route
+              path="/teacher/certificates"
+              element={<ProtectedRoute role="teacher"><TeacherCertificates /></ProtectedRoute>}
+            />
+            <Route
               path="/teacher/profile"
               element={<ProtectedRoute role="teacher"><TeacherProfile /></ProtectedRoute>}
             />
-
-            {/* Student Auth */}
             <Route
-              path="/student/login"
-              element={<PublicRoute role="student"><StudentLogin /></PublicRoute>}
+              path="/teacher/catalog"
+              element={<ProtectedRoute role="teacher"><CourseCatalog /></ProtectedRoute>}
             />
+
+            {/* Redirect legacy student login */}
+            <Route path="/student/login" element={<Navigate to="/?role=student" replace />} />
 
             {/* Student Protected */}
             <Route
@@ -84,6 +99,26 @@ function App() {
             <Route
               path="/student/assignments/:id"
               element={<ProtectedRoute role="student"><AssignmentDetail /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/quizzes"
+              element={<ProtectedRoute role="student"><StudentQuizzes /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/quizzes/:id/attempt"
+              element={<ProtectedRoute role="student"><QuizAttempt /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/quizzes/:id/review"
+              element={<ProtectedRoute role="student"><QuizReview /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/certificates"
+              element={<ProtectedRoute role="student"><StudentCertificates /></ProtectedRoute>}
+            />
+            <Route
+              path="/student/certificates/preview/:id"
+              element={<ProtectedRoute role="student"><CertificatePreview /></ProtectedRoute>}
             />
             <Route
               path="/student/progress"
@@ -115,7 +150,7 @@ function App() {
               fontFamily: 'Inter, sans-serif',
             },
             success: {
-              iconTheme: { primary: '#01AC9F', secondary: 'white' },
+              iconTheme: { primary: '#2563EB', secondary: 'white' },
             },
             error: {
               iconTheme: { primary: '#ef4444', secondary: 'white' },

@@ -15,7 +15,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onMenuToggle })
   const { user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 h-16 flex items-center px-4 md:px-6 bg-white/80 dark:bg-[#0B1120]/80 backdrop-blur-md border-b border-[var(--brand-border)]">
+    <header className="sticky top-0 z-30 h-16 flex items-center px-6 md:px-8 bg-[var(--brand-surface)]/80 dark:bg-[#0B0F19]/80 backdrop-blur-md">
       {/* Mobile menu button */}
       <button
         onClick={onMenuToggle}
@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onMenuToggle })
         {/* Notification bell (decorative) */}
         <button className="relative p-2 rounded-xl text-[var(--text-secondary)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
           <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#6C1D5F]" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#4A1F4F]" />
         </button>
 
         {/* Dark mode toggle */}
@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onMenuToggle })
 
         {/* Avatar */}
         <div className="flex items-center gap-2 pl-2 border-l border-[var(--brand-border)]">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6C1D5F] to-[#84117C] flex items-center justify-center text-white text-xs font-bold">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4A1F4F] to-[#622865] flex items-center justify-center text-white text-xs font-bold shadow-sm">
             {user ? getInitials(user.name) : '?'}
           </div>
           <div className="hidden md:block">

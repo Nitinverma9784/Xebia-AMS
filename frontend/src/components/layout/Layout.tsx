@@ -27,7 +27,7 @@ export const Layout: React.FC<LayoutProps> = ({ role, title, subtitle, children 
           subtitle={subtitle}
           onMenuToggle={() => setIsMobileOpen(true)}
         />
-        <main className="flex-1 p-4 md:p-6 animate-fade-in">
+        <main className="flex-1 p-6 md:p-8 lg:p-10 animate-fade-in">
           {children}
         </main>
       </div>

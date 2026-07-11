@@ -1,23 +1,19 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
-import { Upload, X, AlertCircle, ArrowLeft, ChevronDown, Search } from 'lucide-react';
+import { Upload, X, ArrowLeft, ChevronDown, Search } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
 import { Button } from '../../components/ui/Button';
-import { Input, Textarea, Select } from '../../components/ui/Input';
+import { Input, Textarea } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
+import { SubjectSelector } from '../../components/shared/SubjectSelector';
 import { teacherService } from '../../services/teacher.service';
 import { getFileIcon } from '../../utils/helpers';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { getAllBatches } from '../../store/batchSlice';
-
-const SUBJECTS = [
-  'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science',
-  'English', 'History', 'Geography', 'Economics', 'Other',
-].map((s) => ({ value: s, label: s }));
 
 const schema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -27,6 +23,8 @@ const schema = z.object({
   instructions: z.string().optional(),
   dueDate: z.string().min(1, 'Due date is required'),
   maxMarks: z.string().min(1, 'Marks are required').refine((v) => !isNaN(Number(v)) && Number(v) >= 1 && Number(v) <= 1000, 'Marks must be between 1 and 1000'),
+  passingMarks: z.string().min(1, 'Passing marks are required').refine((v) => !isNaN(Number(v)) && Number(v) >= 0, 'Must be a positive number'),
+  certEligibilityMarks: z.string().min(1, 'Certificate eligibility marks are required').refine((v) => !isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100, 'Must be a percentage between 0 and 100'),
   batchId: z.string().min(1, 'Batch selection is required'),
 });
 
@@ -37,10 +35,22 @@ export const CreateAssignment: React.FC = () => {
   const isEdit = !!id;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [searchParams] = useSearchParams(); // Fixed import
+  const forcedType = searchParams?.get('type')?.toUpperCase(); // 'PDF' or 'QUIZ'
 
   const { batches } = useAppSelector((state) => state.batch);
-
   const [loading, setLoading] = useState(false);
+  
+  const assignmentType = 'PDF';
+
+  useEffect(() => {
+    if (forcedType === 'QUIZ') {
+      // Quiz creation has moved to the Quizzes panel
+      navigate('/teacher/quizzes?create=1');
+    }
+  }, [forcedType, navigate]);
+  
+  // Standard uploader states
   const [attachment, setAttachment] = useState<File | null>(null);
   const [existingAttachment, setExistingAttachment] = useState<string | null>(null);
   const [existingAttachmentName, setExistingAttachmentName] = useState<string | null>(null);
@@ -52,12 +62,19 @@ export const CreateAssignment: React.FC = () => {
   const [batchOpen, setBatchOpen] = useState(false);
   const [selectedBatchName, setSelectedBatchName] = useState('');
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, reset, control, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { maxMarks: '100', batchId: '' },
+    defaultValues: { maxMarks: '100', passingMarks: '40', certEligibilityMarks: '75', batchId: '' },
   });
 
   const watchBatchId = watch('batchId');
+  const watchMaxMarks = watch('maxMarks');
+
+  useEffect(() => {
+    if (watchMaxMarks && !isNaN(Number(watchMaxMarks))) {
+      setValue('passingMarks', String(Math.round(Number(watchMaxMarks) * 0.4)));
+    }
+  }, [watchMaxMarks, setValue]);
 
   // Fetch batches on mount
   useEffect(() => {
@@ -70,14 +87,32 @@ export const CreateAssignment: React.FC = () => {
       setLoading(true);
       teacherService.getAssignmentById(id)
         .then((res) => {
+          let cleanInst = res.instructions || '';
+          let certPct = '75';
+          if (res.instructions && res.instructions.trim().startsWith('{')) {
+            try {
+              const meta = JSON.parse(res.instructions);
+              cleanInst = meta.realInstructions || '';
+              certPct = String(meta.certEligibilityMarks !== undefined ? meta.certEligibilityMarks : 75);
+            } catch {}
+          } else {
+            const match = (res.instructions || '').match(/\[CERT_ELIGIBILITY:(\d+)\]/);
+            if (match) {
+              certPct = match[1];
+              cleanInst = (res.instructions || '').replace(/\[CERT_ELIGIBILITY:\d+\]/, '').trim();
+            }
+          }
+
           reset({
             title: res.title,
             subject: res.subject,
             topic: res.topic || '',
             description: res.description,
-            instructions: res.instructions,
+            instructions: cleanInst,
             dueDate: res.dueDate,
             maxMarks: String(res.maxMarks),
+            passingMarks: String(res.passingMarks !== undefined ? res.passingMarks : Math.round(res.maxMarks * 0.4)),
+            certEligibilityMarks: certPct,
             batchId: String(res.batchId || ''),
           });
           if (res.batchName) {
@@ -103,6 +138,7 @@ export const CreateAssignment: React.FC = () => {
     }
   }, [watchBatchId, batches]);
 
+  // Standard File drop zone handler
   const handleFile = (file: File) => {
     const allowed = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', 'application/x-zip-compressed', 'image/jpeg', 'image/png'];
     if (!allowed.includes(file.type)) {
@@ -125,6 +161,15 @@ export const CreateAssignment: React.FC = () => {
   }, []);
 
   const onSubmit = async (data: FormData, status: 'draft' | 'published') => {
+    const finalMaxMarks = Number(data.maxMarks);
+    const finalPassingMarks = Number(data.passingMarks);
+    
+    // Serialize eligibility marks into instructions metadata
+    const instructionsData = JSON.stringify({
+      realInstructions: data.instructions || '',
+      certEligibilityMarks: Number(data.certEligibilityMarks)
+    });
+
     try {
       if (isEdit && id) {
         await teacherService.updateAssignment(id, {
@@ -132,12 +177,14 @@ export const CreateAssignment: React.FC = () => {
           subject: data.subject,
           topic: data.topic || '',
           description: data.description,
-          instructions: data.instructions,
+          instructions: instructionsData,
           dueDate: data.dueDate,
-          maxMarks: Number(data.maxMarks),
+          maxMarks: finalMaxMarks,
+          passingMarks: finalPassingMarks,
           status,
           batchId: data.batchId,
           attachment: attachment || undefined,
+          assignmentType,
         });
         toast.success('Assignment updated successfully!');
       } else {
@@ -146,12 +193,14 @@ export const CreateAssignment: React.FC = () => {
           subject: data.subject,
           topic: data.topic || '',
           description: data.description,
-          instructions: data.instructions,
+          instructions: instructionsData,
           dueDate: data.dueDate,
-          maxMarks: Number(data.maxMarks),
+          maxMarks: finalMaxMarks,
+          passingMarks: finalPassingMarks,
           status,
           batchId: data.batchId,
           attachment: attachment || undefined,
+          assignmentType,
         });
         toast.success(status === 'published' ? 'Assignment published!' : 'Assignment saved as draft!');
       }
@@ -181,11 +230,13 @@ export const CreateAssignment: React.FC = () => {
     );
   }
 
+  const pageTitle = isEdit ? 'Edit Assignment' : 'Create Assignment';
+
   return (
-    <Layout role="teacher" title={isEdit ? 'Edit Assignment' : 'Create Assignment'} subtitle="Fill in the details below">
+    <Layout role="teacher" title={pageTitle} subtitle="Fill in the details below">
       <div className="max-w-3xl mx-auto">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/teacher/assignments')}
           className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 cursor-pointer transition-colors"
         >
           <ArrowLeft size={16} /> Back to Assignments
@@ -197,8 +248,20 @@ export const CreateAssignment: React.FC = () => {
               Basic Information
             </h3>
             <div className="space-y-4">
-              <Input label="Assignment Title" placeholder="e.g. Chapter 5 — Newton's Laws" required error={errors.title?.message} {...register('title')} />
-              <Input label="Topic" placeholder="e.g. Laws of Motion" error={errors.topic?.message} {...register('topic')} />
+              <Input 
+                label="Assignment Title" 
+                placeholder="e.g. Chapter 5 — Newton's Laws" 
+                required 
+                error={errors.title?.message} 
+                {...register('title')} 
+              />
+              
+              <Input 
+                label="Topic" 
+                placeholder="e.g. Laws of Motion" 
+                error={errors.topic?.message} 
+                {...register('topic')} 
+              />
               
               {/* Searchable Batch Dropdown */}
               <div className="relative">
@@ -209,7 +272,7 @@ export const CreateAssignment: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setBatchOpen(!batchOpen)}
-                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#6C1D5F] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between cursor-pointer"
+                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#4A1F4F] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between cursor-pointer"
                   >
                     <span className="truncate">{selectedBatchName || 'Select a batch'}</span>
                     <ChevronDown size={16} className="text-[var(--text-secondary)] shrink-0" />
@@ -225,7 +288,7 @@ export const CreateAssignment: React.FC = () => {
                           placeholder="Search batch..."
                           value={batchSearch}
                           onChange={(e) => setBatchSearch(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#6C1D5F] rounded-lg py-1.5 pl-8 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+                          className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#4A1F4F] rounded-lg py-1.5 pl-8 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
                         />
                       </div>
                     )}
@@ -243,7 +306,7 @@ export const CreateAssignment: React.FC = () => {
                               setBatchOpen(false);
                             }}
                             className={`w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
-                              watchBatchId === String(b.id) ? 'bg-[#6C1D5F10] text-[#6C1D5F] font-semibold' : 'text-[var(--text-primary)]'
+                              watchBatchId === String(b.id) ? 'bg-[#4A1F4F10] text-[#4A1F4F] font-semibold' : 'text-[var(--text-primary)]'
                             }`}
                           >
                             {b.batchName}
@@ -256,7 +319,20 @@ export const CreateAssignment: React.FC = () => {
                 {errors.batchId?.message && <p className="text-xs text-red-500 mt-1">{errors.batchId.message}</p>}
               </div>
 
-              <Select label="Subject" options={SUBJECTS} placeholder="Select a subject" required error={errors.subject?.message} {...register('subject')} />
+              {/* Subject Selector - Shows only subject names */}
+              <Controller
+                name="subject"
+                control={control}
+                render={({ field }) => (
+                  <SubjectSelector
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors.subject?.message}
+                    required
+                  />
+                )}
+              />
+              
               <Textarea
                 label="Description"
                 placeholder="Describe what this assignment is about..."
@@ -265,6 +341,7 @@ export const CreateAssignment: React.FC = () => {
                 error={errors.description?.message}
                 {...register('description')}
               />
+              
               <Textarea
                 label="Instructions (Optional)"
                 placeholder="Detailed instructions for students..."
@@ -279,7 +356,7 @@ export const CreateAssignment: React.FC = () => {
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 pb-3 border-b border-[var(--brand-border)]">
               Settings
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <Input
                 label="Due Date"
                 type="date"
@@ -289,7 +366,7 @@ export const CreateAssignment: React.FC = () => {
                 {...register('dueDate')}
               />
               <Input
-                label="Maximum Marks"
+                label="Total Marks"
                 type="number"
                 min={1}
                 max={1000}
@@ -297,6 +374,29 @@ export const CreateAssignment: React.FC = () => {
                 error={errors.maxMarks?.message}
                 {...register('maxMarks')}
               />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="Passing Marks"
+                type="number"
+                required
+                error={errors.passingMarks?.message}
+                {...register('passingMarks')}
+              />
+              <div>
+                <Input
+                  label="Certificate Eligibility Marks (%)"
+                  type="number"
+                  min={0}
+                  max={100}
+                  required
+                  error={errors.certEligibilityMarks?.message}
+                  {...register('certEligibilityMarks')}
+                />
+                <p className="text-[10px] text-[var(--text-secondary)] mt-1.5 leading-relaxed">
+                  Students must achieve at least these marks to become eligible for course certificate generation. Passing marks and certificate eligibility marks are independent.
+                </p>
+              </div>
             </div>
           </Card>
 
@@ -306,7 +406,7 @@ export const CreateAssignment: React.FC = () => {
             </h3>
 
             {attachment ? (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-purple-500/5 border border-purple-200 dark:border-purple-500/20">
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-[#4A1F4F]/5 border border-[#4A1F4F]/20">
                 <span className="text-2xl">{getFileIcon(attachment.name)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[var(--text-primary)] truncate">{attachment.name}</p>
@@ -315,13 +415,13 @@ export const CreateAssignment: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setAttachment(null)}
-                  className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-[#F5EAF8] hover:text-red-500 dark:hover:bg-[#F5EAF8]0/10 transition-colors cursor-pointer"
                 >
                   <X size={16} />
                 </button>
               </div>
             ) : existingAttachment ? (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-teal-500/5 border border-teal-200 dark:border-teal-500/20">
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-500/5 border border-blue-200 dark:border-teal-500/20">
                 <span className="text-2xl">{getFileIcon(existingAttachmentName || '')}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[var(--text-primary)] truncate">{existingAttachmentName}</p>
@@ -330,7 +430,7 @@ export const CreateAssignment: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setExistingAttachment(null)}
-                  className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-[#F5EAF8] hover:text-red-500 dark:hover:bg-[#F5EAF8]0/10 transition-colors cursor-pointer"
                 >
                   <X size={16} />
                 </button>
@@ -343,11 +443,11 @@ export const CreateAssignment: React.FC = () => {
                 onDrop={onDrop}
                 onClick={() => fileRef.current?.click()}
               >
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center mx-auto mb-3">
-                  <Upload size={22} className="text-[#6C1D5F] dark:text-purple-400" />
+                <div className="w-12 h-12 rounded-2xl bg-[#4A1F4F]/10 flex items-center justify-center mx-auto mb-3">
+                  <Upload size={22} className="text-[#4A1F4F] dark:text-purple-400" />
                 </div>
                 <p className="text-sm font-medium text-[var(--text-primary)]">
-                  Drop file here or <span className="text-[#6C1D5F] dark:text-purple-400">browse</span>
+                  Drop file here or <span className="text-[#4A1F4F] dark:text-purple-400">browse</span>
                 </p>
                 <p className="text-xs text-[var(--text-secondary)] mt-1">PDF, DOC, DOCX, ZIP, JPG, PNG · Max 25MB</p>
                 <input

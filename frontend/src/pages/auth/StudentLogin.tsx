@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, BookOpen, GraduationCap, Hash, ChevronRight, Moon, Sun, Search, ChevronDown, Phone } from 'lucide-react';
+import { 
+  Mail, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  GraduationCap, 
+  Hash, 
+  Moon, 
+  Sun, 
+  Search, 
+  ChevronDown, 
+  Phone, 
+  ArrowLeft,
+  User 
+} from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -55,10 +69,8 @@ export const StudentLogin: React.FC = () => {
 
   // Fetch batches when registering
   useEffect(() => {
-    if (isRegister) {
-      dispatch(getPublicBatches());
-    }
-  }, [isRegister, dispatch]);
+    dispatch(getPublicBatches());
+  }, [dispatch]);
 
   // Sync selectedBatchName when watchBatchId or batchList changes
   useEffect(() => {
@@ -83,6 +95,38 @@ export const StudentLogin: React.FC = () => {
     }
   };
 
+  const onDirectLogin = async () => {
+    try {
+      const res = await authService.studentLogin({
+        email: 'student@school.edu',
+        password: 'password'
+      });
+      login(res.user, res.token);
+      toast.success(`Welcome back, ${res.user.name}!`);
+      navigate('/student/assignments');
+    } catch (err: any) {
+      // Auto-register default account if it doesn't exist
+      try {
+        let batchId = 1;
+        if (batchList && batchList.length > 0) {
+          batchId = batchList[0].id;
+        }
+        const regRes = await authService.studentRegister({
+          name: 'Student User',
+          email: 'student@school.edu',
+          enrollmentNumber: 'ENR-DEMO-001',
+          batchId: batchId,
+          password: 'password'
+        });
+        login(regRes.user, regRes.token);
+        toast.success('Direct login student account created and authenticated!');
+        navigate('/student/assignments');
+      } catch (regErr: any) {
+        toast.error('Direct login failed.');
+      }
+    }
+  };
+
   const onRegister = async (data: RegisterForm) => {
     try {
       const payload = {
@@ -103,70 +147,60 @@ export const StudentLogin: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen flex bg-[var(--brand-surface)]">
-      {/* Left Panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#01AC9F] via-[#0B7F76] to-[#01AC9F] relative overflow-hidden flex-col justify-center items-center p-12">
-        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#6C1D5F]/10 blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#F8FAFC] dark:bg-[#0F172A] relative overflow-hidden font-sans bg-grid-pattern">
+      
+      {/* Subtle Moving Blurry Background circles */}
+      <div className="absolute top-[-15%] left-[-15%] w-[45%] h-[45%] rounded-full bg-[#4A1F4F]/8 dark:bg-[#4A1F4F]/12 blur-3xl animate-blob-1" />
+      <div className="absolute bottom-[-15%] right-[-15%] w-[45%] h-[45%] rounded-full bg-[#2563EB]/8 dark:bg-[#2563EB]/12 blur-3xl animate-blob-2" />
 
-        <div className="relative z-10 text-center space-y-6">
-          <div className="w-20 h-20 rounded-3xl bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
-            <BookOpen size={40} className="text-white" />
-          </div>
-          <div>
-            <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Xebia LMS</p>
-            <h1 className="text-4xl font-bold text-white mt-2">Student Portal</h1>
-            <p className="text-white/70 mt-3 text-lg leading-relaxed">
-              View assignments, submit your work,<br />and track your progress.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
-            {['View Assignments', 'Submit Work', 'Download Files', 'View Feedback'].map((f) => (
-              <div key={f} className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-                <ChevronRight size={14} className="text-white/70" />
-                <span className="text-white/80 text-xs font-medium">{f}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Right Panel */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 relative">
+      {/* Utilities header */}
+      <div className="absolute top-6 right-6 z-20">
         <button
           onClick={toggle}
-          className="absolute top-6 right-6 p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+          className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-[#4A1F4F] dark:hover:text-purple-400 transition-colors cursor-pointer shadow-sm"
+          aria-label="Toggle theme"
         >
           {isDark ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} />}
         </button>
+      </div>
 
-        <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#01AC9F] to-[#0B7F76] flex items-center justify-center">
-              <BookOpen size={20} className="text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-secondary)]">Xebia LMS</p>
-              <p className="text-sm font-bold text-[var(--text-primary)]">Student Portal</p>
-            </div>
+      {/* Centered Auth Card */}
+      <div className="relative z-10 w-full max-w-[500px] bg-white/80 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-8 sm:p-10 rounded-[20px] shadow-2xl transition-all duration-300">
+        
+        {/* Branding Title */}
+        <div className="text-center space-y-2 mb-6 select-none">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4A1F4F] via-[#7A2676] to-[#2563EB] flex items-center justify-center mx-auto shadow-md">
+            <GraduationCap size={26} className="text-white" />
           </div>
+          <h1 className="text-[30px] font-black text-slate-900 dark:text-white tracking-tight pt-1">
+            Xebia LMS
+          </h1>
+          <div className="space-y-0.5">
+            <h2 className="text-[22px] font-extrabold text-slate-800 dark:text-slate-200">
+              {isRegister ? 'Create Account' : 'Welcome Back'}
+            </h2>
+            <p className="text-[15px] text-slate-450 dark:text-slate-500">
+              {isRegister ? 'Sign up as a student to get started' : 'Sign in to continue'}
+            </p>
+          </div>
+        </div>
 
-          <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
-            {isRegister ? 'Create Account' : 'Welcome back'}
-          </h2>
-          <p className="text-sm text-[var(--text-secondary)] mb-7">
-            {isRegister
-              ? 'Register as a student to access assignments'
-              : 'Sign in to your student account'}
-          </p>
+        {isRegister ? (
+          <div className="space-y-5">
+            {/* Back Arrow to Login */}
+            <button
+              onClick={() => { setIsRegister(false); registerForm.reset(); }}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-450 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer select-none"
+            >
+              <ArrowLeft size={14} /> Back to Sign In
+            </button>
 
-          {isRegister ? (
             <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
               <Input
                 label="Full Name"
                 placeholder="John Doe"
                 required
+                leftIcon={<User size={16} />}
                 error={registerForm.formState.errors.name?.message}
                 {...registerForm.register('name')}
               />
@@ -188,34 +222,34 @@ export const StudentLogin: React.FC = () => {
 
               {/* Searchable Batch Dropdown */}
               <div className="relative">
-                <label className="text-sm font-medium text-[var(--text-primary)]">
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                   Batch <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1">
                   <button
                     type="button"
                     onClick={() => setBatchOpen(!batchOpen)}
-                    className="w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] focus:border-[#01AC9F] text-[var(--text-primary)] rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between cursor-pointer"
+                    className="w-full bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl py-2.5 px-3.5 text-left text-sm flex items-center justify-between cursor-pointer"
                   >
                     <span className="truncate">{selectedBatchName || 'Select your batch'}</span>
-                    <ChevronDown size={16} className="text-[var(--text-secondary)] shrink-0" />
+                    <ChevronDown size={16} className="text-slate-400 shrink-0" />
                   </button>
                 </div>
                 {batchOpen && (
-                  <div className="absolute z-20 mt-1 w-full bg-white dark:bg-[#1E293B] border border-[var(--brand-border)] rounded-xl shadow-lg p-2 space-y-2">
+                  <div className="absolute z-20 mt-1 w-full bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-2 space-y-2">
                     <div className="relative">
-                      <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+                      <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text"
                         placeholder="Search batch..."
                         value={batchSearch}
                         onChange={(e) => setBatchSearch(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 border border-[var(--brand-border)] focus:border-[#01AC9F] rounded-lg py-1.5 pl-8 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] transition-colors"
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-1.5 pl-8 pr-3 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
                       />
                     </div>
-                    <div className="max-h-48 overflow-y-auto space-y-1">
+                    <div className="max-h-40 overflow-y-auto space-y-1">
                       {filteredBatches.length === 0 ? (
-                        <p className="text-xs text-[var(--text-secondary)] text-center py-2">No batches found</p>
+                        <p className="text-xs text-slate-400 text-center py-2">No batches found</p>
                       ) : (
                         filteredBatches.map((b) => (
                           <button
@@ -227,7 +261,7 @@ export const StudentLogin: React.FC = () => {
                               setBatchOpen(false);
                             }}
                             className={`w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
-                              watchBatchId === String(b.id) ? 'bg-[#01AC9F10] text-[#01AC9F] font-semibold' : 'text-[var(--text-primary)]'
+                              watchBatchId === String(b.id) ? 'bg-[#2563EB10] text-[#2563EB] font-bold' : 'text-slate-655 dark:text-slate-350'
                             }`}
                           >
                             {b.batchName}
@@ -267,75 +301,91 @@ export const StudentLogin: React.FC = () => {
                   {...registerForm.register('password')}
                 />
               </div>
-              <Button
-                type="submit"
-                variant="secondary"
-                size="lg"
-                className="w-full mt-2"
-                loading={registerForm.formState.isSubmitting}
-              >
-                Create Account
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
-              <Input
-                label="Email"
-                type="email"
-                placeholder="student@school.edu"
-                required
-                leftIcon={<Mail size={16} />}
-                error={loginForm.formState.errors.email?.message}
-                {...loginForm.register('email')}
-              />
-              <div className="relative">
-                <Input
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Your password"
-                  required
-                  leftIcon={<Lock size={16} />}
-                  rightIcon={
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer">
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  }
-                  error={loginForm.formState.errors.password?.message}
-                  {...loginForm.register('password')}
-                />
+              
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  variant="brand"
+                  size="lg"
+                  className="w-full h-12 rounded-xl font-bold cursor-pointer text-[16px]"
+                  loading={registerForm.formState.isSubmitting}
+                >
+                  Create Account
+                </Button>
               </div>
+            </form>
+          </div>
+        ) : (
+          <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+            <Input
+              label="Email"
+              type="email"
+              placeholder="student@school.edu"
+              required
+              leftIcon={<Mail size={16} />}
+              error={loginForm.formState.errors.email?.message}
+              {...loginForm.register('email')}
+            />
+            <div className="relative">
+              <Input
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Your password"
+                required
+                leftIcon={<Lock size={16} />}
+                rightIcon={
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer">
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
+                error={loginForm.formState.errors.password?.message}
+                {...loginForm.register('password')}
+              />
+            </div>
+            
+            <div className="pt-2 space-y-2">
               <Button
                 type="submit"
-                variant="secondary"
+                variant="brand"
                 size="lg"
-                className="w-full mt-2"
+                className="w-full h-12 rounded-xl font-bold cursor-pointer text-[16px]"
                 loading={loginForm.formState.isSubmitting}
               >
                 Sign In
               </Button>
-            </form>
-          )}
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full h-12 rounded-xl font-bold border-[#2563EB]/25 text-[#2563EB] hover:bg-[#2563EB]/5 cursor-pointer transition-all text-[16px]"
+                onClick={onDirectLogin}
+              >
+                Quick Direct Student Login (Demo)
+              </Button>
+            </div>
+          </form>
+        )}
 
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => { setIsRegister(!isRegister); loginForm.reset(); registerForm.reset(); }}
-              className="text-sm text-[#01AC9F] hover:underline font-medium cursor-pointer"
-            >
-              {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
-            </button>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-[var(--brand-border)]">
-            <p className="text-xs text-center text-[var(--text-secondary)] mb-3">Other Portals</p>
-            <Link
-              to="/teacher/login"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[var(--brand-border)] text-sm text-[var(--text-secondary)] hover:border-[#6C1D5F] hover:text-[#6C1D5F] transition-all"
-            >
-              <GraduationCap size={16} />
-              Teacher Portal →
-            </Link>
-          </div>
+        <div className="text-center pt-3 mt-6 border-t border-slate-200/50 dark:border-slate-800/50">
+          <button
+            onClick={() => { setIsRegister(!isRegister); loginForm.reset(); registerForm.reset(); }}
+            className="text-xs text-[#2563EB] hover:underline font-bold cursor-pointer"
+          >
+            {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
+          </button>
         </div>
+
+        <div className="mt-8 pt-6 border-t border-slate-200/50 dark:border-slate-800/50">
+          <p className="text-xs text-center text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mb-3">Other Portals</p>
+          <Link
+            to="/teacher/login"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-bold text-slate-500 dark:text-slate-400 hover:border-[#4A1F4F] hover:text-[#4A1F4F] dark:hover:text-purple-400 transition-all cursor-pointer"
+          >
+            <GraduationCap size={16} />
+            Teacher Portal →
+          </Link>
+        </div>
+
       </div>
     </div>
   );
